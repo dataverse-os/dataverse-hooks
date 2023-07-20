@@ -15,12 +15,8 @@
     "build": "pnpm build:esm && pnpm build:cjs",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pnpm run format && pnpm run lint"
-    }
+    "lint:fix": "eslint . --ext .ts --fix",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
