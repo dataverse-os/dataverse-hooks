@@ -12,7 +12,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs"
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "format": "prettier --config .prettierrc . --write",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pnpm run format && pnpm run lint"
+    }
   },
   "keywords": [],
   "author": "",
@@ -24,6 +32,11 @@
     "typescript": "^5.1.6"
   },
   "devDependencies": {
-    "@types/react": "^18.2.15"
+    "@types/react": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.3",
+    "prettier": "^3.0.0"
   }
 }

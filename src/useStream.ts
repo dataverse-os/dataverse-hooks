@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   FileType,
   Currency,
@@ -8,8 +8,8 @@ import {
   Methods,
   CoreConnector,
   ReturnType,
-} from "@dataverse/core-connector";
-import { Model } from "@dataverse/model-parser";
+} from '@dataverse/core-connector';
+import { Model } from '@dataverse/model-parser';
 
 type StreamRecordMap = Record<string, Awaited<ReturnType[Methods.loadStream]>>;
 
@@ -21,9 +21,7 @@ export function useStream({
   appName: string;
 }) {
   const [pkh, setPkh] = useState<string>();
-  const [streamsRecord, setStreamsRecord] = useState<StreamRecordMap>(
-    {} as any
-  );
+  const [streamsRecord, setStreamsRecord] = useState<StreamRecordMap>({});
 
   const checkCapability = async () => {
     const res = await coreConnector.runOS({
@@ -83,7 +81,7 @@ export function useStream({
     const modelStream = model.streams[model.streams.length - 1];
     const encrypted = {} as any;
     if (stream && Object.keys(stream).length > 0) {
-      Object.keys(stream).forEach((key) => {
+      Object.keys(stream).forEach(key => {
         encrypted[key] = false;
       });
     }
@@ -102,7 +100,7 @@ export function useStream({
           modelId: modelStream.modelId,
           streamContent: inputStreamContent,
         },
-      }
+      },
     );
 
     if (streamContent) {
@@ -113,7 +111,7 @@ export function useStream({
         streamContent,
       });
     } else {
-      throw "Failed to create stream";
+      throw 'Failed to create stream';
     }
   };
 
@@ -159,7 +157,7 @@ export function useStream({
         streamContent,
       };
     } else {
-      throw "Failed to create stream";
+      throw 'Failed to create stream';
     }
   };
 
@@ -231,42 +229,35 @@ export function useStream({
     collectLimit: number;
     decryptionConditions?: DecryptionConditions;
   }) => {
-    try {
-      if (!profileId) {
-        profileId = await _getProfileId(lensNickName);
-      }
-      if (!streamContent) {
-        streamContent = streamsRecord[streamId].streamContent;
-      }
-      const { streamContent: updatedStreamContent } = await coreConnector.runOS(
-        {
-          method: Methods.monetizeFile,
-          params: {
-            streamId,
-            indexFileId: streamContent?.file.indexFileId,
-            datatokenVars: {
-              profileId,
-              currency,
-              amount,
-              collectLimit,
-            },
-            decryptionConditions,
-          },
-        }
-      );
-      if (updatedStreamContent) {
-        return _updateStreamRecord({
-          pkh,
-          modelId,
-          streamId,
-          streamContent: updatedStreamContent,
-        });
-      } else {
-        throw "Failed to monetize file";
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+    if (!profileId) {
+      profileId = await _getProfileId(lensNickName);
+    }
+    if (!streamContent) {
+      streamContent = streamsRecord[streamId].streamContent;
+    }
+    const { streamContent: updatedStreamContent } = await coreConnector.runOS({
+      method: Methods.monetizeFile,
+      params: {
+        streamId,
+        indexFileId: streamContent?.file.indexFileId,
+        datatokenVars: {
+          profileId,
+          currency,
+          amount,
+          collectLimit,
+        },
+        decryptionConditions,
+      },
+    });
+    if (updatedStreamContent) {
+      return _updateStreamRecord({
+        pkh,
+        modelId,
+        streamId,
+        streamContent: updatedStreamContent,
+      });
+    } else {
+      throw 'Failed to monetize file';
     }
   };
 
@@ -282,62 +273,53 @@ export function useStream({
     encrypted?: object;
   }) => {
     const modelStream = model.streams[model.streams.length - 1];
-    try {
-      const fileType = streamsRecord[streamId]?.streamContent.file.fileType;
-      if (
-        !modelStream.isPublicDomain &&
-        stream &&
-        encrypted &&
-        fileType === FileType.Public
-      ) {
-        for (let key in encrypted) {
-          (encrypted as any)[key] = false;
-        }
+
+    const fileType = streamsRecord[streamId]?.streamContent.file.fileType;
+    if (
+      !modelStream.isPublicDomain &&
+      stream &&
+      encrypted &&
+      fileType === FileType.Public
+    ) {
+      for (const key in encrypted) {
+        (encrypted as any)[key] = false;
       }
-      const inputStreamContent: StreamContent = {
-        ...stream,
-        encrypted: JSON.stringify(encrypted),
-      };
-
-      const { streamContent } = await coreConnector.runOS({
-        method: Methods.updateStream,
-        params: {
-          streamId,
-          streamContent: inputStreamContent,
-          syncImmediately: true,
-        },
-      });
-
-      return _updateStreamRecord({
-        streamId,
-        streamContent: streamContent,
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
     }
+    const inputStreamContent: StreamContent = {
+      ...stream,
+      encrypted: JSON.stringify(encrypted),
+    };
+
+    const { streamContent } = await coreConnector.runOS({
+      method: Methods.updateStream,
+      params: {
+        streamId,
+        streamContent: inputStreamContent,
+        syncImmediately: true,
+      },
+    });
+
+    return _updateStreamRecord({
+      streamId,
+      streamContent: streamContent,
+    });
   };
 
   const unlockStream = async (streamId: string) => {
-    try {
-      const { streamContent } = await coreConnector.runOS({
-        method: Methods.unlock,
-        params: {
-          streamId,
-        },
-      });
+    const { streamContent } = await coreConnector.runOS({
+      method: Methods.unlock,
+      params: {
+        streamId,
+      },
+    });
 
-      if (streamContent) {
-        return _updateStreamRecord({
-          streamId,
-          streamContent,
-        });
-      } else {
-        throw "Fail to unlock stream";
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+    if (streamContent) {
+      return _updateStreamRecord({
+        streamId,
+        streamContent,
+      });
+    } else {
+      throw 'Fail to unlock stream';
     }
   };
 
@@ -352,10 +334,10 @@ export function useStream({
       profileId = lensProfiles?.[0]?.id;
     } else {
       if (!lensNickName) {
-        throw "Please pass in lensNickName";
+        throw 'Please pass in lensNickName';
       }
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
-        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
+        throw 'Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length';
       }
       profileId = await coreConnector.runOS({
         method: Methods.createProfile,
@@ -377,7 +359,7 @@ export function useStream({
     streamContent: StreamContent;
   }) => {
     const streamsRecordCopy = JSON.parse(
-      JSON.stringify(streamsRecord)
+      JSON.stringify(streamsRecord),
     ) as StreamRecordMap;
 
     if (pkh && modelId) {

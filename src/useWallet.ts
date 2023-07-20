@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   CoreConnector,
   Methods,
   SignMethod,
   WALLET,
-} from "@dataverse/core-connector";
+} from '@dataverse/core-connector';
 
 export function useWallet(coreConnector: CoreConnector) {
   const [wallet, setWallet] = useState<WALLET>();
