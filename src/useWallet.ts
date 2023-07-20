@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import {
-  CoreConnector,
-  Methods,
-  SignMethod,
+  DataverseConnector,
+  SYSTEM_CALL,
   WALLET,
-} from '@dataverse/core-connector';
+} from '@dataverse/dataverse-connector';
 
-export function useWallet(coreConnector: CoreConnector) {
+export function useWallet(dataverseConnector: DataverseConnector) {
   const [wallet, setWallet] = useState<WALLET>();
   const [address, setAddress] = useState<string>();
 
   const connectWallet = async () => {
-    const { wallet, address } = await coreConnector.connectWallet();
+    const { wallet, address } = await dataverseConnector.connectWallet();
     setWallet(wallet);
     setAddress(address);
     return {
@@ -20,46 +19,30 @@ export function useWallet(coreConnector: CoreConnector) {
     };
   };
 
-  const switchNetwork = async (chainId: number) => {
-    const res = await coreConnector.runOS({
-      method: Methods.switchNetwork,
-      params: chainId,
-    });
-    return res;
-  };
-
-  const sign = async (params: { method: SignMethod; params: any[] }) => {
-    const res = await coreConnector.runOS({
-      method: Methods.sign,
-      params,
-    });
-    return res;
-  };
-
   const contractCall = async (params: {
     contractAddress: string;
     abi: any[];
     method: string;
     params: any[];
   }) => {
-    const res = await coreConnector.runOS({
-      method: Methods.contractCall,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.contractCall,
       params,
     });
     return res;
   };
 
   const ethereumRequest = async (params: { method: string; params?: any }) => {
-    const res = await coreConnector.runOS({
-      method: Methods.ethereumRequest,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.ethereumRequest,
       params,
     });
     return res;
   };
 
   const getPKP = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.getPKP,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getPKP,
     });
     return res;
   };
@@ -68,8 +51,8 @@ export function useWallet(coreConnector: CoreConnector) {
     code: string;
     jsParams: object;
   }) => {
-    const res = await coreConnector.runOS({
-      method: Methods.executeLitAction,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.executeLitAction,
       params,
     });
     return res;
@@ -79,8 +62,6 @@ export function useWallet(coreConnector: CoreConnector) {
     wallet,
     address,
     connectWallet,
-    switchNetwork,
-    sign,
     contractCall,
     ethereumRequest,
     getPKP,

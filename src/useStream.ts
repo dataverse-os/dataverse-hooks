@@ -5,37 +5,42 @@ import {
   WALLET,
   StreamContent,
   DecryptionConditions,
-  Methods,
-  CoreConnector,
+  SYSTEM_CALL,
+  DataverseConnector,
   ReturnType,
-} from '@dataverse/core-connector';
+} from '@dataverse/dataverse-connector';
 import { Model } from '@dataverse/model-parser';
 
-type StreamRecordMap = Record<string, Awaited<ReturnType[Methods.loadStream]>>;
+type StreamRecordMap = Record<
+  string,
+  Awaited<ReturnType[SYSTEM_CALL.loadStream]>
+>;
 
 export function useStream({
-  coreConnector,
-  appName,
+  dataverseConnector,
+  appId,
 }: {
-  coreConnector: CoreConnector;
-  appName: string;
+  dataverseConnector: DataverseConnector;
+  appId: string;
 }) {
   const [pkh, setPkh] = useState<string>();
-  const [streamsRecord, setStreamsRecord] = useState<StreamRecordMap>({});
+  const [streamsRecord, setStreamsRecord] = useState<StreamRecordMap>(
+    {} as any,
+  );
 
   const checkCapability = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.checkCapability,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.checkCapability,
     });
     return res;
   };
 
   const createCapability = async (wallet: WALLET) => {
-    const currentPkh = await coreConnector.runOS({
-      method: Methods.createCapability,
+    const currentPkh = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createCapability,
       params: {
         wallet,
-        app: appName,
+        appId,
       },
     });
     setPkh(currentPkh);
@@ -52,16 +57,16 @@ export function useStream({
   }) => {
     let streams;
     if (pkh) {
-      streams = await coreConnector.runOS({
-        method: Methods.loadStreamsBy,
+      streams = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadStreamsBy,
         params: {
           modelId,
           pkh,
         },
       });
     } else {
-      streams = await coreConnector.runOS({
-        method: Methods.loadStreamsBy,
+      streams = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadStreamsBy,
         params: {
           modelId,
         },
@@ -93,15 +98,15 @@ export function useStream({
           encrypted: JSON.stringify(encrypted),
         }),
     };
-    const { pkh, modelId, streamId, streamContent } = await coreConnector.runOS(
-      {
-        method: Methods.createStream,
+
+    const { pkh, modelId, streamId, streamContent } =
+      await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createStream,
         params: {
           modelId: modelStream.modelId,
           streamContent: inputStreamContent,
         },
-      },
-    );
+      });
 
     if (streamContent) {
       return _updateStreamRecord({
@@ -111,7 +116,7 @@ export function useStream({
         streamContent,
       });
     } else {
-      throw 'Failed to create stream';
+      throw 'Failed to update stream list';
     }
   };
 
@@ -132,8 +137,8 @@ export function useStream({
         encrypted: JSON.stringify(encrypted),
       }),
     };
-    const { pkh, streamId, streamContent } = await coreConnector.runOS({
-      method: Methods.createStream,
+    const { pkh, streamId, streamContent } = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createStream,
       params: {
         modelId,
         streamContent: inputStreamContent,
@@ -151,7 +156,7 @@ export function useStream({
       }
       return {
         streamId,
-        app: appName,
+        appId,
         pkh,
         modelId,
         streamContent,
@@ -235,20 +240,21 @@ export function useStream({
     if (!streamContent) {
       streamContent = streamsRecord[streamId].streamContent;
     }
-    const { streamContent: updatedStreamContent } = await coreConnector.runOS({
-      method: Methods.monetizeFile,
-      params: {
-        streamId,
-        indexFileId: streamContent?.file.indexFileId,
-        datatokenVars: {
-          profileId,
-          currency,
-          amount,
-          collectLimit,
+    const { streamContent: updatedStreamContent } =
+      await dataverseConnector.runOS({
+        method: SYSTEM_CALL.monetizeFile,
+        params: {
+          streamId,
+          indexFileId: streamContent?.file.indexFileId,
+          datatokenVars: {
+            profileId,
+            currency,
+            amount,
+            collectLimit,
+          },
+          decryptionConditions,
         },
-        decryptionConditions,
-      },
-    });
+      });
     if (updatedStreamContent) {
       return _updateStreamRecord({
         pkh,
@@ -290,8 +296,8 @@ export function useStream({
       encrypted: JSON.stringify(encrypted),
     };
 
-    const { streamContent } = await coreConnector.runOS({
-      method: Methods.updateStream,
+    const { streamContent } = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateStream,
       params: {
         streamId,
         streamContent: inputStreamContent,
@@ -306,8 +312,8 @@ export function useStream({
   };
 
   const unlockStream = async (streamId: string) => {
-    const { streamContent } = await coreConnector.runOS({
-      method: Methods.unlock,
+    const { streamContent } = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.unlock,
       params: {
         streamId,
       },
@@ -324,9 +330,9 @@ export function useStream({
   };
 
   const _getProfileId = async (lensNickName?: string) => {
-    const lensProfiles = await coreConnector.runOS({
-      method: Methods.getProfiles,
-      params: coreConnector.address,
+    const lensProfiles = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getProfiles,
+      params: dataverseConnector.address,
     });
 
     let profileId;
@@ -339,8 +345,8 @@ export function useStream({
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw 'Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length';
       }
-      profileId = await coreConnector.runOS({
-        method: Methods.createProfile,
+      profileId = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createProfile,
         params: lensNickName,
       });
     }
@@ -364,7 +370,7 @@ export function useStream({
 
     if (pkh && modelId) {
       streamsRecordCopy[streamId] = {
-        app: appName,
+        appId,
         pkh,
         modelId,
         streamContent,
@@ -379,7 +385,7 @@ export function useStream({
 
     return {
       streamId,
-      app: streamsRecordCopy[streamId].app,
+      appId: streamsRecordCopy[streamId].appId,
       pkh: pkh || streamsRecordCopy[streamId].pkh,
       modelId: modelId || streamsRecordCopy[streamId].modelId,
       streamContent,
