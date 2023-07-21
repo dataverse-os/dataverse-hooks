@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   DataverseConnector,
   SYSTEM_CALL,
   WALLET,
-} from '@dataverse/dataverse-connector';
+} from "@dataverse/dataverse-connector";
 
 export function useWallet(dataverseConnector: DataverseConnector) {
   const [wallet, setWallet] = useState<WALLET>();

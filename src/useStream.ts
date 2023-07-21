@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   FileType,
   Currency,
@@ -8,8 +8,8 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
   ReturnType,
-} from '@dataverse/dataverse-connector';
-import { Model } from '@dataverse/model-parser';
+} from "@dataverse/dataverse-connector";
+import { Model } from "@dataverse/model-parser";
 
 type StreamRecordMap = Record<
   string,
@@ -116,7 +116,7 @@ export function useStream({
         streamContent,
       });
     } else {
-      throw 'Failed to update stream list';
+      throw "Failed to update stream list";
     }
   };
 
@@ -162,7 +162,7 @@ export function useStream({
         streamContent,
       };
     } else {
-      throw 'Failed to create stream';
+      throw "Failed to create stream";
     }
   };
 
@@ -263,7 +263,7 @@ export function useStream({
         streamContent: updatedStreamContent,
       });
     } else {
-      throw 'Failed to monetize file';
+      throw "Failed to monetize file";
     }
   };
 
@@ -325,7 +325,7 @@ export function useStream({
         streamContent,
       });
     } else {
-      throw 'Fail to unlock stream';
+      throw "Fail to unlock stream";
     }
   };
 
@@ -340,10 +340,10 @@ export function useStream({
       profileId = lensProfiles?.[0]?.id;
     } else {
       if (!lensNickName) {
-        throw 'Please pass in lensNickName';
+        throw "Please pass in lensNickName";
       }
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
-        throw 'Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length';
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
       profileId = await dataverseConnector.runOS({
         method: SYSTEM_CALL.createProfile,
