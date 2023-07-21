@@ -1,3 +1,11 @@
+<br/>
+<p align="center">
+<a href=" " target="_blank">
+<img src="./logo.svg" width="180" alt="Dataverse logo">
+</a >
+</p >
+<br/>
+
 # dataverse-hooks
 
 ## Overview
