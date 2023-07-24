@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dataverse/dataverse-connector": "^1.0.7",
+    "@dataverse/dataverse-connector": "^1.0.11",
     "@dataverse/model-parser": "^1.0.0",
     "react": "^18.2.0",
     "typescript": "^5.1.6"

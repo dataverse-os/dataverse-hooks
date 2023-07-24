@@ -3,18 +3,14 @@ import {
   FileType,
   Currency,
   WALLET,
-  StreamContent,
+  StreamRecord,
   DecryptionConditions,
   SYSTEM_CALL,
   DataverseConnector,
-  ReturnType,
 } from "@dataverse/dataverse-connector";
 import { Model } from "@dataverse/model-parser";
 
-type StreamRecordMap = Record<
-  string,
-  Awaited<ReturnType[SYSTEM_CALL.loadStream]>
->;
+type StreamRecordMap = Record<string, StreamRecord>;
 
 export function useStream({
   dataverseConnector,
@@ -227,7 +223,7 @@ export function useStream({
     modelId: string;
     streamId: string;
     lensNickName?: string;
-    streamContent?: StreamContent;
+    streamContent?: any;
     profileId?: string;
     currency: Currency;
     amount: number;
@@ -291,7 +287,7 @@ export function useStream({
         (encrypted as any)[key] = false;
       }
     }
-    const inputStreamContent: StreamContent = {
+    const inputStreamContent = {
       ...stream,
       encrypted: JSON.stringify(encrypted),
     };
@@ -330,10 +326,9 @@ export function useStream({
   };
 
   const _getProfileId = async (lensNickName?: string) => {
-    const lensProfiles = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getProfiles,
-      params: dataverseConnector.address,
-    });
+    const lensProfiles = await dataverseConnector.getProfiles(
+      dataverseConnector.address!,
+    );
 
     let profileId;
     if (lensProfiles?.[0]?.id) {
@@ -345,10 +340,7 @@ export function useStream({
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createProfile,
-        params: lensNickName,
-      });
+      profileId = await dataverseConnector.createProfile(lensNickName);
     }
     return profileId;
   };
@@ -362,7 +354,7 @@ export function useStream({
     pkh?: string;
     modelId?: string;
     streamId: string;
-    streamContent: StreamContent;
+    streamContent: any;
   }) => {
     const streamsRecordCopy = JSON.parse(
       JSON.stringify(streamsRecord),
