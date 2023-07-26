@@ -1,10 +1,13 @@
 import { useReducer } from "react";
-import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
-import { useMutation } from "./utils";
+import {
+  DataverseConnector,
+  SYSTEM_CALL,
+} from "@dataverse/dataverse-connector";
 import { initialState, reducer } from "./store";
-import { ActionType, ConnectWalletResult, MutationStatus } from "./types";
+import { useMutation } from "./utils";
+import { ActionType, MutationStatus } from "./types";
 
-export const useWallet = ({
+export const useCreateCapability = ({
   dataverseConnector,
   onError,
   onPending,
@@ -13,7 +16,7 @@ export const useWallet = ({
   dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: ConnectWalletResult) => void;
+  onSuccess?: (result?: string) => void;
 }) => {
   const [, dispatch] = useReducer(reducer, initialState);
 
@@ -31,34 +34,30 @@ export const useWallet = ({
     reset,
   } = useMutation();
 
-  const connectWallet = async ({
-    wallet,
-    provider,
-  }: {
-    wallet?: WALLET;
-    provider?: any;
-  }) => {
+  const createCapability = async (appId: string) => {
     try {
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
-      const connectResult = await dataverseConnector.connectWallet({
-        wallet,
-        provider,
+      const currentPkh = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createCapability,
+        params: {
+          appId,
+        },
       });
 
       dispatch({
-        type: ActionType.ConnectWallet,
-        payload: connectResult,
+        type: ActionType.CreateCapability,
+        payload: currentPkh,
       });
-      setStatus(MutationStatus.Succeed);
-      setResult(connectResult);
-      if (onSuccess) {
-        onSuccess(connectResult);
-      }
 
-      return connectResult;
+      setStatus(MutationStatus.Succeed);
+      setResult(currentPkh);
+      if (onSuccess) {
+        onSuccess(currentPkh);
+      }
+      return currentPkh;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
@@ -78,6 +77,6 @@ export const useWallet = ({
     isSucceed,
     isFailed,
     reset,
-    connectWallet,
+    createCapability,
   };
 };

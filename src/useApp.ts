@@ -1,7 +1,7 @@
 import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
 import { ConnectResult, MutationStatus } from "./types";
-import { useCapability } from "./useCapability";
-import { useWallet } from "./useWallet";
+import { useCreateCapability } from "./useCreateCapability";
+import { useConnectWallet } from "./useConnectWallet";
 import { useMutation } from "./utils";
 
 export const useApp = ({
@@ -15,11 +15,11 @@ export const useApp = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectResult) => void;
 }) => {
-  const { connectWallet } = useWallet({
+  const { connectWallet } = useConnectWallet({
     dataverseConnector,
   });
 
-  const { createCapability } = useCapability({
+  const { createCapability } = useCreateCapability({
     dataverseConnector,
   });
 
