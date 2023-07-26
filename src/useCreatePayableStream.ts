@@ -1,17 +1,42 @@
-import { useReducer } from "react";
-import { DataverseConnector, Currency } from "@dataverse/dataverse-connector";
-import { initialState, reducer } from "./store";
+import { DataverseConnector } from "@dataverse/dataverse-connector";
 import { useCreateEncryptedStream } from "./useCreateEncryptedStream";
 import { useMonetizeStream } from "./useMonetizeStream";
+import {
+  createPayableStreamArgs,
+  CreateStreamResult,
+  MutationStatus,
+} from "./types";
+import { useMutation } from "./utils";
 // type StreamRecordMap = Record<string, StreamRecord>;
 
-export const useCreatePayableStream = (
-  dataverseConnector: DataverseConnector,
-) => {
-  const [state] = useReducer(reducer, initialState);
-  const { createEncryptedStream } =
-    useCreateEncryptedStream(dataverseConnector);
-  const { monetizeStream } = useMonetizeStream(dataverseConnector);
+export const useCreatePayableStream = ({
+  dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  dataverseConnector: DataverseConnector;
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: CreateStreamResult) => void;
+}) => {
+  const { createEncryptedStream } = useCreateEncryptedStream({
+    dataverseConnector,
+  });
+  const { monetizeStream } = useMonetizeStream({ dataverseConnector });
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   const createPayableStream = async ({
     modelId,
@@ -21,43 +46,69 @@ export const useCreatePayableStream = (
     amount,
     collectLimit,
     encrypted,
-  }: {
-    modelId: string;
-    profileId?: string;
-    stream: object;
-    currency: Currency;
-    amount: number;
-    collectLimit: number;
-    encrypted: object;
-  }) => {
-    if (!profileId) {
-      const profileIds = await dataverseConnector.getProfiles(
-        dataverseConnector.address!,
-      );
-      if (profileIds.length === 0) {
-        throw new Error("Please create profile first.");
+  }: createPayableStreamArgs) => {
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
       }
+      if (!profileId) {
+        const profileIds = await dataverseConnector.getProfiles(
+          dataverseConnector.address!,
+        );
+        if (profileIds.length === 0) {
+          throw new Error("Please create profile first.");
+        }
+      }
+
+      const createdStream = await createEncryptedStream({
+        modelId,
+        stream,
+        encrypted,
+        requireUpdateState: false,
+      });
+
+      const monetizedResult = await monetizeStream({
+        streamId: createdStream.streamId,
+        streamContent: createdStream.streamContent,
+        profileId,
+        currency,
+        amount,
+        collectLimit,
+      });
+
+      Object.assign(createdStream, {
+        ...createdStream,
+        streamContent: monetizedResult.streamContent,
+      });
+
+      setStatus(MutationStatus.Succeed);
+      setResult(createdStream);
+      if (onSuccess) {
+        onSuccess(createdStream);
+      }
+
+      return createdStream;
+    } catch (error) {
+      setStatus(MutationStatus.Failed);
+      setError(error);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
     }
-
-    const { streamId, streamContent } = await createEncryptedStream({
-      modelId,
-      stream,
-      encrypted,
-      requireUpdateStreamRecord: false,
-    });
-
-    return monetizeStream({
-      streamId,
-      streamContent,
-      profileId,
-      currency,
-      amount,
-      collectLimit,
-    });
   };
 
   return {
-    streamRecordMap: state.streamRecordMap,
+    // streamRecordMap: state.streamRecordMap,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     createPayableStream,
   };
 };

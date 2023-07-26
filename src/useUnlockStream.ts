@@ -3,38 +3,85 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { ActionType, initialState, reducer } from "./store";
+import { initialState, reducer } from "./store";
+import { useMutation } from "./utils";
+import { ActionType, MutationStatus, UnlockStreamResult } from "./types";
 
-export const useUnlockStream = (dataverseConnector: DataverseConnector) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export const useUnlockStream = ({
+  dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  dataverseConnector: DataverseConnector;
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: UnlockStreamResult) => void;
+}) => {
+  const [, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   const unlockStream = async (streamId: string) => {
-    const { streamContent: unlockedStreamContent } =
-      await dataverseConnector.runOS({
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
+      }
+
+      const unlockResult = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlock,
         params: {
           streamId,
         },
       });
 
-    // if (streamContent) {
-    //   return _updateStreamRecord({
-    //     streamId,
-    //     streamContent,
-    //   });
-    // } else {
-    //   throw "Fail to unlock stream";
-    // }
-    dispatch({
-      type: ActionType.Update,
-      payload: unlockedStreamContent,
-    });
+      dispatch({
+        type: ActionType.Update,
+        payload: {
+          streamId,
+          ...unlockResult,
+        },
+      });
 
-    return unlockedStreamContent;
+      setStatus(MutationStatus.Succeed);
+      setResult(unlockResult);
+      if (onSuccess) {
+        onSuccess(unlockResult);
+      }
+
+      return unlockResult;
+    } catch (error) {
+      setStatus(MutationStatus.Failed);
+      setError(error);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
+    }
   };
 
   return {
-    streamRecordMap: state.streamRecordMap,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     unlockStream,
   };
 };

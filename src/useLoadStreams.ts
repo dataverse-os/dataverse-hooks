@@ -1,13 +1,18 @@
 import { useReducer } from "react";
 import {
-  DataverseConnector,
   SYSTEM_CALL,
+  DataverseConnector,
 } from "@dataverse/dataverse-connector";
 import { initialState, reducer } from "./store";
 import { useMutation } from "./utils";
-import { ActionType, MutationStatus } from "./types";
+import {
+  ActionType,
+  LoadStreamsArgs,
+  LoadStreamsResult,
+  MutationStatus,
+} from "./types";
 
-export const useCapability = ({
+export const useLoadStreams = ({
   dataverseConnector,
   onError,
   onPending,
@@ -16,7 +21,7 @@ export const useCapability = ({
   dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: string) => void;
+  onSuccess?: (result?: LoadStreamsResult) => void;
 }) => {
   const [, dispatch] = useReducer(reducer, initialState);
 
@@ -34,33 +39,44 @@ export const useCapability = ({
     reset,
   } = useMutation();
 
-  const createCapability = async (appId: string) => {
+  const loadStreams = async ({ pkh, modelId }: LoadStreamsArgs) => {
     try {
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
-      const currentPkh = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createCapability,
-        params: {
-          appId,
-        },
-      });
+      let streams: LoadStreamsResult;
+      if (pkh) {
+        streams = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadStreamsBy,
+          params: {
+            modelId,
+            pkh,
+          },
+        });
+      } else {
+        streams = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadStreamsBy,
+          params: {
+            modelId,
+          },
+        });
+      }
 
       dispatch({
-        type: ActionType.CreateCapability,
-        payload: currentPkh,
+        type: ActionType.Read,
+        payload: streams,
       });
 
       setStatus(MutationStatus.Succeed);
-      setResult(currentPkh);
+      setResult(streams);
       if (onSuccess) {
-        onSuccess(currentPkh);
+        onSuccess(streams);
       }
-      return currentPkh;
+      return streams;
     } catch (error) {
-      setError(error);
       setStatus(MutationStatus.Failed);
+      setError(error);
       if (onError) {
         onError(error);
       }
@@ -77,6 +93,6 @@ export const useCapability = ({
     isSucceed,
     isFailed,
     reset,
-    createCapability,
+    loadStreams,
   };
 };

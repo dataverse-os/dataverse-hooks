@@ -3,72 +3,105 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { ActionType, initialState, reducer } from "./store";
-import { Model } from "@dataverse/model-parser";
-// type StreamRecordMap = Record<string, StreamRecord>;
+import { initialState, reducer } from "./store";
+import { useMutation } from "./utils";
+import {
+  ActionType,
+  CreatePublicStreamArgs,
+  CreateStreamResult,
+  MutationStatus,
+} from "./types";
 
 export const useCreatePublicStream = ({
   dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
 }: {
   dataverseConnector: DataverseConnector;
-  appId: string;
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   const createPublicStream = async ({
     model,
     stream,
-  }: {
-    model: Model;
-    stream?: object;
-  }) => {
-    const modelStream = model.streams[model.streams.length - 1];
-    const encrypted = {} as any;
-    if (stream && Object.keys(stream).length > 0) {
-      Object.keys(stream).forEach(key => {
-        encrypted[key] = false;
+  }: CreatePublicStreamArgs) => {
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
+      }
+      const modelStream = model.streams[model.streams.length - 1];
+      const encrypted = {} as any;
+      if (stream && Object.keys(stream).length > 0) {
+        Object.keys(stream).forEach(key => {
+          encrypted[key] = false;
+        });
+      }
+
+      const inputStreamContent = {
+        ...stream,
+        ...(!modelStream.isPublicDomain &&
+          stream && {
+            encrypted: JSON.stringify(encrypted),
+          }),
+      };
+
+      const createdStream: CreateStreamResult = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createStream,
+        params: {
+          modelId: modelStream.modelId,
+          streamContent: inputStreamContent,
+        },
       });
+
+      dispatch({
+        type: ActionType.Create,
+        payload: createdStream,
+      });
+
+      setResult(createdStream);
+      setStatus(MutationStatus.Succeed);
+      if (onSuccess) {
+        onSuccess(createdStream);
+      }
+      return createdStream;
+    } catch (error) {
+      setError(error);
+      setStatus(MutationStatus.Failed);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
     }
-
-    const inputStreamContent = {
-      ...stream,
-      ...(!modelStream.isPublicDomain &&
-        stream && {
-          encrypted: JSON.stringify(encrypted),
-        }),
-    };
-
-    const createdStream = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createStream,
-      params: {
-        modelId: modelStream.modelId,
-        streamContent: inputStreamContent,
-      },
-    });
-
-    dispatch({
-      type: ActionType.Create,
-      payload: createdStream,
-    });
-
-    // if (streamContent) {
-    //   // return _updateStreamRecord({
-    //   //   pkh,
-    //   //   modelId,
-    //   //   streamId,
-    //   //   streamContent,
-    //   // });
-    //   dispatch({
-    //     type: ActionType.Read,
-    //     payload: ,
-    //   })
-    // } else {
-    //   throw "Failed to update stream list";
-    // }
   };
 
   return {
-    streamRecordMap: state.streamRecordMap,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     createPublicStream,
   };
 };

@@ -2,14 +2,42 @@ import { useReducer } from "react";
 import {
   SYSTEM_CALL,
   DataverseConnector,
-  Currency,
-  DecryptionConditions,
 } from "@dataverse/dataverse-connector";
-import { ActionType, initialState, reducer } from "./store";
-// type StreamRecordMap = Record<string, StreamRecord>;
+import { initialState, reducer } from "./store";
+import {
+  ActionType,
+  MonetizeStreamArgs,
+  MonetizeStreamResult,
+  MutationStatus,
+} from "./types";
+import { useMutation } from "./utils";
 
-export const useMonetizeStream = (dataverseConnector: DataverseConnector) => {
+export const useMonetizeStream = ({
+  dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  dataverseConnector: DataverseConnector;
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: MonetizeStreamResult) => void;
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   const monetizeStream = async ({
     streamId,
@@ -19,64 +47,74 @@ export const useMonetizeStream = (dataverseConnector: DataverseConnector) => {
     amount,
     collectLimit,
     decryptionConditions,
-  }: {
-    streamId: string;
-    streamContent?: any;
-    profileId?: string;
-    currency: Currency;
-    amount: number;
-    collectLimit: number;
-    decryptionConditions?: DecryptionConditions;
-  }) => {
-    if (!profileId) {
-      const profileIds = await dataverseConnector.getProfiles(
-        dataverseConnector.address!,
-      );
-      if (profileIds.length === 0) {
-        throw new Error("Please create profile first.");
+  }: MonetizeStreamArgs) => {
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
       }
-    }
+      if (!profileId) {
+        const profileIds = await dataverseConnector.getProfiles(
+          dataverseConnector.address!,
+        );
+        if (profileIds.length === 0) {
+          throw new Error("Please create profile first.");
+        }
+      }
 
-    if (!streamContent) {
-      streamContent = state.streamRecordMap[streamId].streamContent;
-    }
-    const { streamContent: updatedStreamContent } =
-      await dataverseConnector.runOS({
-        method: SYSTEM_CALL.monetizeFile,
-        params: {
-          streamId,
-          indexFileId: streamContent?.file.indexFileId,
-          datatokenVars: {
-            profileId,
-            currency,
-            amount,
-            collectLimit,
+      if (!streamContent) {
+        streamContent = state.streamRecordMap[streamId].streamContent;
+      }
+      const monetizeResult: MonetizeStreamResult =
+        await dataverseConnector.runOS({
+          method: SYSTEM_CALL.monetizeFile,
+          params: {
+            streamId,
+            indexFileId: streamContent?.file.indexFileId,
+            datatokenVars: {
+              profileId,
+              currency,
+              amount,
+              collectLimit,
+            },
+            decryptionConditions,
           },
-          decryptionConditions,
+        });
+
+      setStatus(MutationStatus.Succeed);
+      setResult(monetizeResult);
+      if (onSuccess) {
+        onSuccess(monetizeResult);
+      }
+
+      dispatch({
+        type: ActionType.Update,
+        payload: {
+          streamId,
+          ...monetizeResult,
         },
       });
 
-    dispatch({
-      type: ActionType.Update,
-      payload: updatedStreamContent,
-    });
-
-    return updatedStreamContent;
-
-    // if (updatedStreamContent) {
-    //   return _updateStreamRecord({
-    //     pkh,
-    //     modelId,
-    //     streamId,
-    //     streamContent: updatedStreamContent,
-    //   });
-    // } else {
-    //   throw "Failed to monetize file";
-    // }
+      return monetizeResult;
+    } catch (error) {
+      setStatus(MutationStatus.Failed);
+      setError(error);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
+    }
   };
 
   return {
-    streamRecordMap: state.streamRecordMap,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     monetizeStream,
   };
 };

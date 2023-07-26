@@ -1,30 +1,83 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
+import { useMutation } from "./utils";
+import { initialState, reducer } from "./store";
+import { ActionType, ConnectWalletResult, MutationStatus } from "./types";
 
-type Props = {
+export const useWallet = ({
+  dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
+}: {
   dataverseConnector: DataverseConnector;
-  provider?: any;
-};
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: ConnectWalletResult) => void;
+}) => {
+  const [, dispatch] = useReducer(reducer, initialState);
 
-export const useWallet = ({ dataverseConnector, provider }: Props) => {
-  const [wallet, setWallet] = useState<WALLET>();
-  const [address, setAddress] = useState<string>();
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
-  const connectWallet = async () => {
-    const { wallet, address } = await dataverseConnector.connectWallet({
-      provider,
-    });
-    setWallet(wallet);
-    setAddress(address);
-    return {
-      address,
-      wallet,
-    };
+  const connectWallet = async ({
+    wallet,
+    provider,
+  }: {
+    wallet?: WALLET;
+    provider?: any;
+  }) => {
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
+      }
+      const connectResult = await dataverseConnector.connectWallet({
+        wallet,
+        provider,
+      });
+
+      dispatch({
+        type: ActionType.ConnectWallet,
+        payload: connectResult,
+      });
+      setStatus(MutationStatus.Succeed);
+      setResult(connectResult);
+      if (onSuccess) {
+        onSuccess(connectResult);
+      }
+
+      return connectResult;
+    } catch (error) {
+      setError(error);
+      setStatus(MutationStatus.Failed);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
+    }
   };
 
   return {
-    wallet,
-    address,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     connectWallet,
   };
 };

@@ -3,71 +3,100 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { ActionType, initialState, reducer } from "./store";
-// type StreamRecordMap = Record<string, StreamRecord>;
+import { initialState, reducer } from "./store";
+import {
+  ActionType,
+  CreateEncryptedStreamArgs,
+  CreateStreamResult,
+  MutationStatus,
+} from "./types";
+import { useMutation } from "./utils";
 
-export const useCreateEncryptedStream = (
-  dataverseConnector: DataverseConnector,
-) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export const useCreateEncryptedStream = ({
+  dataverseConnector,
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  dataverseConnector: DataverseConnector;
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: CreateStreamResult) => void;
+}) => {
+  const [, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   const createEncryptedStream = async ({
     modelId,
     stream,
     encrypted,
-    requireUpdateStreamRecord = true,
-  }: {
-    modelId: string;
-    stream: object;
-    encrypted: object;
-    requireUpdateStreamRecord?: boolean;
-  }) => {
-    const inputStreamContent = {
-      ...stream,
-      ...(stream && {
-        encrypted: JSON.stringify(encrypted),
-      }),
-    };
-    const createdStream = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createStream,
-      params: {
-        modelId,
-        streamContent: inputStreamContent,
-      },
-    });
-
-    if (requireUpdateStreamRecord) {
-      dispatch({
-        type: ActionType.Create,
-        payload: createdStream,
+    requireUpdateState = true,
+  }: CreateEncryptedStreamArgs) => {
+    try {
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
+      }
+      const inputStreamContent = {
+        ...stream,
+        ...(stream && {
+          encrypted: JSON.stringify(encrypted),
+        }),
+      };
+      const createdStream = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createStream,
+        params: {
+          modelId,
+          streamContent: inputStreamContent,
+        },
       });
+
+      if (requireUpdateState) {
+        dispatch({
+          type: ActionType.Create,
+          payload: createdStream,
+        });
+      }
+
+      setResult(createdStream);
+      setStatus(MutationStatus.Succeed);
+      if (onSuccess) {
+        onSuccess(createdStream);
+      }
+
+      return createdStream;
+    } catch (error) {
+      setError(error);
+      setStatus(MutationStatus.Failed);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
     }
-
-    return createdStream;
-
-    // if (streamContent) {
-    //   if (requireUpdateStreamRecord) {
-    //     return _updateStreamRecord({
-    //       pkh,
-    //       modelId,
-    //       streamId,
-    //       streamContent,
-    //     });
-    //   }
-    //   return {
-    //     streamId,
-    //     appId,
-    //     pkh,
-    //     modelId,
-    //     streamContent,
-    //   };
-    // } else {
-    //   throw "Failed to create stream";
-    // }
   };
 
   return {
-    streamRecordMap: state.streamRecordMap,
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
     createEncryptedStream,
   };
 };
