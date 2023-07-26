@@ -37,7 +37,7 @@ export const useApp = ({
     reset,
   } = useMutation();
 
-  const connect = async ({
+  const connectApp = async ({
     appId,
     wallet,
     provider,
@@ -84,6 +84,6 @@ export const useApp = ({
     isSucceed,
     isFailed,
     reset,
-    connect,
+    connectApp,
   };
 };
