@@ -1,4 +1,5 @@
 import { ActionType, DataverseContextType } from "../types";
+import _ from "lodash";
 
 export const initialState: DataverseContextType = {
   address: undefined,
@@ -10,47 +11,43 @@ export const initialState: DataverseContextType = {
 
 export const reducer = (state: any, action: any) => {
   const { type, payload } = action;
+  const clonedState: DataverseContextType = _.cloneDeep(state);
 
   switch (type) {
     case ActionType.ConnectWallet: {
       const { address, chain, wallet } = payload;
-      state.address = address;
-      state.chain = chain;
-      state.wallet = wallet;
+      clonedState.address = address;
+      clonedState.chain = chain;
+      clonedState.wallet = wallet;
       break;
     }
 
     case ActionType.CreateCapability: {
-      state.pkh = payload;
+      clonedState.pkh = payload;
       break;
     }
 
     case ActionType.Create: {
       const streamId = payload.streamId;
       delete payload.streamId;
-      state.streamsMap[streamId] = payload;
+      clonedState.streamsMap[streamId] = payload;
       break;
     }
 
     case ActionType.Read: {
-      state.streamsMap = payload;
+      clonedState.streamsMap = payload;
       break;
     }
 
     case ActionType.Update: {
-      const streamId = payload.streamId;
-      delete payload.streamId;
-      state.streamsMap[streamId].streamContent = payload;
-      break;
-    }
-
-    case ActionType.Delete: {
+      const { streamId, streamContent } = payload;
+      clonedState.streamsMap[streamId].streamContent = streamContent;
       break;
     }
 
     case ActionType.Status: {
       const { streamId, status } = payload;
-      state.streamsMap[streamId].status = status;
+      clonedState.streamsMap[streamId].status = status;
       break;
     }
 
@@ -58,5 +55,5 @@ export const reducer = (state: any, action: any) => {
       throw new Error("No such ActionType");
     }
   }
-  return state;
+  return clonedState;
 };

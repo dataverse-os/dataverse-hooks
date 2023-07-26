@@ -43,7 +43,6 @@ export const useCreateEncryptedStream = ({
     modelId,
     stream,
     encrypted,
-    requireUpdateState = true,
   }: CreateEncryptedStreamArgs) => {
     try {
       setStatus(MutationStatus.Pending);
@@ -64,12 +63,10 @@ export const useCreateEncryptedStream = ({
         },
       });
 
-      if (requireUpdateState) {
-        dispatch({
-          type: ActionType.Create,
-          payload: createdStream,
-        });
-      }
+      dispatch({
+        type: ActionType.Create,
+        payload: createdStream,
+      });
 
       setResult(createdStream);
       setStatus(MutationStatus.Succeed);

@@ -38,7 +38,6 @@ export type CreateEncryptedStreamArgs = {
   modelId: string;
   stream: object;
   encrypted: object;
-  requireUpdateState?: boolean;
 };
 
 export type createPayableStreamArgs = {

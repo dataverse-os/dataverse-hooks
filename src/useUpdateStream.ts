@@ -53,8 +53,7 @@ export const useUpdateStream = ({
       }
       const modelStream = model.streams[model.streams.length - 1];
 
-      const fileType =
-        state.streamRecordMap[streamId]?.streamContent.file.fileType;
+      const fileType = state.streamsMap[streamId]?.streamContent.file.fileType;
       if (
         !modelStream.isPublicDomain &&
         stream &&

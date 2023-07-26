@@ -7,7 +7,6 @@ import {
   MutationStatus,
 } from "./types";
 import { useMutation } from "./utils";
-// type StreamRecordMap = Record<string, StreamRecord>;
 
 export const useCreatePayableStream = ({
   dataverseConnector,
@@ -65,7 +64,6 @@ export const useCreatePayableStream = ({
         modelId,
         stream,
         encrypted,
-        requireUpdateState: false,
       });
 
       const monetizedResult = await monetizeStream({

@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs",
+    "build": "rm -rf ./dist && pnpm build:esm && pnpm build:cjs",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -24,10 +24,12 @@
   "dependencies": {
     "@dataverse/dataverse-connector": "^1.0.13",
     "@dataverse/model-parser": "^1.0.0",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "typescript": "^5.1.6"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.196",
     "@types/react": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "eslint-config-prettier": "^8.8.0",

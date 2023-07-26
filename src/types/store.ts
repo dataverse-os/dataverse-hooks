@@ -12,7 +12,6 @@ export enum ActionType {
   Create,
   Read,
   Update,
-  Delete,
   Status,
 }
 

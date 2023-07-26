@@ -63,7 +63,7 @@ export const useMonetizeStream = ({
       }
 
       if (!streamContent) {
-        streamContent = state.streamRecordMap[streamId].streamContent;
+        streamContent = state.streamsMap[streamId].streamContent;
       }
       const monetizeResult: MonetizeStreamResult =
         await dataverseConnector.runOS({
