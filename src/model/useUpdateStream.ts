@@ -3,6 +3,7 @@ import {
   DataverseConnector,
   FileType,
 } from "@dataverse/dataverse-connector";
+import { useCallback } from "react";
 import { useStore } from "../store";
 import {
   ActionType,
@@ -23,7 +24,7 @@ export const useUpdateStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const { state, dispatch } = useStore();
+  const { state, updateStreamsMap } = useStore();
 
   const {
     result,
@@ -39,68 +40,69 @@ export const useUpdateStream = ({
     reset,
   } = useMutation();
 
-  const updateStream = async ({
-    model,
-    streamId,
-    stream,
-    encrypted,
-  }: UpdateStreamArgs) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
-      const modelStream = model.streams[model.streams.length - 1];
-
-      const fileType = state.streamsMap[streamId]?.streamContent.file.fileType;
-      if (
-        !modelStream.isPublicDomain &&
-        stream &&
-        encrypted &&
-        fileType === FileType.Public
-      ) {
-        for (const key in encrypted) {
-          (encrypted as any)[key] = false;
+  const updateStream = useCallback(
+    async ({ model, streamId, stream, encrypted }: UpdateStreamArgs) => {
+      try {
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
         }
+        const modelStream = model.streams[model.streams.length - 1];
+
+        const fileType =
+          state.streamsMap[streamId]?.streamContent.file.fileType;
+        if (
+          !modelStream.isPublicDomain &&
+          stream &&
+          encrypted &&
+          fileType === FileType.Public
+        ) {
+          for (const key in encrypted) {
+            (encrypted as any)[key] = false;
+          }
+        }
+        const streamContent = {
+          ...stream,
+          encrypted: JSON.stringify(encrypted),
+        };
+
+        const updateResult: UpdateStreamResult = await dataverseConnector.runOS(
+          {
+            method: SYSTEM_CALL.updateStream,
+            params: {
+              streamId,
+              streamContent,
+              syncImmediately: true,
+            },
+          },
+        );
+
+        updateStreamsMap({
+          type: ActionType.UpdateStream,
+          payload: {
+            streamId,
+            ...updateResult,
+          },
+        });
+
+        setStatus(MutationStatus.Succeed);
+        setResult(updateResult);
+        if (onSuccess) {
+          onSuccess(updateResult);
+        }
+
+        return updateResult;
+      } catch (error) {
+        setStatus(MutationStatus.Failed);
+        setError(error);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      const streamContent = {
-        ...stream,
-        encrypted: JSON.stringify(encrypted),
-      };
-
-      const updateResult: UpdateStreamResult = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.updateStream,
-        params: {
-          streamId,
-          streamContent,
-          syncImmediately: true,
-        },
-      });
-
-      dispatch({
-        type: ActionType.Update,
-        payload: {
-          streamId,
-          ...updateResult,
-        },
-      });
-
-      setStatus(MutationStatus.Succeed);
-      setResult(updateResult);
-      if (onSuccess) {
-        onSuccess(updateResult);
-      }
-
-      return updateResult;
-    } catch (error) {
-      setStatus(MutationStatus.Failed);
-      setError(error);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state],
+  );
 
   return {
     result,

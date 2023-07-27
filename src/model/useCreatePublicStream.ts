@@ -22,7 +22,7 @@ export const useCreatePublicStream = ({
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { updateStreamsMap } = useStore();
 
   const {
     result,
@@ -71,8 +71,8 @@ export const useCreatePublicStream = ({
         },
       });
 
-      dispatch({
-        type: ActionType.Create,
+      updateStreamsMap({
+        type: ActionType.CreateStream,
         payload: createdStream,
       });
 

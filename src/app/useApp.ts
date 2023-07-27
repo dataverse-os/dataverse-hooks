@@ -3,6 +3,8 @@ import { ConnectResult, MutationStatus } from "../types";
 import { useCapability } from "./useCapability";
 import { useWallet } from "./useWallet";
 import { useMutation } from "../utils";
+import { useStore } from "../store";
+import { useEffect } from "react";
 
 export const useApp = ({
   dataverseConnector,
@@ -15,6 +17,12 @@ export const useApp = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectResult) => void;
 }) => {
+  const { updateDatavereConnector } = useStore();
+
+  useEffect(() => {
+    updateDatavereConnector(dataverseConnector);
+  });
+
   const { connectWallet } = useWallet({
     dataverseConnector,
   });

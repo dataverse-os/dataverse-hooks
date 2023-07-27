@@ -4,7 +4,8 @@ import {
 } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
-import { ActionType, MutationStatus } from "../types";
+import { MutationStatus } from "../types";
+import { useEffect } from "react";
 
 export const useCapability = ({
   dataverseConnector,
@@ -17,7 +18,13 @@ export const useCapability = ({
   onPending?: () => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { updateDatavereConnector } = useStore();
+
+  useEffect(() => {
+    updateDatavereConnector(dataverseConnector);
+  });
+
+  const { updatePkh } = useStore();
 
   const {
     result,
@@ -46,11 +53,7 @@ export const useCapability = ({
         },
       });
 
-      dispatch({
-        type: ActionType.CreateCapability,
-        payload: currentPkh,
-      });
-
+      updatePkh(currentPkh);
       setStatus(MutationStatus.Succeed);
       setResult(currentPkh);
       if (onSuccess) {

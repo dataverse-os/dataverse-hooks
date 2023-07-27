@@ -1,7 +1,5 @@
-import {
-  SYSTEM_CALL,
-  DataverseConnector,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import { useCallback } from "react";
 import { useStore } from "../store";
 import {
   ActionType,
@@ -12,17 +10,18 @@ import {
 import { useMutation } from "../utils";
 
 export const useCreateEncryptedStream = ({
-  dataverseConnector,
   onError,
   onPending,
   onSuccess,
 }: {
-  dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const {
+    state: { dataverseConnector },
+    updateStreamsMap,
+  } = useStore();
 
   const {
     result,
@@ -38,51 +37,53 @@ export const useCreateEncryptedStream = ({
     reset,
   } = useMutation();
 
-  const createEncryptedStream = async ({
-    modelId,
-    stream,
-    encrypted,
-  }: CreateEncryptedStreamArgs) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
+  const createEncryptedStream = useCallback(
+    async ({ modelId, stream, encrypted }: CreateEncryptedStreamArgs) => {
+      if (!dataverseConnector) {
+        throw new Error("No available dataverseConnector");
       }
-      const inputStreamContent = {
-        ...stream,
-        ...(stream && {
-          encrypted: JSON.stringify(encrypted),
-        }),
-      };
-      const createdStream = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createStream,
-        params: {
-          modelId,
-          streamContent: inputStreamContent,
-        },
-      });
+      try {
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
+        const inputStreamContent = {
+          ...stream,
+          ...(stream && {
+            encrypted: JSON.stringify(encrypted),
+          }),
+        };
+        const createdStream = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createStream,
+          params: {
+            modelId,
+            streamContent: inputStreamContent,
+          },
+        });
 
-      dispatch({
-        type: ActionType.Create,
-        payload: createdStream,
-      });
+        updateStreamsMap({
+          type: ActionType.CreateStream,
+          payload: createdStream,
+        });
 
-      setResult(createdStream);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(createdStream);
+        setResult(createdStream);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(createdStream);
+        }
+
+        return createdStream;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-
-      return createdStream;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [dataverseConnector, updateStreamsMap],
+  );
 
   return {
     result,

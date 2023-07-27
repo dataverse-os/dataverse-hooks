@@ -17,7 +17,7 @@ export const useUnlockStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { updateStreamsMap } = useStore();
 
   const {
     result,
@@ -47,8 +47,8 @@ export const useUnlockStream = ({
         },
       });
 
-      dispatch({
-        type: ActionType.Update,
+      updateStreamsMap({
+        type: ActionType.UpdateStream,
         payload: {
           streamId,
           ...unlockResult,

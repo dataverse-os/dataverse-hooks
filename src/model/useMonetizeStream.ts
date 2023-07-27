@@ -22,7 +22,7 @@ export const useMonetizeStream = ({
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const { state, dispatch } = useStore();
+  const { state, updateStreamsMap } = useStore();
 
   const {
     result,
@@ -86,8 +86,8 @@ export const useMonetizeStream = ({
         onSuccess(monetizeResult);
       }
 
-      dispatch({
-        type: ActionType.Update,
+      updateStreamsMap({
+        type: ActionType.UpdateStream,
         payload: {
           streamId,
           ...monetizeResult,

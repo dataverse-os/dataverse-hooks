@@ -1,4 +1,9 @@
-import { Chain, StreamRecord, WALLET } from "@dataverse/dataverse-connector";
+import {
+  Chain,
+  DataverseConnector,
+  StreamRecord,
+  WALLET,
+} from "@dataverse/dataverse-connector";
 
 export enum StreamStatus {
   Pending,
@@ -7,16 +12,18 @@ export enum StreamStatus {
 }
 
 export enum ActionType {
+  Init,
   ConnectWallet,
   CreateCapability,
-  Create,
-  Read,
-  Update,
+  CreateStream,
+  LoadStream,
+  UpdateStream,
   Status,
 }
 
 export type DataverseContextType = {
   state: {
+    dataverseConnector?: DataverseConnector;
     address?: string;
     chain?: Chain;
     wallet?: WALLET;

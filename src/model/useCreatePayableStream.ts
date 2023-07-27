@@ -19,9 +19,7 @@ export const useCreatePayableStream = ({
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { createEncryptedStream } = useCreateEncryptedStream({
-    dataverseConnector,
-  });
+  const { createEncryptedStream } = useCreateEncryptedStream({});
   const { monetizeStream } = useMonetizeStream({ dataverseConnector });
   const {
     result,

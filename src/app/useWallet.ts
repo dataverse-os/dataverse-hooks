@@ -1,7 +1,8 @@
 import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
 import { useMutation } from "../utils";
 import { useStore } from "../store";
-import { ActionType, ConnectWalletResult, MutationStatus } from "../types";
+import { ConnectWalletResult, MutationStatus } from "../types";
+import { useEffect } from "react";
 
 export const useWallet = ({
   dataverseConnector,
@@ -14,7 +15,13 @@ export const useWallet = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { updateDatavereConnector } = useStore();
+
+  useEffect(() => {
+    updateDatavereConnector(dataverseConnector);
+  });
+
+  const { updateWalletInfo } = useStore();
 
   const {
     result,
@@ -47,10 +54,7 @@ export const useWallet = ({
         provider,
       });
 
-      dispatch({
-        type: ActionType.ConnectWallet,
-        payload: connectResult,
-      });
+      updateWalletInfo(connectResult);
       setStatus(MutationStatus.Succeed);
       setResult(connectResult);
       if (onSuccess) {

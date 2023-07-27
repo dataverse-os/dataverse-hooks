@@ -2,6 +2,7 @@ import { ActionType, DataverseContextType } from "../types";
 import _ from "lodash";
 
 export const initialState: DataverseContextType["state"] = {
+  dataverseConnector: undefined,
   address: undefined,
   wallet: undefined,
   chain: undefined,
@@ -14,6 +15,11 @@ export const reducer = (state: any, action: any) => {
   const clonedState: DataverseContextType["state"] = _.cloneDeep(state);
 
   switch (type) {
+    case ActionType.Init: {
+      clonedState.dataverseConnector = payload;
+      break;
+    }
+
     case ActionType.ConnectWallet: {
       const { address, chain, wallet } = payload;
       clonedState.address = address;
@@ -27,19 +33,19 @@ export const reducer = (state: any, action: any) => {
       break;
     }
 
-    case ActionType.Create: {
+    case ActionType.CreateStream: {
       const streamId = payload.streamId;
       delete payload.streamId;
       clonedState.streamsMap[streamId] = payload;
       break;
     }
 
-    case ActionType.Read: {
+    case ActionType.LoadStream: {
       clonedState.streamsMap = payload;
       break;
     }
 
-    case ActionType.Update: {
+    case ActionType.UpdateStream: {
       const { streamId, streamContent } = payload;
       clonedState.streamsMap[streamId].streamContent = streamContent;
       break;

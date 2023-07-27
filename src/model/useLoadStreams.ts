@@ -22,7 +22,7 @@ export const useLoadStreams = ({
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { updateStreamsMap } = useStore();
 
   const {
     result,
@@ -62,8 +62,8 @@ export const useLoadStreams = ({
         });
       }
 
-      dispatch({
-        type: ActionType.Read,
+      updateStreamsMap({
+        type: ActionType.LoadStream,
         payload: streams,
       });
 
