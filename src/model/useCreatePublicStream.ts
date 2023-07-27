@@ -2,7 +2,6 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
 import {
-  ActionType,
   CreatePublicStreamArgs,
   CreateStreamResult,
   MutationStatus,
@@ -17,7 +16,7 @@ export const useCreatePublicStream = (params?: {
 }) => {
   const {
     state: { dataverseConnector },
-    updateStreamsMap,
+    actionCreateStream,
   } = useStore();
 
   const {
@@ -69,10 +68,7 @@ export const useCreatePublicStream = (params?: {
             },
           });
 
-        updateStreamsMap({
-          type: ActionType.CreateStream,
-          payload: createdStream,
-        });
+        actionCreateStream(createdStream);
 
         setResult(createdStream);
         setStatus(MutationStatus.Succeed);
@@ -89,7 +85,7 @@ export const useCreatePublicStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, updateStreamsMap],
+    [dataverseConnector, actionCreateStream],
   );
 
   return {

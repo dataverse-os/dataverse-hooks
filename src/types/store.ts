@@ -12,11 +12,11 @@ export enum StreamStatus {
 }
 
 export enum ActionType {
-  Init,
+  InitConnector,
   ConnectWallet,
   CreateCapability,
   CreateStream,
-  LoadStream,
+  LoadStreams,
   UpdateStream,
   Status,
 }

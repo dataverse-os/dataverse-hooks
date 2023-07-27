@@ -1,7 +1,7 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
-import { ActionType, LoadStreamsResult, MutationStatus } from "../types";
+import { LoadStreamsResult, MutationStatus } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
@@ -12,7 +12,7 @@ export const useLoadStreams = (params?: {
 }) => {
   const {
     state: { dataverseConnector },
-    updateStreamsMap,
+    actionLoadStreams,
   } = useStore();
 
   const {
@@ -47,10 +47,7 @@ export const useLoadStreams = (params?: {
           },
         });
 
-        updateStreamsMap({
-          type: ActionType.LoadStream,
-          payload: streams,
-        });
+        actionLoadStreams(streams);
 
         setStatus(MutationStatus.Succeed);
         setResult(streams);
@@ -67,7 +64,7 @@ export const useLoadStreams = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, updateStreamsMap],
+    [dataverseConnector, actionLoadStreams],
   );
 
   return {

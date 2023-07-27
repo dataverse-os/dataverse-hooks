@@ -14,7 +14,7 @@ export const useCapability = (params?: {
     state: { dataverseConnector },
   } = useStore();
 
-  const { updatePkh } = useStore();
+  const { actionCreateCapability } = useStore();
 
   const {
     result,
@@ -47,7 +47,7 @@ export const useCapability = (params?: {
           },
         });
 
-        updatePkh(currentPkh);
+        actionCreateCapability(currentPkh);
         setStatus(MutationStatus.Succeed);
         setResult(currentPkh);
         if (params?.onSuccess) {
@@ -63,7 +63,7 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [updatePkh],
+    [actionCreateCapability],
   );
 
   return {

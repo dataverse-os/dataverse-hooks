@@ -9,6 +9,7 @@ import {
   ActionType,
   CreateStreamResult,
   DataverseContextType,
+  LoadStreamsByResult,
   LoadStreamsResult,
   MonetizeStreamResult,
   UnlockStreamResult,
@@ -29,17 +30,17 @@ export const useStore = () => {
 
   const { state, dispatch } = context;
 
-  const updateDatavereConnector = useCallback(
+  const actionInitConnector = useCallback(
     (dataverseConnector: DataverseConnector) => {
       dispatch({
-        type: ActionType.Init,
+        type: ActionType.InitConnector,
         payload: dataverseConnector,
       });
     },
     [dispatch],
   );
 
-  const updateWalletInfo = useCallback(
+  const actionConnectWallet = useCallback(
     (connectResult: { address: string; chain: Chain; wallet: WALLET }) => {
       dispatch({
         type: ActionType.ConnectWallet,
@@ -49,7 +50,7 @@ export const useStore = () => {
     [dispatch],
   );
 
-  const updatePkh = useCallback(
+  const actionCreateCapability = useCallback(
     (currentPkh: string) => {
       dispatch({
         type: ActionType.CreateCapability,
@@ -59,25 +60,36 @@ export const useStore = () => {
     [dispatch],
   );
 
-  const updateStreamsMap = useCallback(
-    ({
-      type,
-      payload,
-    }: {
-      type:
-        | ActionType.LoadStream
-        | ActionType.CreateStream
-        | ActionType.UpdateStream;
-      payload:
-        | LoadStreamsResult
-        | CreateStreamResult
+  const actionCreateStream = useCallback(
+    (createdStream: CreateStreamResult) => {
+      dispatch({
+        type: ActionType.CreateStream,
+        payload: createdStream,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateStream = useCallback(
+    (
+      updatedStream:
         | MonetizeStreamResult
         | UnlockStreamResult
-        | UpdateStreamResult;
-    }) => {
+        | (UpdateStreamResult & { streamId: string }),
+    ) => {
       dispatch({
-        type,
-        payload,
+        type: ActionType.UpdateStream,
+        payload: updatedStream,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionLoadStreams = useCallback(
+    (loadedStream: LoadStreamsResult | LoadStreamsByResult) => {
+      dispatch({
+        type: ActionType.LoadStreams,
+        payload: loadedStream,
       });
     },
     [dispatch],
@@ -85,9 +97,11 @@ export const useStore = () => {
 
   return {
     state,
-    updateDatavereConnector,
-    updateWalletInfo,
-    updatePkh,
-    updateStreamsMap,
+    actionInitConnector,
+    actionConnectWallet,
+    actionCreateCapability,
+    actionCreateStream,
+    actionUpdateStream,
+    actionLoadStreams,
   };
 };

@@ -3,7 +3,6 @@ import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import {
-  ActionType,
   CreateEncryptedStreamArgs,
   CreateStreamResult,
   MutationStatus,
@@ -17,7 +16,7 @@ export const useCreateEncryptedStream = (params?: {
 }) => {
   const {
     state: { dataverseConnector },
-    updateStreamsMap,
+    actionCreateStream,
   } = useStore();
 
   const {
@@ -58,10 +57,7 @@ export const useCreateEncryptedStream = (params?: {
           },
         });
 
-        updateStreamsMap({
-          type: ActionType.CreateStream,
-          payload: createdStream,
-        });
+        actionCreateStream(createdStream);
 
         setResult(createdStream);
         setStatus(MutationStatus.Succeed);
@@ -79,7 +75,7 @@ export const useCreateEncryptedStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, updateStreamsMap],
+    [dataverseConnector, actionCreateStream],
   );
 
   return {

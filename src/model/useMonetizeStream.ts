@@ -4,7 +4,6 @@ import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
 import { useGetProfiles } from "../profile/useGetProfiles";
 import { useStore } from "../store";
 import {
-  ActionType,
   MonetizeStreamArgs,
   MonetizeStreamResult,
   MutationStatus,
@@ -18,7 +17,7 @@ export const useMonetizeStream = (params?: {
 }) => {
   const {
     state: { dataverseConnector, streamsMap },
-    updateStreamsMap,
+    actionUpdateStream,
   } = useStore();
 
   const {
@@ -87,12 +86,9 @@ export const useMonetizeStream = (params?: {
           params.onSuccess(monetizeResult);
         }
 
-        updateStreamsMap({
-          type: ActionType.UpdateStream,
-          payload: {
-            streamId,
-            ...monetizeResult,
-          },
+        actionUpdateStream({
+          streamId,
+          ...monetizeResult,
         });
 
         return monetizeResult;
@@ -105,7 +101,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, streamsMap, updateStreamsMap],
+    [dataverseConnector, streamsMap, actionUpdateStream],
   );
 
   return {

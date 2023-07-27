@@ -2,12 +2,7 @@ import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
-import {
-  ActionType,
-  MutationStatus,
-  UpdateStreamArgs,
-  UpdateStreamResult,
-} from "../types";
+import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 
 export const useUpdateStream = (params?: {
@@ -17,7 +12,7 @@ export const useUpdateStream = (params?: {
 }) => {
   const {
     state: { dataverseConnector, streamsMap },
-    updateStreamsMap,
+    actionUpdateStream,
   } = useStore();
 
   const {
@@ -73,12 +68,9 @@ export const useUpdateStream = (params?: {
           },
         );
 
-        updateStreamsMap({
-          type: ActionType.UpdateStream,
-          payload: {
-            streamId,
-            ...updateResult,
-          },
+        actionUpdateStream({
+          streamId,
+          ...updateResult,
         });
 
         setStatus(MutationStatus.Succeed);
@@ -97,7 +89,7 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, streamsMap, updateStreamsMap],
+    [dataverseConnector, streamsMap, actionUpdateStream],
   );
 
   return {

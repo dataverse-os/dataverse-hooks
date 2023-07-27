@@ -16,7 +16,7 @@ export const reducer = (state: any, action: any) => {
   const clonedState: DataverseContextType["state"] = _.cloneDeep(state);
 
   switch (type) {
-    case ActionType.Init: {
+    case ActionType.InitConnector: {
       clonedState.dataverseConnector = payload;
       break;
     }
@@ -41,7 +41,7 @@ export const reducer = (state: any, action: any) => {
       break;
     }
 
-    case ActionType.LoadStream: {
+    case ActionType.LoadStreams: {
       clonedState.streamsMap = payload;
       break;
     }

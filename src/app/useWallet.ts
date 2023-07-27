@@ -15,13 +15,13 @@ export const useWallet = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const { updateDatavereConnector } = useStore();
+  const { actionInitConnector } = useStore();
 
   useEffect(() => {
-    updateDatavereConnector(dataverseConnector);
+    actionInitConnector(dataverseConnector);
   }, []);
 
-  const { updateWalletInfo } = useStore();
+  const { actionConnectWallet } = useStore();
 
   const {
     result,
@@ -54,7 +54,7 @@ export const useWallet = ({
         provider,
       });
 
-      updateWalletInfo(connectResult);
+      actionConnectWallet(connectResult);
       setStatus(MutationStatus.Succeed);
       setResult(connectResult);
       if (onSuccess) {
