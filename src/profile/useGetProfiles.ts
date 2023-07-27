@@ -33,10 +33,12 @@ export const useGetProfiles = (params?: {
         if (!dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
+
         const targetAddress = address || accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
         }
+
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
@@ -49,6 +51,7 @@ export const useGetProfiles = (params?: {
         if (params?.onSuccess) {
           params.onSuccess(profileIds);
         }
+
         return profileIds;
       } catch (error) {
         setStatus(MutationStatus.Failed);
