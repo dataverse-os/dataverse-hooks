@@ -1,12 +1,9 @@
-import {
-  DataverseConnector,
-  SYSTEM_CALL,
-} from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
-import { useMutation } from "./utils";
-import { ActionType, MutationStatus } from "./types";
+import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
+import { useMutation } from "../utils";
+import { useStore } from "../store";
+import { ActionType, ConnectWalletResult, MutationStatus } from "../types";
 
-export const useCreateCapability = ({
+export const useWallet = ({
   dataverseConnector,
   onError,
   onPending,
@@ -15,7 +12,7 @@ export const useCreateCapability = ({
   dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: string) => void;
+  onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
   const { dispatch } = useStore();
 
@@ -33,30 +30,34 @@ export const useCreateCapability = ({
     reset,
   } = useMutation();
 
-  const createCapability = async (appId: string) => {
+  const connectWallet = async ({
+    wallet,
+    provider,
+  }: {
+    wallet?: WALLET;
+    provider?: any;
+  }) => {
     try {
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
-      const currentPkh = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createCapability,
-        params: {
-          appId,
-        },
+      const connectResult = await dataverseConnector.connectWallet({
+        wallet,
+        provider,
       });
 
       dispatch({
-        type: ActionType.CreateCapability,
-        payload: currentPkh,
+        type: ActionType.ConnectWallet,
+        payload: connectResult,
       });
-
       setStatus(MutationStatus.Succeed);
-      setResult(currentPkh);
+      setResult(connectResult);
       if (onSuccess) {
-        onSuccess(currentPkh);
+        onSuccess(connectResult);
       }
-      return currentPkh;
+
+      return connectResult;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
@@ -76,6 +77,6 @@ export const useCreateCapability = ({
     isSucceed,
     isFailed,
     reset,
-    createCapability,
+    connectWallet,
   };
 };

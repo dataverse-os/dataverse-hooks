@@ -1,9 +1,10 @@
 import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
-import { useMutation } from "./utils";
-import { useStore } from "./store";
-import { ActionType, ConnectWalletResult, MutationStatus } from "./types";
+import { ConnectResult, MutationStatus } from "../types";
+import { useCapability } from "./useCapability";
+import { useWallet } from "./useWallet";
+import { useMutation } from "../utils";
 
-export const useConnectWallet = ({
+export const useApp = ({
   dataverseConnector,
   onError,
   onPending,
@@ -12,9 +13,15 @@ export const useConnectWallet = ({
   dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: ConnectWalletResult) => void;
+  onSuccess?: (result?: ConnectResult) => void;
 }) => {
-  const { dispatch } = useStore();
+  const { connectWallet } = useWallet({
+    dataverseConnector,
+  });
+
+  const { createCapability } = useCapability({
+    dataverseConnector,
+  });
 
   const {
     result,
@@ -30,10 +37,12 @@ export const useConnectWallet = ({
     reset,
   } = useMutation();
 
-  const connectWallet = async ({
+  const connectApp = async ({
+    appId,
     wallet,
     provider,
   }: {
+    appId: string;
     wallet?: WALLET;
     provider?: any;
   }) => {
@@ -42,17 +51,15 @@ export const useConnectWallet = ({
       if (onPending) {
         onPending();
       }
-      const connectResult = await dataverseConnector.connectWallet({
-        wallet,
-        provider,
-      });
+      const connectWalletResult = await connectWallet({ wallet, provider });
+      const pkh = await createCapability(appId);
+      const connectResult = {
+        ...connectWalletResult,
+        pkh,
+      };
 
-      dispatch({
-        type: ActionType.ConnectWallet,
-        payload: connectResult,
-      });
-      setStatus(MutationStatus.Succeed);
       setResult(connectResult);
+      setStatus(MutationStatus.Succeed);
       if (onSuccess) {
         onSuccess(connectResult);
       }
@@ -77,6 +84,6 @@ export const useConnectWallet = ({
     isSucceed,
     isFailed,
     reset,
-    connectWallet,
+    connectApp,
   };
 };

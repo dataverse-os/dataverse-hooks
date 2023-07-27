@@ -3,14 +3,14 @@ import {
   DataverseConnector,
   FileType,
 } from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
+import { useStore } from "../store";
 import {
   ActionType,
   MutationStatus,
   UpdateStreamArgs,
   UpdateStreamResult,
-} from "./types";
-import { useMutation } from "./utils";
+} from "../types";
+import { useMutation } from "../utils";
 
 export const useUpdateStream = ({
   dataverseConnector,

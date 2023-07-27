@@ -2,16 +2,16 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
+import { useStore } from "../store";
+import { useMutation } from "../utils";
 import {
   ActionType,
-  CreateEncryptedStreamArgs,
+  CreatePublicStreamArgs,
   CreateStreamResult,
   MutationStatus,
-} from "./types";
-import { useMutation } from "./utils";
+} from "../types";
 
-export const useCreateEncryptedStream = ({
+export const useCreatePublicStream = ({
   dataverseConnector,
   onError,
   onPending,
@@ -38,26 +38,35 @@ export const useCreateEncryptedStream = ({
     reset,
   } = useMutation();
 
-  const createEncryptedStream = async ({
-    modelId,
+  const createPublicStream = async ({
+    model,
     stream,
-    encrypted,
-  }: CreateEncryptedStreamArgs) => {
+  }: CreatePublicStreamArgs) => {
     try {
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
+      const modelStream = model.streams[model.streams.length - 1];
+      const encrypted = {} as any;
+      if (stream && Object.keys(stream).length > 0) {
+        Object.keys(stream).forEach(key => {
+          encrypted[key] = false;
+        });
+      }
+
       const inputStreamContent = {
         ...stream,
-        ...(stream && {
-          encrypted: JSON.stringify(encrypted),
-        }),
+        ...(!modelStream.isPublicDomain &&
+          stream && {
+            encrypted: JSON.stringify(encrypted),
+          }),
       };
-      const createdStream = await dataverseConnector.runOS({
+
+      const createdStream: CreateStreamResult = await dataverseConnector.runOS({
         method: SYSTEM_CALL.createStream,
         params: {
-          modelId,
+          modelId: modelStream.modelId,
           streamContent: inputStreamContent,
         },
       });
@@ -72,7 +81,6 @@ export const useCreateEncryptedStream = ({
       if (onSuccess) {
         onSuccess(createdStream);
       }
-
       return createdStream;
     } catch (error) {
       setError(error);
@@ -93,6 +101,6 @@ export const useCreateEncryptedStream = ({
     isSucceed,
     isFailed,
     reset,
-    createEncryptedStream,
+    createPublicStream,
   };
 };

@@ -2,14 +2,14 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
+import { useStore } from "../store";
 import {
   ActionType,
   MonetizeStreamArgs,
   MonetizeStreamResult,
   MutationStatus,
-} from "./types";
-import { useMutation } from "./utils";
+} from "../types";
+import { useMutation } from "../utils";
 
 export const useMonetizeStream = ({
   dataverseConnector,

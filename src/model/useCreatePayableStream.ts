@@ -5,8 +5,8 @@ import {
   createPayableStreamArgs,
   CreateStreamResult,
   MutationStatus,
-} from "./types";
-import { useMutation } from "./utils";
+} from "../types";
+import { useMutation } from "../utils";
 
 export const useCreatePayableStream = ({
   dataverseConnector,

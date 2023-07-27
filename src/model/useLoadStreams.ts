@@ -2,14 +2,14 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
-import { useMutation } from "./utils";
+import { useStore } from "../store";
+import { useMutation } from "../utils";
 import {
   ActionType,
   LoadStreamsArgs,
   LoadStreamsResult,
   MutationStatus,
-} from "./types";
+} from "../types";
 
 export const useLoadStreams = ({
   dataverseConnector,

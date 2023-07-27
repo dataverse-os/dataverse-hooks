@@ -1,12 +1,12 @@
 import {
-  SYSTEM_CALL,
   DataverseConnector,
+  SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
-import { useStore } from "./store";
-import { useMutation } from "./utils";
-import { ActionType, MutationStatus, UnlockStreamResult } from "./types";
+import { useStore } from "../store";
+import { useMutation } from "../utils";
+import { ActionType, MutationStatus } from "../types";
 
-export const useUnlockStream = ({
+export const useCapability = ({
   dataverseConnector,
   onError,
   onPending,
@@ -15,7 +15,7 @@ export const useUnlockStream = ({
   dataverseConnector: DataverseConnector;
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: UnlockStreamResult) => void;
+  onSuccess?: (result?: string) => void;
 }) => {
   const { dispatch } = useStore();
 
@@ -33,38 +33,33 @@ export const useUnlockStream = ({
     reset,
   } = useMutation();
 
-  const unlockStream = async (streamId: string) => {
+  const createCapability = async (appId: string) => {
     try {
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
-
-      const unlockResult = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.unlock,
+      const currentPkh = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createCapability,
         params: {
-          streamId,
+          appId,
         },
       });
 
       dispatch({
-        type: ActionType.Update,
-        payload: {
-          streamId,
-          ...unlockResult,
-        },
+        type: ActionType.CreateCapability,
+        payload: currentPkh,
       });
 
       setStatus(MutationStatus.Succeed);
-      setResult(unlockResult);
+      setResult(currentPkh);
       if (onSuccess) {
-        onSuccess(unlockResult);
+        onSuccess(currentPkh);
       }
-
-      return unlockResult;
+      return currentPkh;
     } catch (error) {
-      setStatus(MutationStatus.Failed);
       setError(error);
+      setStatus(MutationStatus.Failed);
       if (onError) {
         onError(error);
       }
@@ -81,6 +76,6 @@ export const useUnlockStream = ({
     isSucceed,
     isFailed,
     reset,
-    unlockStream,
+    createCapability,
   };
 };
