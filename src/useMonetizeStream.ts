@@ -1,9 +1,8 @@
-import { useReducer } from "react";
 import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { initialState, reducer } from "./store";
+import { useStore } from "./store";
 import {
   ActionType,
   MonetizeStreamArgs,
@@ -23,7 +22,7 @@ export const useMonetizeStream = ({
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const {state, dispatch} = useStore();
 
   const {
     result,

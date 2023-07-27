@@ -1,9 +1,8 @@
-import { useReducer } from "react";
 import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { initialState, reducer } from "./store";
+import { useStore } from "./store";
 import { useMutation } from "./utils";
 import { ActionType, MutationStatus, UnlockStreamResult } from "./types";
 
@@ -18,7 +17,7 @@ export const useUnlockStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const [, dispatch] = useReducer(reducer, initialState);
+  const {dispatch} = useStore();
 
   const {
     result,

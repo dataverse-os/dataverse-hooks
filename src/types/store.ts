@@ -16,9 +16,12 @@ export enum ActionType {
 }
 
 export type DataverseContextType = {
-  address?: string;
-  chain?: Chain;
-  wallet?: WALLET;
-  pkh?: string;
-  streamsMap: Record<string, StreamRecord & { status: StreamStatus }>;
+  state: {
+    address?: string;
+    chain?: Chain;
+    wallet?: WALLET;
+    pkh?: string;
+    streamsMap: Record<string, StreamRecord & { status: StreamStatus }>;
+  }
+  dispatch: React.Dispatch<any>;
 };

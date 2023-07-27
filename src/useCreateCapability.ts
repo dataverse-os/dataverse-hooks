@@ -1,9 +1,8 @@
-import { useReducer } from "react";
 import {
   DataverseConnector,
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
-import { initialState, reducer } from "./store";
+import { useStore } from "./store";
 import { useMutation } from "./utils";
 import { ActionType, MutationStatus } from "./types";
 
@@ -18,7 +17,7 @@ export const useCreateCapability = ({
   onPending?: () => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const [, dispatch] = useReducer(reducer, initialState);
+  const { dispatch } = useStore();
 
   const {
     result,

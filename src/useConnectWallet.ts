@@ -1,7 +1,6 @@
-import { useReducer } from "react";
 import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
 import { useMutation } from "./utils";
-import { initialState, reducer } from "./store";
+import { useStore } from "./store";
 import { ActionType, ConnectWalletResult, MutationStatus } from "./types";
 
 export const useConnectWallet = ({
@@ -15,7 +14,7 @@ export const useConnectWallet = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const [, dispatch] = useReducer(reducer, initialState);
+  const { dispatch } = useStore();
 
   const {
     result,

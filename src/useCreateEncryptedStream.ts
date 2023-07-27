@@ -1,9 +1,8 @@
-import { useReducer } from "react";
 import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
-import { initialState, reducer } from "./store";
+import { useStore } from "./store";
 import {
   ActionType,
   CreateEncryptedStreamArgs,
@@ -23,7 +22,7 @@ export const useCreateEncryptedStream = ({
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const [, dispatch] = useReducer(reducer, initialState);
+  const { dispatch } = useStore();
 
   const {
     result,

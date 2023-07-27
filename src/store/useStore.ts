@@ -2,8 +2,10 @@ import { createContext, useContext } from "react";
 import { DataverseContextType } from "../types";
 import { initialState } from "./state";
 
-export const DataverseContext =
-  createContext<DataverseContextType>(initialState);
+export const DataverseContext = createContext<DataverseContextType>({
+  state: initialState,
+  dispatch: () => {},
+});
 
 export const useStore = () => {
   const context = useContext(DataverseContext);

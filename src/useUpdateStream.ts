@@ -1,10 +1,9 @@
-import { useReducer } from "react";
 import {
   SYSTEM_CALL,
   DataverseConnector,
   FileType,
 } from "@dataverse/dataverse-connector";
-import { reducer, initialState } from "./store";
+import { useStore } from "./store";
 import {
   ActionType,
   MutationStatus,
@@ -24,7 +23,7 @@ export const useUpdateStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const {state, dispatch} = useStore();
 
   const {
     result,

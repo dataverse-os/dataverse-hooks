@@ -7,10 +7,13 @@ export const DataverseContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [state] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return React.createElement(DataverseContext.Provider, {
     children,
-    value: state,
+    value: {
+      state,
+      dispatch
+    },
   });
 };
