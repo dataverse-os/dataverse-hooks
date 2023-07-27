@@ -1,14 +1,19 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
-import { ActionType, LoadStreamsResult, MutationStatus } from "../types";
+import {
+  ActionType,
+  LoadStreamsByArgs,
+  LoadStreamsByResult,
+  MutationStatus,
+} from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
-export const useLoadStreams = (params?: {
+export const useLoadStreamsBy = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: LoadStreamsResult) => void;
+  onSuccess?: (result?: LoadStreamsByResult) => void;
 }) => {
   const {
     state: { dataverseConnector },
@@ -30,7 +35,7 @@ export const useLoadStreams = (params?: {
   } = useMutation();
 
   const loadStreams = useCallback(
-    async (modelId: string) => {
+    async ({ pkh, modelId }: LoadStreamsByArgs) => {
       try {
         if (!dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
@@ -40,10 +45,11 @@ export const useLoadStreams = (params?: {
           params.onPending();
         }
 
-        const streams: LoadStreamsResult = await dataverseConnector.runOS({
+        const streams: LoadStreamsByResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.loadStreamsBy,
           params: {
             modelId,
+            pkh,
           },
         });
 

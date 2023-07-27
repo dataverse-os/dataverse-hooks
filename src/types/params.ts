@@ -22,12 +22,14 @@ export type ConnectResult = {
   pkh: string;
 };
 
-export type LoadStreamsArgs = {
-  pkh?: string;
+export type LoadStreamsResult = Record<string, StreamRecord>;
+
+export type LoadStreamsByArgs = {
+  pkh: string;
   modelId: string;
 };
 
-export type LoadStreamsResult = Record<string, StreamRecord>;
+export type LoadStreamsByResult = LoadStreamsResult;
 
 export type CreatePublicStreamArgs = {
   model: Model;
