@@ -33,7 +33,7 @@ export const useLoadStreamsBy = (params?: {
     reset,
   } = useMutation();
 
-  const loadStreams = useCallback(
+  const loadStreamsBy = useCallback(
     async ({ pkh, modelId }: LoadStreamsByArgs) => {
       try {
         if (!dataverseConnector) {
@@ -81,6 +81,6 @@ export const useLoadStreamsBy = (params?: {
     isSucceed,
     isFailed,
     reset,
-    loadStreams,
+    loadStreamsBy,
   };
 };
