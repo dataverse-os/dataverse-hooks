@@ -17,7 +17,7 @@ export const useUnlockStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const {dispatch} = useStore();
+  const { dispatch } = useStore();
 
   const {
     result,

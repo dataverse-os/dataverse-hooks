@@ -22,7 +22,7 @@ export const useMonetizeStream = ({
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const {state, dispatch} = useStore();
+  const { state, dispatch } = useStore();
 
   const {
     result,

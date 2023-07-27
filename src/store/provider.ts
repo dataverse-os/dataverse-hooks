@@ -13,7 +13,7 @@ export const DataverseContextProvider = ({
     children,
     value: {
       state,
-      dispatch
+      dispatch,
     },
   });
 };

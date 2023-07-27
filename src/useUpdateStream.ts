@@ -23,7 +23,7 @@ export const useUpdateStream = ({
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const {state, dispatch} = useStore();
+  const { state, dispatch } = useStore();
 
   const {
     result,

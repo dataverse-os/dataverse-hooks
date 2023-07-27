@@ -22,6 +22,6 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     streamsMap: Record<string, StreamRecord & { status: StreamStatus }>;
-  }
+  };
   dispatch: React.Dispatch<any>;
 };

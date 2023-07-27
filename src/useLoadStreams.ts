@@ -22,7 +22,7 @@ export const useLoadStreams = ({
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsResult) => void;
 }) => {
-  const {dispatch} = useStore();
+  const { dispatch } = useStore();
 
   const {
     result,

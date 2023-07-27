@@ -22,7 +22,7 @@ export const useCreatePublicStream = ({
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const {dispatch} = useStore();
+  const { dispatch } = useStore();
 
   const {
     result,
