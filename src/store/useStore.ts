@@ -4,6 +4,7 @@ import {
   WALLET,
 } from "@dataverse/dataverse-connector";
 import { createContext, useCallback, useContext } from "react";
+import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
   CreateStreamResult,
@@ -23,7 +24,7 @@ export const DataverseContext = createContext<DataverseContextType>({
 export const useStore = () => {
   const context = useContext(DataverseContext);
   if (context === undefined) {
-    throw new Error("useStore must be used within a DataverseHooksProvider");
+    throw DATAVERSE_CONTEXT_PROVIDER_ERROR;
   }
 
   const { state, dispatch } = context;

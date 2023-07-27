@@ -1,5 +1,6 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
+import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import {
   ActionType,
@@ -40,7 +41,7 @@ export const useCreateEncryptedStream = ({
   const createEncryptedStream = useCallback(
     async ({ modelId, stream, encrypted }: CreateEncryptedStreamArgs) => {
       if (!dataverseConnector) {
-        throw new Error("No available dataverseConnector");
+        throw DATAVERSE_CONNECTOR_UNDEFINED;
       }
       try {
         setStatus(MutationStatus.Pending);

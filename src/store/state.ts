@@ -1,5 +1,6 @@
 import { ActionType, DataverseContextType } from "../types";
 import _ from "lodash";
+import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 
 export const initialState: DataverseContextType["state"] = {
   dataverseConnector: undefined,
@@ -58,7 +59,7 @@ export const reducer = (state: any, action: any) => {
     }
 
     default: {
-      throw new Error("No such ActionType");
+      throw ACTION_TYPE_NOT_EXSITS;
     }
   }
   return clonedState;

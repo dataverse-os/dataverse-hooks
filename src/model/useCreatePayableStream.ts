@@ -7,6 +7,7 @@ import {
   MutationStatus,
 } from "../types";
 import { useMutation } from "../utils";
+import { PROFILES_NOT_EXSIT } from "../errors";
 
 export const useCreatePayableStream = ({
   dataverseConnector,
@@ -54,7 +55,7 @@ export const useCreatePayableStream = ({
           dataverseConnector.address!,
         );
         if (profileIds.length === 0) {
-          throw new Error("Please create profile first.");
+          throw PROFILES_NOT_EXSIT;
         }
       }
 

@@ -2,6 +2,7 @@ import {
   SYSTEM_CALL,
   DataverseConnector,
 } from "@dataverse/dataverse-connector";
+import { PROFILES_NOT_EXSIT } from "../errors";
 import { useStore } from "../store";
 import {
   ActionType,
@@ -57,7 +58,7 @@ export const useMonetizeStream = ({
           dataverseConnector.address!,
         );
         if (profileIds.length === 0) {
-          throw new Error("Please create profile first.");
+          throw PROFILES_NOT_EXSIT;
         }
       }
 
