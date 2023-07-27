@@ -1,8 +1,12 @@
-import React, { ReactNode, useMemo, useReducer } from "react";
-import { createConfig, WagmiConfig } from "wagmi";
+import React, {
+  ReactNode,
+  // useMemo,
+  useReducer,
+} from "react";
+// import { createConfig, WagmiConfig } from "wagmi";
 import { initialState, reducer } from "./state";
 import { DataverseContext } from "./useStore";
-import { publicClient } from "./wagmi";
+// import { publicClient } from "./wagmi";
 
 export const DataverseContextProvider = ({
   children,
@@ -11,26 +15,33 @@ export const DataverseContextProvider = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const config = useMemo(
-    () =>
-      createConfig({
-        autoConnect: true,
-        connectors: [state.dataverseConnector],
-        publicClient,
-      }),
-    [state.dataverseConnector],
-  );
+  // const config = useMemo(
+  //   () =>
+  //     createConfig({
+  //       autoConnect: true,
+  //       connectors: [state.dataverseConnector],
+  //       publicClient,
+  //     }),
+  //   [state.dataverseConnector],
+  // );
 
-  return React.createElement(WagmiConfig, {
-    children: React.createElement(DataverseContext.Provider, {
-      children,
-      value: {
-        state,
-        dispatch,
-      },
-    }),
-    config: {
-      config,
+  // return React.createElement(WagmiConfig, {
+  //   children: React.createElement(DataverseContext.Provider, {
+  //     children,
+  //     value: {
+  //       state,
+  //       dispatch,
+  //     },
+  //   }),
+  //   config: {
+  //     config,
+  //   },
+  // });
+  return React.createElement(DataverseContext.Provider, {
+    children,
+    value: {
+      state,
+      dispatch,
     },
   });
 };

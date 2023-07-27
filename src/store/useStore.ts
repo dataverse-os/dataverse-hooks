@@ -86,10 +86,10 @@ export const useStore = () => {
   );
 
   const actionLoadStreams = useCallback(
-    (loadedStream: LoadStreamsResult | LoadStreamsByResult) => {
+    (loadedStreams: LoadStreamsResult | LoadStreamsByResult) => {
       dispatch({
         type: ActionType.LoadStreams,
-        payload: loadedStream,
+        payload: loadedStreams,
       });
     },
     [dispatch],

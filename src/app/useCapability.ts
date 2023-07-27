@@ -63,7 +63,7 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [actionCreateCapability],
+    [dataverseConnector, actionCreateCapability],
   );
 
   return {
