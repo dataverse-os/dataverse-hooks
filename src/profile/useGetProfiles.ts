@@ -39,7 +39,7 @@ export const useGetProfiles = (params?: {
         }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending();
+          params.onPending();
         }
         const profileIds = (
           await dataverseConnector.getProfiles(targetAddress)
@@ -47,8 +47,9 @@ export const useGetProfiles = (params?: {
         setResult(profileIds);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params?.onSuccess(profileIds);
+          params.onSuccess(profileIds);
         }
+        return profileIds;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);

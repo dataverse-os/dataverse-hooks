@@ -1,4 +1,3 @@
-import { DataverseConnector } from "@dataverse/dataverse-connector";
 import { useCreateEncryptedStream } from "./useCreateEncryptedStream";
 import { useMonetizeStream } from "./useMonetizeStream";
 import {
@@ -7,21 +6,21 @@ import {
   MutationStatus,
 } from "../types";
 import { useMutation } from "../utils";
-import { PROFILES_NOT_EXSIT } from "../errors";
+import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
+import { useStore } from "../store";
+import { useCallback } from "react";
 
-export const useCreatePayableStream = ({
-  dataverseConnector,
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  dataverseConnector: DataverseConnector;
+export const useCreatePayableStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { createEncryptedStream } = useCreateEncryptedStream({});
-  const { monetizeStream } = useMonetizeStream({ dataverseConnector });
+  const {
+    state: { dataverseConnector },
+  } = useStore();
+
+  const { createEncryptedStream } = useCreateEncryptedStream();
+  const { monetizeStream } = useMonetizeStream();
   const {
     result,
     setResult,
@@ -36,68 +35,73 @@ export const useCreatePayableStream = ({
     reset,
   } = useMutation();
 
-  const createPayableStream = async ({
-    modelId,
-    profileId,
-    stream,
-    currency,
-    amount,
-    collectLimit,
-    encrypted,
-  }: createPayableStreamArgs) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
-      if (!profileId) {
-        const profileIds = await dataverseConnector.getProfiles(
-          dataverseConnector.address!,
-        );
-        if (profileIds.length === 0) {
-          throw PROFILES_NOT_EXSIT;
+  const createPayableStream = useCallback(
+    async ({
+      modelId,
+      profileId,
+      stream,
+      currency,
+      amount,
+      collectLimit,
+      encrypted,
+    }: createPayableStreamArgs) => {
+      try {
+        if (!dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
+        setStatus(MutationStatus.Pending);
+        if (params?.onPending) {
+          params.onPending();
+        }
+        if (!profileId) {
+          const profileIds = await dataverseConnector.getProfiles(
+            dataverseConnector.address!,
+          );
+          if (profileIds.length === 0) {
+            throw PROFILES_NOT_EXSIT;
+          }
+        }
+
+        const createdStream = await createEncryptedStream({
+          modelId,
+          stream,
+          encrypted,
+        });
+
+        const monetizedResult = await monetizeStream({
+          streamId: createdStream.streamId,
+          streamContent: createdStream.streamContent,
+          profileId,
+          currency,
+          amount,
+          collectLimit,
+        });
+
+        Object.assign(createdStream, {
+          ...createdStream,
+          streamContent: monetizedResult.streamContent,
+        });
+
+        setStatus(MutationStatus.Succeed);
+        setResult(createdStream);
+        if (params?.onSuccess) {
+          params.onSuccess(createdStream);
+        }
+
+        return createdStream;
+      } catch (error) {
+        setStatus(MutationStatus.Failed);
+        setError(error);
+        if (params?.onError) {
+          params.onError(error);
+        }
+        throw error;
       }
-
-      const createdStream = await createEncryptedStream({
-        modelId,
-        stream,
-        encrypted,
-      });
-
-      const monetizedResult = await monetizeStream({
-        streamId: createdStream.streamId,
-        streamContent: createdStream.streamContent,
-        profileId,
-        currency,
-        amount,
-        collectLimit,
-      });
-
-      Object.assign(createdStream, {
-        ...createdStream,
-        streamContent: monetizedResult.streamContent,
-      });
-
-      setStatus(MutationStatus.Succeed);
-      setResult(createdStream);
-      if (onSuccess) {
-        onSuccess(createdStream);
-      }
-
-      return createdStream;
-    } catch (error) {
-      setStatus(MutationStatus.Failed);
-      setError(error);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [dataverseConnector],
+  );
 
   return {
-    // streamRecordMap: state.streamRecordMap,
     result,
     error,
     status,

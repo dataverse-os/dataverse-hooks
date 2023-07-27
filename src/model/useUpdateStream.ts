@@ -1,9 +1,6 @@
-import {
-  SYSTEM_CALL,
-  DataverseConnector,
-  FileType,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
+import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import {
   ActionType,
@@ -13,18 +10,15 @@ import {
 } from "../types";
 import { useMutation } from "../utils";
 
-export const useUpdateStream = ({
-  dataverseConnector,
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  dataverseConnector: DataverseConnector;
+export const useUpdateStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const { state, updateStreamsMap } = useStore();
+  const {
+    state: { dataverseConnector, streamsMap },
+    updateStreamsMap,
+  } = useStore();
 
   const {
     result,
@@ -43,14 +37,16 @@ export const useUpdateStream = ({
   const updateStream = useCallback(
     async ({ model, streamId, stream, encrypted }: UpdateStreamArgs) => {
       try {
+        if (!dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending();
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType =
-          state.streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&
@@ -87,21 +83,21 @@ export const useUpdateStream = ({
 
         setStatus(MutationStatus.Succeed);
         setResult(updateResult);
-        if (onSuccess) {
-          onSuccess(updateResult);
+        if (params?.onSuccess) {
+          params.onSuccess(updateResult);
         }
 
         return updateResult;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state],
+    [dataverseConnector, streamsMap, updateStreamsMap],
   );
 
   return {

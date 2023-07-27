@@ -1,23 +1,19 @@
-import {
-  SYSTEM_CALL,
-  DataverseConnector,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
 import { ActionType, MutationStatus, UnlockStreamResult } from "../types";
+import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useCallback } from "react";
 
-export const useUnlockStream = ({
-  dataverseConnector,
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  dataverseConnector: DataverseConnector;
+export const useUnlockStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const { updateStreamsMap } = useStore();
+  const {
+    state: { dataverseConnector },
+    updateStreamsMap,
+  } = useStore();
 
   const {
     result,
@@ -33,44 +29,50 @@ export const useUnlockStream = ({
     reset,
   } = useMutation();
 
-  const unlockStream = async (streamId: string) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
+  const unlockStream = useCallback(
+    async (streamId: string) => {
+      try {
+        if (!dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
+        setStatus(MutationStatus.Pending);
+        if (params?.onPending) {
+          params.onPending();
+        }
+
+        const unlockResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.unlock,
+          params: {
+            streamId,
+          },
+        });
+
+        updateStreamsMap({
+          type: ActionType.UpdateStream,
+          payload: {
+            streamId,
+            ...unlockResult,
+          },
+        });
+
+        setStatus(MutationStatus.Succeed);
+        setResult(unlockResult);
+        if (params?.onSuccess) {
+          params.onSuccess(unlockResult);
+        }
+
+        return unlockResult;
+      } catch (error) {
+        setStatus(MutationStatus.Failed);
+        setError(error);
+        if (params?.onError) {
+          params.onError(error);
+        }
+        throw error;
       }
-
-      const unlockResult = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.unlock,
-        params: {
-          streamId,
-        },
-      });
-
-      updateStreamsMap({
-        type: ActionType.UpdateStream,
-        payload: {
-          streamId,
-          ...unlockResult,
-        },
-      });
-
-      setStatus(MutationStatus.Succeed);
-      setResult(unlockResult);
-      if (onSuccess) {
-        onSuccess(unlockResult);
-      }
-
-      return unlockResult;
-    } catch (error) {
-      setStatus(MutationStatus.Failed);
-      setError(error);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [dataverseConnector, updateStreamsMap],
+  );
 
   return {
     result,

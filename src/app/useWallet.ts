@@ -19,7 +19,7 @@ export const useWallet = ({
 
   useEffect(() => {
     updateDatavereConnector(dataverseConnector);
-  });
+  }, []);
 
   const { updateWalletInfo } = useStore();
 

@@ -10,11 +10,7 @@ import {
 } from "../types";
 import { useMutation } from "../utils";
 
-export const useCreateEncryptedStream = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useCreateEncryptedStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
@@ -45,8 +41,8 @@ export const useCreateEncryptedStream = ({
       }
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending();
         }
         const inputStreamContent = {
           ...stream,
@@ -69,16 +65,16 @@ export const useCreateEncryptedStream = ({
 
         setResult(createdStream);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(createdStream);
+        if (params?.onSuccess) {
+          params.onSuccess(createdStream);
         }
 
         return createdStream;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }

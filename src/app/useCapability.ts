@@ -1,28 +1,18 @@
-import {
-  DataverseConnector,
-  SYSTEM_CALL,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
-import { useEffect } from "react";
+import { useCallback } from "react";
+import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
-export const useCapability = ({
-  dataverseConnector,
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  dataverseConnector: DataverseConnector;
+export const useCapability = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const { updateDatavereConnector } = useStore();
-
-  useEffect(() => {
-    updateDatavereConnector(dataverseConnector);
-  });
+  const {
+    state: { dataverseConnector },
+  } = useStore();
 
   const { updatePkh } = useStore();
 
@@ -40,35 +30,41 @@ export const useCapability = ({
     reset,
   } = useMutation();
 
-  const createCapability = async (appId: string) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
-      const currentPkh = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createCapability,
-        params: {
-          appId,
-        },
-      });
+  const createCapability = useCallback(
+    async (appId: string) => {
+      try {
+        if (!dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
+        setStatus(MutationStatus.Pending);
+        if (params?.onPending) {
+          params?.onPending();
+        }
+        const currentPkh = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createCapability,
+          params: {
+            appId,
+          },
+        });
 
-      updatePkh(currentPkh);
-      setStatus(MutationStatus.Succeed);
-      setResult(currentPkh);
-      if (onSuccess) {
-        onSuccess(currentPkh);
+        updatePkh(currentPkh);
+        setStatus(MutationStatus.Succeed);
+        setResult(currentPkh);
+        if (params?.onSuccess) {
+          params?.onSuccess(currentPkh);
+        }
+        return currentPkh;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (params?.onError) {
+          params?.onError(error);
+        }
+        throw error;
       }
-      return currentPkh;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [updatePkh],
+  );
 
   return {
     result,

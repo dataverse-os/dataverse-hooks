@@ -3,8 +3,7 @@ import { ConnectResult, MutationStatus } from "../types";
 import { useCapability } from "./useCapability";
 import { useWallet } from "./useWallet";
 import { useMutation } from "../utils";
-import { useStore } from "../store";
-import { useEffect } from "react";
+import { useCallback } from "react";
 
 export const useApp = ({
   dataverseConnector,
@@ -17,19 +16,11 @@ export const useApp = ({
   onPending?: () => void;
   onSuccess?: (result?: ConnectResult) => void;
 }) => {
-  const { updateDatavereConnector } = useStore();
-
-  useEffect(() => {
-    updateDatavereConnector(dataverseConnector);
-  });
-
   const { connectWallet } = useWallet({
     dataverseConnector,
   });
 
-  const { createCapability } = useCapability({
-    dataverseConnector,
-  });
+  const { createCapability } = useCapability();
 
   const {
     result,
@@ -45,43 +36,46 @@ export const useApp = ({
     reset,
   } = useMutation();
 
-  const connectApp = async ({
-    appId,
-    wallet,
-    provider,
-  }: {
-    appId: string;
-    wallet?: WALLET;
-    provider?: any;
-  }) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
-      const connectWalletResult = await connectWallet({ wallet, provider });
-      const pkh = await createCapability(appId);
-      const connectResult = {
-        ...connectWalletResult,
-        pkh,
-      };
+  const connectApp = useCallback(
+    async ({
+      appId,
+      wallet,
+      provider,
+    }: {
+      appId: string;
+      wallet?: WALLET;
+      provider?: any;
+    }) => {
+      try {
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
+        const connectWalletResult = await connectWallet({ wallet, provider });
+        const pkh = await createCapability(appId);
+        const connectResult = {
+          ...connectWalletResult,
+          pkh,
+        };
 
-      setResult(connectResult);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(connectResult);
-      }
+        setResult(connectResult);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(connectResult);
+        }
 
-      return connectResult;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
+        return connectResult;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      throw error;
-    }
-  };
+    },
+    [connectWallet, createCapability],
+  );
 
   return {
     result,
