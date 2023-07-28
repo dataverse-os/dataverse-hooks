@@ -10,9 +10,7 @@ export const useCapability = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-  } = useStore();
+  const { state } = useStore();
 
   const { actionCreateCapability } = useStore();
 
@@ -33,14 +31,14 @@ export const useCapability = (params?: {
   const createCapability = useCallback(
     async (appId: string) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params?.onPending();
         }
-        const currentPkh = await dataverseConnector.runOS({
+        const currentPkh = await state.dataverseConnector.runOS({
           method: SYSTEM_CALL.createCapability,
           params: {
             appId,
@@ -63,7 +61,7 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionCreateCapability],
+    [state.dataverseConnector, actionCreateCapability],
   );
 
   return {

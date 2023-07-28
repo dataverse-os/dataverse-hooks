@@ -15,10 +15,7 @@ export const useMonetizeStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector, streamsMap },
-    actionUpdateStream,
-  } = useStore();
+  const { state, actionUpdateStream } = useStore();
 
   const {
     result,
@@ -47,7 +44,7 @@ export const useMonetizeStream = (params?: {
       decryptionConditions,
     }: MonetizeStreamArgs) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
@@ -55,17 +52,20 @@ export const useMonetizeStream = (params?: {
           params.onPending();
         }
         if (!profileId) {
-          const profileIds = await getProfiles(dataverseConnector.address!);
+          const profileIds = await getProfiles(
+            state.dataverseConnector.address!,
+          );
           if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
           }
+          profileId = profileIds[0];
         }
 
         if (!streamContent) {
-          streamContent = streamsMap[streamId].streamContent;
+          streamContent = state.streamsMap[streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
-          await dataverseConnector.runOS({
+          await state.dataverseConnector.runOS({
             method: SYSTEM_CALL.monetizeFile,
             params: {
               streamId,
@@ -101,7 +101,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, streamsMap, actionUpdateStream],
+    [state.dataverseConnector, state.streamsMap, actionUpdateStream],
   );
 
   return {

@@ -1,6 +1,6 @@
 import { ActionType, DataverseContextType } from "../types";
-import _ from "lodash";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
+// import _ from "lodash";
 
 export const initialState: DataverseContextType["state"] = {
   dataverseConnector: undefined,
@@ -11,50 +11,56 @@ export const initialState: DataverseContextType["state"] = {
   streamsMap: {},
 };
 
-export const reducer = (state: any, action: any) => {
+export const reducer = (
+  state: DataverseContextType["state"],
+  action: {
+    type: ActionType;
+    payload: any;
+  },
+) => {
   const { type, payload } = action;
-  const clonedState: DataverseContextType["state"] = _.cloneDeep(state);
+  // const clonedState: DataverseContextType["state"] = _.cloneDeep(state);
 
   switch (type) {
     case ActionType.InitConnector: {
-      clonedState.dataverseConnector = payload;
+      state.dataverseConnector = payload;
       break;
     }
 
     case ActionType.ConnectWallet: {
       const { address, chain, wallet } = payload;
-      clonedState.address = address;
-      clonedState.chain = chain;
-      clonedState.wallet = wallet;
+      state.address = address;
+      state.chain = chain;
+      state.wallet = wallet;
       break;
     }
 
     case ActionType.CreateCapability: {
-      clonedState.pkh = payload;
+      state.pkh = payload;
       break;
     }
 
     case ActionType.CreateStream: {
       const streamId = payload.streamId;
       delete payload.streamId;
-      clonedState.streamsMap[streamId] = payload;
+      state.streamsMap[streamId] = payload;
       break;
     }
 
     case ActionType.LoadStreams: {
-      clonedState.streamsMap = payload;
+      state.streamsMap = payload;
       break;
     }
 
     case ActionType.UpdateStream: {
       const { streamId, streamContent } = payload;
-      clonedState.streamsMap[streamId].streamContent = streamContent;
+      state.streamsMap[streamId].streamContent = streamContent;
       break;
     }
 
     case ActionType.Status: {
       const { streamId, status } = payload;
-      clonedState.streamsMap[streamId].status = status;
+      state.streamsMap[streamId].status = status;
       break;
     }
 
@@ -62,5 +68,5 @@ export const reducer = (state: any, action: any) => {
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-  return clonedState;
+  return state;
 };

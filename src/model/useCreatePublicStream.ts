@@ -14,10 +14,7 @@ export const useCreatePublicStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-    actionCreateStream,
-  } = useStore();
+  const { state, actionCreateStream } = useStore();
 
   const {
     result,
@@ -36,7 +33,7 @@ export const useCreatePublicStream = (params?: {
   const createPublicStream = useCallback(
     async ({ model, stream }: CreatePublicStreamArgs) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
@@ -60,7 +57,7 @@ export const useCreatePublicStream = (params?: {
         };
 
         const createdStream: CreateStreamResult =
-          await dataverseConnector.runOS({
+          await state.dataverseConnector.runOS({
             method: SYSTEM_CALL.createStream,
             params: {
               modelId: modelStream.modelId,
@@ -85,7 +82,7 @@ export const useCreatePublicStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionCreateStream],
+    [state.dataverseConnector, actionCreateStream],
   );
 
   return {

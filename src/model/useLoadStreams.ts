@@ -10,10 +10,7 @@ export const useLoadStreams = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-    actionLoadStreams,
-  } = useStore();
+  const { state, actionLoadStreams } = useStore();
 
   const {
     result,
@@ -32,7 +29,7 @@ export const useLoadStreams = (params?: {
   const loadStreams = useCallback(
     async (modelId: string) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
@@ -40,12 +37,14 @@ export const useLoadStreams = (params?: {
           params.onPending();
         }
 
-        const streams: LoadStreamsResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
-          params: {
-            modelId,
+        const streams: LoadStreamsResult = await state.dataverseConnector.runOS(
+          {
+            method: SYSTEM_CALL.loadStreamsBy,
+            params: {
+              modelId,
+            },
           },
-        });
+        );
 
         actionLoadStreams(streams);
 
@@ -64,7 +63,7 @@ export const useLoadStreams = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionLoadStreams],
+    [state.dataverseConnector, actionLoadStreams],
   );
 
   return {

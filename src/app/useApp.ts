@@ -5,11 +5,7 @@ import { useWallet } from "./useWallet";
 import { useMutation } from "../utils";
 import { useCallback } from "react";
 
-export const useApp = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useApp = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: ConnectResult) => void;
@@ -44,8 +40,8 @@ export const useApp = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending();
         }
         const connectWalletResult = await connectWallet({ wallet, provider });
         const pkh = await createCapability(appId);
@@ -56,16 +52,16 @@ export const useApp = ({
 
         setResult(connectResult);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(connectResult);
+        if (params?.onSuccess) {
+          params.onSuccess(connectResult);
         }
 
         return connectResult;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }

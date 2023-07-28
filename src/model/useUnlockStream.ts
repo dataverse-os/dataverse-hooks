@@ -10,10 +10,7 @@ export const useUnlockStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-    actionUpdateStream,
-  } = useStore();
+  const { state, actionUpdateStream } = useStore();
 
   const {
     result,
@@ -32,7 +29,7 @@ export const useUnlockStream = (params?: {
   const unlockStream = useCallback(
     async (streamId: string) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
@@ -40,7 +37,7 @@ export const useUnlockStream = (params?: {
           params.onPending();
         }
 
-        const unlockResult = await dataverseConnector.runOS({
+        const unlockResult = await state.dataverseConnector.runOS({
           method: SYSTEM_CALL.unlock,
           params: {
             streamId,
@@ -68,7 +65,7 @@ export const useUnlockStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionUpdateStream],
+    [state.dataverseConnector, actionUpdateStream],
   );
 
   return {

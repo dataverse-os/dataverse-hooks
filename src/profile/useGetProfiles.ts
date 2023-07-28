@@ -9,9 +9,7 @@ export const useGetProfiles = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: string[]) => void;
 }) => {
-  const {
-    state: { dataverseConnector, address },
-  } = useStore();
+  const { state } = useStore();
 
   const {
     result,
@@ -30,11 +28,11 @@ export const useGetProfiles = (params?: {
   const getProfiles = useCallback(
     async (accountAddress?: string) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
 
-        const targetAddress = address || accountAddress;
+        const targetAddress = state.address || accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
         }
@@ -44,7 +42,7 @@ export const useGetProfiles = (params?: {
           params.onPending();
         }
         const profileIds = (
-          await dataverseConnector.getProfiles(targetAddress)
+          await state.dataverseConnector.getProfiles(targetAddress)
         ).map(value => value.id);
         setResult(profileIds);
         setStatus(MutationStatus.Succeed);
@@ -62,7 +60,7 @@ export const useGetProfiles = (params?: {
         throw error;
       }
     },
-    [dataverseConnector],
+    [state.dataverseConnector, state.address],
   );
 
   return {

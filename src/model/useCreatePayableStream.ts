@@ -6,7 +6,11 @@ import {
   MutationStatus,
 } from "../types";
 import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
+import {
+  ADDRESS_UNDEFINED,
+  DATAVERSE_CONNECTOR_UNDEFINED,
+  PROFILES_NOT_EXSIT,
+} from "../errors";
 import { useStore } from "../store";
 import { useCallback } from "react";
 
@@ -15,9 +19,7 @@ export const useCreatePayableStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-  } = useStore();
+  const { state } = useStore();
 
   const { createEncryptedStream } = useCreateEncryptedStream();
   const { monetizeStream } = useMonetizeStream();
@@ -46,16 +48,19 @@ export const useCreatePayableStream = (params?: {
       encrypted,
     }: createPayableStreamArgs) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
+        if (!state.address) {
+          throw ADDRESS_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
         }
         if (!profileId) {
-          const profileIds = await dataverseConnector.getProfiles(
-            dataverseConnector.address!,
+          const profileIds = await state.dataverseConnector.getProfiles(
+            state.address,
           );
           if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
@@ -98,7 +103,7 @@ export const useCreatePayableStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector],
+    [state.dataverseConnector, state.address],
   );
 
   return {

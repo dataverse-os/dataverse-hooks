@@ -11,20 +11,16 @@ export const useWallet = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-    actionInitConnector,
-  } = useStore();
+  const { state, actionInitConnector, actionConnectWallet } = useStore();
+
+  useEffect(() => {
+    const _dataverseConnector = new DataverseConnector();
+    actionInitConnector(_dataverseConnector);
+  }, []);
+
   // const { connectAsync } = useConnect({
   //   connector: dataverseConnector,
   // });
-
-  useEffect(() => {
-    const dataverseConnector = new DataverseConnector();
-    actionInitConnector(dataverseConnector);
-  }, []);
-
-  const { actionConnectWallet } = useStore();
 
   const {
     result,
@@ -43,14 +39,14 @@ export const useWallet = (params?: {
   const connectWallet = useCallback(
     async ({ wallet, provider }: { wallet?: WALLET; provider?: any }) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
         }
-        const connectResult = await dataverseConnector.connectWallet({
+        const connectResult = await state.dataverseConnector.connectWallet({
           wallet,
           provider,
         });
@@ -73,7 +69,7 @@ export const useWallet = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionConnectWallet],
+    [state.dataverseConnector, actionConnectWallet],
   );
 
   return {

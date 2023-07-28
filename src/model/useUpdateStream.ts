@@ -10,10 +10,7 @@ export const useUpdateStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector, streamsMap },
-    actionUpdateStream,
-  } = useStore();
+  const { state, actionUpdateStream } = useStore();
 
   const {
     result,
@@ -32,7 +29,7 @@ export const useUpdateStream = (params?: {
   const updateStream = useCallback(
     async ({ model, streamId, stream, encrypted }: UpdateStreamArgs) => {
       try {
-        if (!dataverseConnector) {
+        if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
         }
         setStatus(MutationStatus.Pending);
@@ -41,7 +38,8 @@ export const useUpdateStream = (params?: {
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType =
+          state.streamsMap[streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&
@@ -57,16 +55,15 @@ export const useUpdateStream = (params?: {
           encrypted: JSON.stringify(encrypted),
         };
 
-        const updateResult: UpdateStreamResult = await dataverseConnector.runOS(
-          {
+        const updateResult: UpdateStreamResult =
+          await state.dataverseConnector.runOS({
             method: SYSTEM_CALL.updateStream,
             params: {
               streamId,
               streamContent,
               syncImmediately: true,
             },
-          },
-        );
+          });
 
         actionUpdateStream({
           streamId,
@@ -89,7 +86,7 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, streamsMap, actionUpdateStream],
+    [state.dataverseConnector, state.streamsMap, actionUpdateStream],
   );
 
   return {

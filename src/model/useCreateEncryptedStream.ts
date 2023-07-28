@@ -14,10 +14,7 @@ export const useCreateEncryptedStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const {
-    state: { dataverseConnector },
-    actionCreateStream,
-  } = useStore();
+  const { state, actionCreateStream } = useStore();
 
   const {
     result,
@@ -35,7 +32,7 @@ export const useCreateEncryptedStream = (params?: {
 
   const createEncryptedStream = useCallback(
     async ({ modelId, stream, encrypted }: CreateEncryptedStreamArgs) => {
-      if (!dataverseConnector) {
+      if (!state.dataverseConnector) {
         throw DATAVERSE_CONNECTOR_UNDEFINED;
       }
       try {
@@ -49,7 +46,7 @@ export const useCreateEncryptedStream = (params?: {
             encrypted: JSON.stringify(encrypted),
           }),
         };
-        const createdStream = await dataverseConnector.runOS({
+        const createdStream = await state.dataverseConnector.runOS({
           method: SYSTEM_CALL.createStream,
           params: {
             modelId,
@@ -75,7 +72,7 @@ export const useCreateEncryptedStream = (params?: {
         throw error;
       }
     },
-    [dataverseConnector, actionCreateStream],
+    [state.dataverseConnector, actionCreateStream],
   );
 
   return {
