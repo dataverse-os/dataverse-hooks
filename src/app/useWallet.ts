@@ -14,8 +14,10 @@ export const useWallet = (params?: {
   const { state, actionInitConnector, actionConnectWallet } = useStore();
 
   useEffect(() => {
-    const _dataverseConnector = new DataverseConnector();
-    actionInitConnector(_dataverseConnector);
+    if (!state.dataverseConnector) {
+      const _dataverseConnector = new DataverseConnector();
+      actionInitConnector(_dataverseConnector);
+    }
   }, []);
 
   // const { connectAsync } = useConnect({
