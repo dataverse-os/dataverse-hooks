@@ -79,7 +79,7 @@ export const useWallet = (params?: {
   );
 
   return {
-    result,
+    walletInfo: result,
     error,
     status,
     isIdle,

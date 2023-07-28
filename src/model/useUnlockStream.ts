@@ -71,7 +71,7 @@ export const useUnlockStream = (params?: {
   );
 
   return {
-    result,
+    unlockedStreamContent: result,
     error,
     status,
     isIdle,

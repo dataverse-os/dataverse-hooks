@@ -122,7 +122,7 @@ export const useCreateStream = ({
   );
 
   return {
-    result,
+    createdStream: result,
     error,
     status,
     isIdle,

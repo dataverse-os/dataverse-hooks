@@ -92,7 +92,7 @@ export const useUpdateStream = (params?: {
   );
 
   return {
-    result,
+    updatedStreamContent: result,
     error,
     status,
     isIdle,

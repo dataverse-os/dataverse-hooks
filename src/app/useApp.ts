@@ -70,7 +70,7 @@ export const useApp = (params?: {
   );
 
   return {
-    result,
+    connectInfo: result,
     error,
     status,
     isIdle,
