@@ -1,6 +1,7 @@
 import { configureChains } from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
+import { DataverseWalletConnector } from "@dataverse/wallet-adapter";
 
 const polygonMumbai = {
   id: 80001,
@@ -34,9 +35,11 @@ const polygonMumbai = {
   testnet: true,
 } as const;
 
-const { publicClient } = configureChains(
+const { chains, publicClient } = configureChains(
   [mainnet, polygonMumbai],
   [publicProvider()],
 );
 
-export { publicClient };
+const dataverseWalletConnector = new DataverseWalletConnector({ chains });
+
+export { publicClient, dataverseWalletConnector };

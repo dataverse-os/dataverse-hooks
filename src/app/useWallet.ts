@@ -4,7 +4,8 @@ import { useStore } from "../store";
 import { ConnectWalletResult, MutationStatus } from "../types";
 import { useCallback, useEffect } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
-// import { useConnect } from "wagmi";
+import { useConnect } from "wagmi";
+import { dataverseWalletConnector } from "../store/wagmi";
 
 export const useWallet = (params?: {
   onError?: (error?: unknown) => void;
@@ -20,9 +21,9 @@ export const useWallet = (params?: {
     }
   }, []);
 
-  // const { connectAsync } = useConnect({
-  //   connector: dataverseConnector,
-  // });
+  const { connectAsync } = useConnect({
+    connector: dataverseWalletConnector,
+  });
 
   const {
     result,
@@ -52,7 +53,8 @@ export const useWallet = (params?: {
           wallet,
           provider,
         });
-        // await connectAsync();
+
+        await connectAsync();
 
         actionConnectWallet(connectResult);
         setStatus(MutationStatus.Succeed);
