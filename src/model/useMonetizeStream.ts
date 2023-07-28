@@ -1,8 +1,9 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
-import { useGetProfiles } from "../profile/useGetProfiles";
+import { useGetProfiles } from "../profile/useProfiles";
 import { useStore } from "../store";
+import { useAction } from "../store/useAction";
 import {
   MonetizeStreamArgs,
   MonetizeStreamResult,
@@ -15,7 +16,8 @@ export const useMonetizeStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const { state, actionUpdateStream } = useStore();
+  const { state } = useStore();
+  const { actionUpdateStream } = useAction();
 
   const {
     result,

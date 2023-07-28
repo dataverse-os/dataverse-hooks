@@ -9,6 +9,18 @@ import {
 } from "@dataverse/dataverse-connector";
 import { Model } from "@dataverse/model-parser";
 
+export enum StreamType {
+  Public = "Public",
+  Encrypted = "Encrypted",
+  Payable = "Payable",
+}
+
+export interface CreateStreamArgs {
+  Public: CreatePublicStreamArgs;
+  Encrypted: CreateEncryptedStreamArgs;
+  Payable: createPayableStreamArgs;
+}
+
 export type ConnectWalletResult = {
   address: string;
   chain: Chain;
@@ -32,7 +44,7 @@ export type LoadStreamsByArgs = {
 export type LoadStreamsByResult = LoadStreamsResult;
 
 export type CreatePublicStreamArgs = {
-  model: Model;
+  modelId: string;
   stream?: object;
 };
 

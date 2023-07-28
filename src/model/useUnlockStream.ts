@@ -4,13 +4,15 @@ import { useMutation } from "../utils";
 import { MutationStatus, UnlockStreamResult } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useCallback } from "react";
+import { useAction } from "../store/useAction";
 
 export const useUnlockStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const { state, actionUpdateStream } = useStore();
+  const { state } = useStore();
+  const { actionUpdateStream } = useAction();
 
   const {
     result,

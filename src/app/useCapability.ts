@@ -4,6 +4,7 @@ import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useAction } from "../store/useAction";
 
 export const useCapability = (params?: {
   onError?: (error?: unknown) => void;
@@ -12,7 +13,7 @@ export const useCapability = (params?: {
 }) => {
   const { state } = useStore();
 
-  const { actionCreateCapability } = useStore();
+  const { actionCreateCapability } = useAction();
 
   const {
     result,

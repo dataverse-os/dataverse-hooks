@@ -2,19 +2,21 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
 import {
-  CreatePublicStreamArgs,
-  CreateStreamResult,
+  LoadStreamsByArgs,
+  LoadStreamsByResult,
   MutationStatus,
 } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useAction } from "../store/useAction";
 
-export const useCreatePublicStream = (params?: {
+export const useFeedsByAddress = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: CreateStreamResult) => void;
+  onSuccess?: (result?: LoadStreamsByResult) => void;
 }) => {
-  const { state, actionCreateStream } = useStore();
+  const { state } = useStore();
+  const { actionLoadStreams } = useAction();
 
   const {
     result,
@@ -30,8 +32,8 @@ export const useCreatePublicStream = (params?: {
     reset,
   } = useMutation();
 
-  const createPublicStream = useCallback(
-    async ({ model, stream }: CreatePublicStreamArgs) => {
+  const loadFeedsByAddress = useCallback(
+    async ({ pkh, modelId }: LoadStreamsByArgs) => {
       try {
         if (!state.dataverseConnector) {
           throw DATAVERSE_CONNECTOR_UNDEFINED;
@@ -40,53 +42,38 @@ export const useCreatePublicStream = (params?: {
         if (params?.onPending) {
           params.onPending();
         }
-        const modelStream = model.streams[model.streams.length - 1];
-        const encrypted = {} as any;
-        if (stream && Object.keys(stream).length > 0) {
-          Object.keys(stream).forEach(key => {
-            encrypted[key] = false;
-          });
-        }
 
-        const inputStreamContent = {
-          ...stream,
-          ...(!modelStream.isPublicDomain &&
-            stream && {
-              encrypted: JSON.stringify(encrypted),
-            }),
-        };
-
-        const createdStream: CreateStreamResult =
+        const streams: LoadStreamsByResult =
           await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.createStream,
+            method: SYSTEM_CALL.loadStreamsBy,
             params: {
-              modelId: modelStream.modelId,
-              streamContent: inputStreamContent,
+              modelId,
+              pkh,
             },
           });
 
-        actionCreateStream(createdStream);
+        actionLoadStreams(streams);
 
-        setResult(createdStream);
         setStatus(MutationStatus.Succeed);
+        setResult(streams);
         if (params?.onSuccess) {
-          params.onSuccess(createdStream);
+          params.onSuccess(streams);
         }
-        return createdStream;
+        return streams;
       } catch (error) {
-        setError(error);
         setStatus(MutationStatus.Failed);
+        setError(error);
         if (params?.onError) {
           params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionCreateStream],
+    [state.dataverseConnector, actionLoadStreams],
   );
 
   return {
-    result,
+    feeds: result,
     error,
     status,
     isIdle,
@@ -94,6 +81,6 @@ export const useCreatePublicStream = (params?: {
     isSucceed,
     isFailed,
     reset,
-    createPublicStream,
+    loadFeedsByAddress,
   };
 };

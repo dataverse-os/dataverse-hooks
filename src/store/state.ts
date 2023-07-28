@@ -1,8 +1,8 @@
-import { ActionType, DataverseContextType } from "../types";
+import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 // import _ from "lodash";
 
-export const initialState: DataverseContextType["state"] = {
+export const initialState: StateType = {
   dataverseConnector: undefined,
   address: undefined,
   wallet: undefined,
@@ -12,14 +12,14 @@ export const initialState: DataverseContextType["state"] = {
 };
 
 export const reducer = (
-  state: DataverseContextType["state"],
+  state: StateType,
   action: {
     type: ActionType;
     payload: any;
   },
 ) => {
   const { type, payload } = action;
-  // const clonedState: DataverseContextType["state"] = _.cloneDeep(state);
+  // const clonedState: StateType = _.cloneDeep(state);
 
   switch (type) {
     case ActionType.InitConnector: {
