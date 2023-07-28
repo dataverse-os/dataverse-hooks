@@ -107,7 +107,7 @@ export const useMonetizeStream = (params?: {
   );
 
   return {
-    result,
+    monetizedStreamContent: result,
     error,
     status,
     isIdle,

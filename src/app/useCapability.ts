@@ -66,7 +66,7 @@ export const useCapability = (params?: {
   );
 
   return {
-    result,
+    pkh: result,
     error,
     status,
     isIdle,
