@@ -52,7 +52,7 @@ export const useCreateStream = ({
         if (onPending) {
           onPending();
         }
-        // const modelStream = args.model.streams[model.streams.length - 1];
+
         let encrypted;
         if (streamType === StreamType.Public) {
           const _encrypted = {} as any;
@@ -69,10 +69,6 @@ export const useCreateStream = ({
 
         const inputStreamContent = {
           ...args.stream,
-          // ...(!modelStream.isPublicDomain &&
-          //   stream && {
-          //     encrypted: JSON.stringify(encrypted),
-          //   }),
           ...(args.stream && {
             encrypted: JSON.stringify(encrypted),
           }),
@@ -136,13 +132,4 @@ export const useCreateStream = ({
     reset,
     createStream,
   };
-  //   const { createPublicStream } = useCreatePublicStream(params);
-  //   const { createEncryptedStream } = useCreateEncryptedStream(params);
-  //   const { createPayableStream } = useCreatePayableStream(params);
-
-  //   return {
-  //     createPublicStream,
-  //     createEncryptedStream,
-  //     createPayableStream
-  //   };
 };
