@@ -32,3 +32,5 @@ export type DataverseContextType = {
   };
   dispatch: React.Dispatch<any>;
 };
+
+export type StateType = DataverseContextType["state"];

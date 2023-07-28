@@ -1,5 +1,5 @@
-export * from "./useLoadStreams";
-export * from "./useLoadStreamsBy";
+export * from "./useFeeds";
+export * from "./useFeedsByAddress";
 export * from "./useCreatePublicStream";
 export * from "./useCreateEncryptedStream";
 export * from "./useCreatePayableStream";

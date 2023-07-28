@@ -8,13 +8,15 @@ import {
 } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useAction } from "../store/useAction";
 
 export const useCreatePublicStream = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { state, actionCreateStream } = useStore();
+  const { state } = useStore();
+  const { actionCreateStream } = useAction();
 
   const {
     result,

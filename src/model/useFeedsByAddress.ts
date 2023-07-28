@@ -8,13 +8,15 @@ import {
 } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useAction } from "../store/useAction";
 
-export const useLoadStreamsBy = (params?: {
+export const useFeedsByAddress = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsByResult) => void;
 }) => {
-  const { state, actionLoadStreams } = useStore();
+  const { state } = useStore();
+  const { actionLoadStreams } = useAction();
 
   const {
     result,
@@ -30,7 +32,7 @@ export const useLoadStreamsBy = (params?: {
     reset,
   } = useMutation();
 
-  const loadStreamsBy = useCallback(
+  const loadFeedsByAddress = useCallback(
     async ({ pkh, modelId }: LoadStreamsByArgs) => {
       try {
         if (!state.dataverseConnector) {
@@ -71,7 +73,7 @@ export const useLoadStreamsBy = (params?: {
   );
 
   return {
-    result,
+    feeds: result,
     error,
     status,
     isIdle,
@@ -79,6 +81,6 @@ export const useLoadStreamsBy = (params?: {
     isSucceed,
     isFailed,
     reset,
-    loadStreamsBy,
+    loadFeedsByAddress,
   };
 };

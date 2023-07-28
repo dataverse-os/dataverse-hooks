@@ -2,6 +2,7 @@ import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
+import { useAction } from "../store/useAction";
 import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 
@@ -10,7 +11,8 @@ export const useUpdateStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const { state, actionUpdateStream } = useStore();
+  const { state } = useStore();
+  const { actionUpdateStream } = useAction();
 
   const {
     result,

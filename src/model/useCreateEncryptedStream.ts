@@ -2,6 +2,7 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
+import { useAction } from "../store/useAction";
 import {
   CreateEncryptedStreamArgs,
   CreateStreamResult,
@@ -14,7 +15,8 @@ export const useCreateEncryptedStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { state, actionCreateStream } = useStore();
+  const { state } = useStore();
+  const { actionCreateStream } = useAction();
 
   const {
     result,

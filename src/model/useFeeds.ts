@@ -4,13 +4,15 @@ import { useMutation } from "../utils";
 import { LoadStreamsResult, MutationStatus } from "../types";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useAction } from "../store/useAction";
 
-export const useLoadStreams = (params?: {
+export const useFeeds = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsResult) => void;
 }) => {
-  const { state, actionLoadStreams } = useStore();
+  const { state } = useStore();
+  const { actionLoadStreams } = useAction();
 
   const {
     result,
@@ -26,7 +28,7 @@ export const useLoadStreams = (params?: {
     reset,
   } = useMutation();
 
-  const loadStreams = useCallback(
+  const loadFeeds = useCallback(
     async (modelId: string) => {
       try {
         if (!state.dataverseConnector) {
@@ -67,7 +69,7 @@ export const useLoadStreams = (params?: {
   );
 
   return {
-    result,
+    feeds: result,
     error,
     status,
     isIdle,
@@ -75,6 +77,6 @@ export const useLoadStreams = (params?: {
     isSucceed,
     isFailed,
     reset,
-    loadStreams,
+    loadFeeds,
   };
 };

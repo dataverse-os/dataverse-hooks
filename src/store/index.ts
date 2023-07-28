@@ -1,3 +1,2 @@
-export * from "./useStore";
+export { useStore } from "./useStore";
 export * from "./provider";
-export * from "./state";
