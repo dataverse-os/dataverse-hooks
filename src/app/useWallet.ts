@@ -6,13 +6,15 @@ import { useCallback, useEffect } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useConnect } from "wagmi";
 import { dataverseWalletConnector } from "../store/wagmi";
+import { useAction } from "../store/useAction";
 
 export const useWallet = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const { state, actionInitConnector, actionConnectWallet } = useStore();
+  const { state } = useStore();
+  const { actionInitConnector, actionConnectWallet } = useAction();
 
   useEffect(() => {
     if (!state.dataverseConnector) {

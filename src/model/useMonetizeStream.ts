@@ -1,7 +1,7 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
-import { useGetProfiles } from "../profile/useGetProfiles";
+import { useGetProfiles } from "../profile/useProfiles";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
