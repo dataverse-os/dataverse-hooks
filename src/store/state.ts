@@ -58,12 +58,6 @@ export const reducer = (
       break;
     }
 
-    case ActionType.Status: {
-      const { streamId, status } = payload;
-      state.streamsMap[streamId].status = status;
-      break;
-    }
-
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }

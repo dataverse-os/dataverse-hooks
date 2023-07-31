@@ -5,12 +5,6 @@ import {
   WALLET,
 } from "@dataverse/dataverse-connector";
 
-export enum StreamStatus {
-  Pending,
-  Succeed,
-  Failed,
-}
-
 export enum ActionType {
   InitConnector,
   ConnectWallet,
@@ -18,7 +12,6 @@ export enum ActionType {
   CreateStream,
   LoadStreams,
   UpdateStream,
-  Status,
 }
 
 export type DataverseContextType = {
@@ -28,7 +21,7 @@ export type DataverseContextType = {
     chain?: Chain;
     wallet?: WALLET;
     pkh?: string;
-    streamsMap: Record<string, StreamRecord & { status: StreamStatus }>;
+    streamsMap: Record<string, StreamRecord>;
   };
   dispatch: React.Dispatch<any>;
 };
