@@ -1,9 +1,10 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
+import { DataverseConnector } from "@dataverse/dataverse-connector";
 // import _ from "lodash";
 
 export const initialState: StateType = {
-  dataverseConnector: undefined,
+  dataverseConnector: new DataverseConnector(),
   address: undefined,
   wallet: undefined,
   chain: undefined,
@@ -22,11 +23,6 @@ export const reducer = (
   // const clonedState: StateType = _.cloneDeep(state);
 
   switch (type) {
-    case ActionType.InitConnector: {
-      state.dataverseConnector = payload;
-      break;
-    }
-
     case ActionType.ConnectWallet: {
       const { address, chain, wallet } = payload;
       state.address = address;

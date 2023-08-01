@@ -1,8 +1,8 @@
-import { DataverseConnector, WALLET } from "@dataverse/dataverse-connector";
+import { WALLET } from "@dataverse/dataverse-connector";
 import { useMutation } from "../utils";
 import { useStore } from "../store";
 import { ConnectWalletResult, MutationStatus } from "../types";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useConnect } from "wagmi";
 import { dataverseWalletConnector } from "../store/wagmi";
@@ -14,14 +14,7 @@ export const useWallet = (params?: {
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
   const { state } = useStore();
-  const { actionInitConnector, actionConnectWallet } = useAction();
-
-  useEffect(() => {
-    if (!state.dataverseConnector) {
-      const _dataverseConnector = new DataverseConnector();
-      actionInitConnector(_dataverseConnector);
-    }
-  }, []);
+  const { actionConnectWallet } = useAction();
 
   const { connectAsync } = useConnect({
     connector: dataverseWalletConnector,
