@@ -1,6 +1,9 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import { DataverseConnector } from "@dataverse/dataverse-connector";
+import {
+  DataverseConnector,
+  StreamRecord,
+} from "@dataverse/dataverse-connector";
 // import _ from "lodash";
 
 export const initialState: StateType = {
@@ -38,8 +41,7 @@ export const reducer = (
 
     case ActionType.CreateStream: {
       const streamId = payload.streamId;
-      delete payload.streamId;
-      state.streamsMap[streamId] = payload;
+      state.streamsMap[streamId] = payload as StreamRecord;
       break;
     }
 
@@ -50,7 +52,10 @@ export const reducer = (
 
     case ActionType.UpdateStream: {
       const { streamId, streamContent } = payload;
-      state.streamsMap[streamId].streamContent = streamContent;
+      state.streamsMap[streamId] = {
+        ...state.streamsMap[streamId],
+        streamContent,
+      };
       break;
     }
 
