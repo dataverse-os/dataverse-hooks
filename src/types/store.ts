@@ -6,7 +6,6 @@ import {
 } from "@dataverse/dataverse-connector";
 
 export enum ActionType {
-  InitConnector,
   ConnectWallet,
   CreateCapability,
   CreateStream,

@@ -1,8 +1,4 @@
-import {
-  Chain,
-  DataverseConnector,
-  WALLET,
-} from "@dataverse/dataverse-connector";
+import { Chain, WALLET } from "@dataverse/dataverse-connector";
 import { useCallback, useContext } from "react";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
@@ -23,16 +19,6 @@ export const useAction = () => {
   }
 
   const { dispatch } = context;
-
-  const actionInitConnector = useCallback(
-    (dataverseConnector: DataverseConnector) => {
-      dispatch({
-        type: ActionType.InitConnector,
-        payload: dataverseConnector,
-      });
-    },
-    [dispatch],
-  );
 
   const actionConnectWallet = useCallback(
     (connectResult: { address: string; chain: Chain; wallet: WALLET }) => {
@@ -90,7 +76,6 @@ export const useAction = () => {
   );
 
   return {
-    actionInitConnector,
     actionConnectWallet,
     actionCreateCapability,
     actionCreateStream,
