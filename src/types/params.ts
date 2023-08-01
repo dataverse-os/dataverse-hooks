@@ -18,7 +18,7 @@ export enum StreamType {
 export interface CreateStreamArgs {
   Public: CreatePublicStreamArgs;
   Encrypted: CreateEncryptedStreamArgs;
-  Payable: createPayableStreamArgs;
+  Payable: CreatePayableStreamArgs;
 }
 
 export type ConnectWalletResult = {
@@ -43,18 +43,18 @@ export type LoadStreamsByArgs = {
 
 export type LoadStreamsByResult = LoadStreamsResult;
 
-export type CreatePublicStreamArgs = {
+type CreatePublicStreamArgs = {
   modelId: string;
   stream?: object;
 };
 
-export type CreateEncryptedStreamArgs = {
+type CreateEncryptedStreamArgs = {
   modelId: string;
   stream: object;
   encrypted: object;
 };
 
-export type createPayableStreamArgs = {
+type CreatePayableStreamArgs = {
   modelId: string;
   profileId?: string;
   stream: object;
