@@ -5,7 +5,7 @@ import { useAction } from "../store/useAction";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 
-export const useReadFolders = () => {
+export const useReadFolder = () => {
   const { state } = useStore();
   const { actionSetFolders } = useAction();
 
