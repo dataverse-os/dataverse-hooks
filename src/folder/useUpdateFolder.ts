@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useUpdateFolder = () => {
   const { state } = useStore();
@@ -99,7 +100,13 @@ export const useUpdateFolder = () => {
     });
 
   return {
-    changeFolderBaseInfo,
-    changeFolderType,
+    changeFolderBaseInfo: useCallback(changeFolderBaseInfo, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
+    changeFolderType: useCallback(changeFolderType, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

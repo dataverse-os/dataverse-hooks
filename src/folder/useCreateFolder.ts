@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useCreateFolder = () => {
   const { state } = useStore();
@@ -52,6 +53,9 @@ export const useCreateFolder = () => {
     });
 
   return {
-    createFolder,
+    createFolder: useCallback(createFolder, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

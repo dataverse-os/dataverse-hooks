@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { MirrorFiles, SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useDeleteFile = () => {
   const { state } = useStore();
@@ -52,6 +53,9 @@ export const useDeleteFile = () => {
     });
 
   return {
-    removeFiles,
+    removeFiles: useCallback(removeFiles, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

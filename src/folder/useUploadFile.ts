@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { SYSTEM_CALL, StorageProvider } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useUploadFile = () => {
   const { state } = useStore();
@@ -61,6 +62,9 @@ export const useUploadFile = () => {
     });
 
   return {
-    uploadFile,
+    uploadFile: useCallback(uploadFile, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

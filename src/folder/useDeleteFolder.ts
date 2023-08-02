@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useDeleteFolder = () => {
   const { state } = useStore();
@@ -47,6 +48,9 @@ export const useDeleteFolder = () => {
     });
 
   return {
-    deleteFolder,
+    deleteFolder: useCallback(deleteFolder, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

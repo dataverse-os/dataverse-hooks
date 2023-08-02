@@ -8,6 +8,7 @@ import {
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useUpdateFile = () => {
   const { state } = useStore();
@@ -112,7 +113,13 @@ export const useUpdateFile = () => {
     });
 
   return {
-    updateFileBaseInfo,
-    moveFiles,
+    updateFileBaseInfo: useCallback(updateFileBaseInfo, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
+    moveFiles: useCallback(moveFiles, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };

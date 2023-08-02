@@ -3,6 +3,7 @@ import { useStore } from "../store";
 import { Folders } from "@dataverse/js-dataverse";
 import { useAction } from "../store/useAction";
 import { deepAssignRenameKey } from "../utils/object";
+import { useCallback } from "react";
 
 export const useReadFolders = () => {
   const { state } = useStore();
@@ -38,6 +39,9 @@ export const useReadFolders = () => {
     });
 
   return {
-    readAllFolders,
+    readAllFolders: useCallback(readAllFolders, [
+      state.dataverseConnector,
+      actionSetFolders,
+    ]),
   };
 };
