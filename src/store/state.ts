@@ -13,6 +13,11 @@ export const initialState: StateType = {
   chain: undefined,
   pkh: undefined,
   streamsMap: {},
+  folders: {},
+  profileStream: {
+    streamId: "",
+    streamContent: {},
+  },
 };
 
 export const reducer = (

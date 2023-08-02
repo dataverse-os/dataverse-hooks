@@ -7,10 +7,12 @@ import {
   LoadStreamsByResult,
   LoadStreamsResult,
   MonetizeStreamResult,
+  StreamObject,
   UnlockStreamResult,
   UpdateStreamResult,
 } from "../types";
 import { DataverseContext } from "./useStore";
+import { Folders } from "@dataverse/js-dataverse";
 
 export const useAction = () => {
   const context = useContext(DataverseContext);
@@ -75,11 +77,57 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionSetFolders = useCallback(
+    (folders: Folders) => {
+      dispatch({
+        type: ActionType.SetFolders,
+        payload: folders,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetLocalFolderIdToRemoteFolderId = useCallback(
+    (localFolderIdToRemoteFolderId: Record<string, string>) => {
+      dispatch({
+        type: ActionType.SetLocalFolderIdToRemoteFolderId,
+        payload: localFolderIdToRemoteFolderId,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetLocalFolderIdToRemoteFolderIdMap = useCallback(
+    (
+      localFolderIdToRemoteFolderIdMap: Record<string, Record<string, string>>,
+    ) => {
+      dispatch({
+        type: ActionType.SetLocalFolderIdToRemoteFolderIdMap,
+        payload: localFolderIdToRemoteFolderIdMap,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetProfileStream = useCallback(
+    (profileStream: StreamObject) => {
+      dispatch({
+        type: ActionType.SetProfileStream,
+        payload: profileStream,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
     actionCreateStream,
     actionUpdateStream,
     actionLoadStreams,
+    actionSetFolders,
+    actionSetLocalFolderIdToRemoteFolderId,
+    actionSetLocalFolderIdToRemoteFolderIdMap,
+    actionSetProfileStream,
   };
 };
