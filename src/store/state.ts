@@ -69,6 +69,20 @@ export const reducer = (
       break;
     }
 
+    case ActionType.UpdateFolders: {
+      const folders = payload instanceof Array ? payload : [payload];
+      folders.forEach(folder => {
+        state.folders[folder.folderId] = folder;
+      });
+      break;
+    }
+
+    case ActionType.DeleteFolder: {
+      const folderId = payload;
+      delete state.folders[folderId];
+      break;
+    }
+
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }

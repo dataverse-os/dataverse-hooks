@@ -20,14 +20,10 @@ export const useUploadFile = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    newFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }) => void;
+  onSuccess?: (result?: MirrorFile) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -50,72 +46,78 @@ export const useUploadFile = ({
    * @param reRender reRender page ?
    * @param syncImmediately sync ?
    */
-  const uploadFile = async ({
-    folderId,
-    fileBase64,
-    fileName,
-    encrypted,
-    storageProvider,
-    reRender = true,
-  }: {
-    folderId: string;
-    fileBase64: string;
-    fileName: string;
-    encrypted: boolean;
-    storageProvider: StorageProvider;
-    reRender?: boolean;
-  }) => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const uploadFile = useCallback(
+    async ({
+      folderId,
+      fileBase64,
+      fileName,
+      encrypted,
+      storageProvider,
+      reRender = true,
+    }: {
+      folderId: string;
+      fileBase64: string;
+      fileName: string;
+      encrypted: boolean;
+      storageProvider: StorageProvider;
+      reRender?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.uploadFile,
-        params: {
-          folderId,
-          fileBase64,
-          fileName,
-          encrypted,
-          storageProvider,
-        },
-      });
+        const { allFolders, currentFolder, newFile } =
+          await state.dataverseConnector.runOS({
+            method: SYSTEM_CALL.uploadFile,
+            params: {
+              folderId,
+              fileBase64,
+              fileName,
+              encrypted,
+              storageProvider,
+            },
+          });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(currentFolder, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolder,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(newFile);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(newFile);
+        }
+        return newFile;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    uploadFile: useCallback(uploadFile, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    uploadedFile: result,
     error,
     status,
     isIdle,
@@ -123,5 +125,6 @@ export const useUploadFile = ({
     isSucceed,
     isFailed,
     reset,
+    uploadFile,
   };
 };

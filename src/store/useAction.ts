@@ -1,4 +1,9 @@
-import { Chain, WALLET } from "@dataverse/dataverse-connector";
+import {
+  Chain,
+  StructuredFolder,
+  StructuredFolders,
+  WALLET,
+} from "@dataverse/dataverse-connector";
 import { useCallback, useContext } from "react";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
@@ -7,12 +12,10 @@ import {
   LoadStreamsByResult,
   LoadStreamsResult,
   MonetizeStreamResult,
-  StreamObject,
   UnlockStreamResult,
   UpdateStreamResult,
 } from "../types";
 import { DataverseContext } from "./useStore";
-import { Folders } from "@dataverse/js-dataverse";
 
 export const useAction = () => {
   const context = useContext(DataverseContext);
@@ -78,7 +81,7 @@ export const useAction = () => {
   );
 
   const actionSetFolders = useCallback(
-    (folders: Folders) => {
+    (folders: StructuredFolders) => {
       dispatch({
         type: ActionType.SetFolders,
         payload: folders,
@@ -87,33 +90,21 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionSetLocalFolderIdToRemoteFolderId = useCallback(
-    (localFolderIdToRemoteFolderId: Record<string, string>) => {
+  const actionUpdateFolders = useCallback(
+    (newFolders: StructuredFolder | StructuredFolders) => {
       dispatch({
-        type: ActionType.SetLocalFolderIdToRemoteFolderId,
-        payload: localFolderIdToRemoteFolderId,
+        type: ActionType.UpdateFolders,
+        payload: newFolders,
       });
     },
     [dispatch],
   );
 
-  const actionSetLocalFolderIdToRemoteFolderIdMap = useCallback(
-    (
-      localFolderIdToRemoteFolderIdMap: Record<string, Record<string, string>>,
-    ) => {
+  const actionDeleteFolder = useCallback(
+    (folderId: string) => {
       dispatch({
-        type: ActionType.SetLocalFolderIdToRemoteFolderIdMap,
-        payload: localFolderIdToRemoteFolderIdMap,
-      });
-    },
-    [dispatch],
-  );
-
-  const actionSetProfileStream = useCallback(
-    (profileStream: StreamObject) => {
-      dispatch({
-        type: ActionType.SetProfileStream,
-        payload: profileStream,
+        type: ActionType.DeleteFolder,
+        payload: folderId,
       });
     },
     [dispatch],
@@ -126,8 +117,7 @@ export const useAction = () => {
     actionUpdateStream,
     actionLoadStreams,
     actionSetFolders,
-    actionSetLocalFolderIdToRemoteFolderId,
-    actionSetLocalFolderIdToRemoteFolderIdMap,
-    actionSetProfileStream,
+    actionUpdateFolders,
+    actionDeleteFolder,
   };
 };

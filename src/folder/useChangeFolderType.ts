@@ -19,13 +19,10 @@ export const useChangeFolderType = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }) => void;
+  onSuccess?: (result?: StructuredFolder) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -48,66 +45,72 @@ export const useChangeFolderType = ({
    * @param reRender reRender page ?
    * @param sync sync ?
    */
-  const changeFolderType = async ({
-    folderId,
-    targetFolderType,
-    reRender = true,
-    syncImmediately = false,
-  }: {
-    folderId: string;
-    targetFolderType: FolderType;
-    reRender?: boolean;
-    syncImmediately?: boolean;
-  }) => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const changeFolderType = useCallback(
+    async ({
+      folderId,
+      targetFolderType,
+      reRender = true,
+      syncImmediately = false,
+    }: {
+      folderId: string;
+      targetFolderType: FolderType;
+      reRender?: boolean;
+      syncImmediately?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.changeFolderType,
-        params: {
-          folderId,
-          targetFolderType: targetFolderType as any,
-          syncImmediately,
-        },
-      });
+        const { allFolders, currentFolder } =
+          await state.dataverseConnector.runOS({
+            method: SYSTEM_CALL.changeFolderType,
+            params: {
+              folderId,
+              targetFolderType: targetFolderType as any,
+              syncImmediately,
+            },
+          });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(currentFolder, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolder,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(currentFolder);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(currentFolder);
+        }
+        return currentFolder;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    changeFolderType: useCallback(changeFolderType, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    changedFolder: result,
     error,
     status,
     isIdle,
@@ -115,5 +118,6 @@ export const useChangeFolderType = ({
     isSucceed,
     isFailed,
     reset,
+    changeFolderType,
   };
 };

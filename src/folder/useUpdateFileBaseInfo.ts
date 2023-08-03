@@ -20,14 +20,10 @@ export const useUpdateFileBaseInfo = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }) => void;
+  onSuccess?: (result?: MirrorFile) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -53,66 +49,72 @@ export const useUpdateFileBaseInfo = ({
    * @param reRender reRender page ?
    * @param sync sync ?
    */
-  const updateFileBaseInfo = async ({
-    indexFileId,
-    fileInfo,
-    reRender = true,
-    syncImmediately = false,
-  }: {
-    indexFileId: string;
-    fileInfo: FileInfo;
-    reRender?: boolean;
-    syncImmediately?: boolean;
-  }) => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const updateFileBaseInfo = useCallback(
+    async ({
+      indexFileId,
+      fileInfo,
+      reRender = true,
+      syncImmediately = false,
+    }: {
+      indexFileId: string;
+      fileInfo: FileInfo;
+      reRender?: boolean;
+      syncImmediately?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.updateFileBaseInfo,
-        params: {
-          indexFileId,
-          fileInfo,
-          syncImmediately,
-        },
-      });
+        const { allFolders, currentFolder, currentFile } =
+          await state.dataverseConnector.runOS({
+            method: SYSTEM_CALL.updateFileBaseInfo,
+            params: {
+              indexFileId,
+              fileInfo,
+              syncImmediately,
+            },
+          });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(currentFolder, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolder,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(currentFile);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(currentFile);
+        }
+        return currentFile;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    updateFileBaseInfo: useCallback(updateFileBaseInfo, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    updatedFile: result,
     error,
     status,
     isIdle,
@@ -120,5 +122,6 @@ export const useUpdateFileBaseInfo = ({
     isSucceed,
     isFailed,
     reset,
+    updateFileBaseInfo,
   };
 };

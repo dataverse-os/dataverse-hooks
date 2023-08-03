@@ -17,7 +17,7 @@ export const useReadAllFolders = ({
   onSuccess?: (result?: StructuredFolders) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -36,14 +36,9 @@ export const useReadAllFolders = ({
   /**
    * read all folders when have no param otherwise will read all pubilc
    * folders
-   * @param reRender reRender page ?
    * @returns
    */
-  const readAllFolders = async ({
-    reRender = true,
-  }: {
-    reRender?: boolean;
-  }) => {
+  const readAllFolders = useCallback(async () => {
     try {
       if (!state.dataverseConnector) {
         throw DATAVERSE_CONNECTOR_UNDEFINED;
@@ -54,24 +49,22 @@ export const useReadAllFolders = ({
         onPending();
       }
 
-      const result = await state.dataverseConnector.runOS({
+      const allFolders = await state.dataverseConnector.runOS({
         method: SYSTEM_CALL.readFolders,
       });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+      actionSetFolders(
+        deepAssignRenameKey(allFolders, [
+          { mirror: "mirrorFile" },
+        ]) as StructuredFolders,
+      );
 
-      setResult(result);
+      setResult(allFolders);
       setStatus(MutationStatus.Succeed);
       if (onSuccess) {
-        onSuccess(result);
+        onSuccess(allFolders);
       }
-      return result;
+      return allFolders;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
@@ -80,14 +73,10 @@ export const useReadAllFolders = ({
       }
       throw error;
     }
-  };
+  }, [state.dataverseConnector, actionSetFolders, actionUpdateFolders]);
 
   return {
-    readAllFolders: useCallback(readAllFolders, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    allFolders: result,
     error,
     status,
     isIdle,
@@ -95,5 +84,6 @@ export const useReadAllFolders = ({
     isSucceed,
     isFailed,
     reset,
+    readAllFolders,
   };
 };

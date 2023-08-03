@@ -13,6 +13,8 @@ export enum ActionType {
   LoadStreams,
   UpdateStream,
   SetFolders,
+  UpdateFolders,
+  DeleteFolder,
 }
 
 export type DataverseContextType = {

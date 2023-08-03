@@ -18,14 +18,10 @@ export const useRemoveFiles = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    allFolders: StructuredFolders;
-    removedFiles: MirrorFiles;
-    sourceFolders: StructuredFolders;
-  }) => void;
+  onSuccess?: (result?: MirrorFiles) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -47,67 +43,69 @@ export const useRemoveFiles = ({
    * @param reRender reRender page ?
    * @param syncImmediately sync ?
    */
-  const removeFiles = async ({
-    indexFileIds,
-    reRender = true,
-    syncImmediately = false,
-  }: {
-    indexFileIds: string[];
-    reRender?: boolean;
-    syncImmediately?: boolean;
-  }): Promise<{
-    allFolders: StructuredFolders;
-    removedFiles: MirrorFiles;
-    sourceFolders: StructuredFolders;
-  }> => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const removeFiles = useCallback(
+    async ({
+      indexFileIds,
+      reRender = true,
+      syncImmediately = false,
+    }: {
+      indexFileIds: string[];
+      reRender?: boolean;
+      syncImmediately?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.removeFiles,
-        params: {
-          indexFileIds,
-          syncImmediately,
-        },
-      });
+        const { allFolders, sourceFolders, removedFiles } =
+          await state.dataverseConnector.runOS({
+            method: SYSTEM_CALL.removeFiles,
+            params: {
+              indexFileIds,
+              syncImmediately,
+            },
+          });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(Object.values(sourceFolders || {}), [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(removedFiles);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(removedFiles);
+        }
+        return removedFiles;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    removeFiles: useCallback(removeFiles, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    removedFiles: result,
     error,
     status,
     isIdle,
@@ -115,5 +113,6 @@ export const useRemoveFiles = ({
     isSucceed,
     isFailed,
     reset,
+    removeFiles,
   };
 };

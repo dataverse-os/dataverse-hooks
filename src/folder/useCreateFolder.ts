@@ -19,13 +19,10 @@ export const useCreateFolder = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
-  }) => void;
+  onSuccess?: (result?: StructuredFolder) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -48,66 +45,71 @@ export const useCreateFolder = ({
    * @param folderDescription Folder description
    * @param reRender reRender page ?
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
-    reRender = true,
-  }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
-    reRender?: boolean;
-  }) => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const createFolder = useCallback(
+    async ({
+      folderType,
+      folderName,
+      folderDescription,
+      reRender = true,
+    }: {
+      folderType: FolderType;
+      folderName: string;
+      folderDescription?: string;
+      reRender?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
-        params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
-        },
-      });
+        const { allFolders, newFolder } = await state.dataverseConnector.runOS({
+          method: SYSTEM_CALL.createFolder,
+          params: {
+            folderType: folderType as any,
+            folderName,
+            folderDescription,
+          },
+        });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(newFolder, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolder,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(newFolder);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(newFolder);
+        }
+        return newFolder;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    createFolder: useCallback(createFolder, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    createdFolder: result,
     error,
     status,
     isIdle,
@@ -115,5 +117,6 @@ export const useCreateFolder = ({
     isSucceed,
     isFailed,
     reset,
+    createFolder,
   };
 };

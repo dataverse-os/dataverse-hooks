@@ -3,7 +3,6 @@ import { useAction } from "../store/useAction";
 import {
   MirrorFiles,
   SYSTEM_CALL,
-  StructuredFolder,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
@@ -19,15 +18,10 @@ export const useMoveFiles = ({
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    sourceFolders: StructuredFolders;
-    targetFolder: StructuredFolder;
-    movedFiles: MirrorFiles;
-    allFolders: StructuredFolders;
-  }) => void;
+  onSuccess?: (result?: MirrorFiles) => void;
 }) => {
   const { state } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -50,66 +44,73 @@ export const useMoveFiles = ({
    * @param reRender reRender page ?
    * @param syncImmediately sync ?
    */
-  const moveFiles = async ({
-    sourceIndexFileIds,
-    targetFolderId,
-    reRender = true,
-    syncImmediately = false,
-  }: {
-    sourceIndexFileIds: string[];
-    targetFolderId: string;
-    reRender?: boolean;
-    syncImmediately?: boolean;
-  }) => {
-    try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
+  const moveFiles = useCallback(
+    async ({
+      sourceIndexFileIds,
+      targetFolderId,
+      reRender = true,
+      syncImmediately = false,
+    }: {
+      sourceIndexFileIds: string[];
+      targetFolderId: string;
+      reRender?: boolean;
+      syncImmediately?: boolean;
+    }) => {
+      try {
+        if (!state.dataverseConnector) {
+          throw DATAVERSE_CONNECTOR_UNDEFINED;
+        }
 
-      setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
-      }
+        setStatus(MutationStatus.Pending);
+        if (onPending) {
+          onPending();
+        }
 
-      const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.moveFiles,
-        params: {
-          targetFolderId,
-          sourceIndexFileIds,
-          syncImmediately,
-        },
-      });
+        const { allFolders, sourceFolders, targetFolder, movedFiles } =
+          await state.dataverseConnector.runOS({
+            method: SYSTEM_CALL.moveFiles,
+            params: {
+              targetFolderId,
+              sourceIndexFileIds,
+              syncImmediately,
+            },
+          });
 
-      if (reRender) {
-        actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
-        );
-      }
+        if (reRender) {
+          actionSetFolders(
+            deepAssignRenameKey(allFolders, [
+              { mirror: "mirrorFile" },
+            ]) as StructuredFolders,
+          );
+        } else {
+          actionUpdateFolders(
+            deepAssignRenameKey(
+              Object.values(sourceFolders || {}).concat(targetFolder),
+              [{ mirror: "mirrorFile" }],
+            ) as StructuredFolders,
+          );
+        }
 
-      setResult(result);
-      setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(result);
+        setResult(movedFiles);
+        setStatus(MutationStatus.Succeed);
+        if (onSuccess) {
+          onSuccess(movedFiles);
+        }
+        return movedFiles;
+      } catch (error) {
+        setError(error);
+        setStatus(MutationStatus.Failed);
+        if (onError) {
+          onError(error);
+        }
+        throw error;
       }
-      return result;
-    } catch (error) {
-      setError(error);
-      setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
-      }
-      throw error;
-    }
-  };
+    },
+    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+  );
 
   return {
-    moveFiles: useCallback(moveFiles, [
-      state.dataverseConnector,
-      actionSetFolders,
-    ]),
-    result,
+    movedFiles: result,
     error,
     status,
     isIdle,
@@ -117,5 +118,6 @@ export const useMoveFiles = ({
     isSucceed,
     isFailed,
     reset,
+    moveFiles,
   };
 };
