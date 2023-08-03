@@ -1,28 +1,20 @@
+import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
-import {
-  SYSTEM_CALL,
-  StructuredFolder,
-  FolderType,
-  StructuredFolders,
-} from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
-import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useMutation } from "../utils";
 
-export const useCreateFolder = ({
+export const useReadAllFolders = ({
   onError,
   onPending,
   onSuccess,
 }: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
-  onSuccess?: (result?: {
-    allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
-  }) => void;
+  onSuccess?: (result?: StructuredFolders) => void;
 }) => {
   const { state } = useStore();
   const { actionSetFolders } = useAction();
@@ -42,21 +34,14 @@ export const useCreateFolder = ({
   } = useMutation();
 
   /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
+   * read all folders when have no param otherwise will read all pubilc
+   * folders
    * @param reRender reRender page ?
+   * @returns
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
+  const readAllFolders = async ({
     reRender = true,
   }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
     reRender?: boolean;
   }) => {
     try {
@@ -70,17 +55,12 @@ export const useCreateFolder = ({
       }
 
       const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
-        params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
-        },
+        method: SYSTEM_CALL.readFolders,
       });
 
       if (reRender) {
         actionSetFolders(
-          deepAssignRenameKey(result.allFolders, [
+          deepAssignRenameKey(result, [
             { mirror: "mirrorFile" },
           ]) as StructuredFolders,
         );
@@ -103,7 +83,7 @@ export const useCreateFolder = ({
   };
 
   return {
-    createFolder: useCallback(createFolder, [
+    readAllFolders: useCallback(readAllFolders, [
       state.dataverseConnector,
       actionSetFolders,
     ]),

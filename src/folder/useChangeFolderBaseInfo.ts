@@ -3,16 +3,15 @@ import { useAction } from "../store/useAction";
 import {
   SYSTEM_CALL,
   StructuredFolder,
-  FolderType,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
-import { MutationStatus } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { MutationStatus } from "../types";
 
-export const useCreateFolder = ({
+export const useChangeFolderBaseInfo = ({
   onError,
   onPending,
   onSuccess,
@@ -20,8 +19,8 @@ export const useCreateFolder = ({
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: {
+    currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
   }) => void;
 }) => {
   const { state } = useStore();
@@ -42,22 +41,25 @@ export const useCreateFolder = ({
   } = useMutation();
 
   /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
-   * @param reRender reRender page ?
+   * change folder name by streamId
+   * @param folderId
+   * @param newFolderName Folder name
+   * @param newFolderDescription Folder description
+   * @param reRender reRender page
+   * @param syncImmediately sync
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
+  const changeFolderBaseInfo = async ({
+    folderId,
+    newFolderName,
+    newFolderDescription,
     reRender = true,
+    syncImmediately,
   }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
+    folderId: string;
+    newFolderName: string;
+    newFolderDescription?: string;
     reRender?: boolean;
+    syncImmediately?: boolean;
   }) => {
     try {
       if (!state.dataverseConnector) {
@@ -70,11 +72,12 @@ export const useCreateFolder = ({
       }
 
       const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
+        method: SYSTEM_CALL.updateFolderBaseInfo,
         params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
+          folderId,
+          newFolderName,
+          newFolderDescription,
+          syncImmediately,
         },
       });
 
@@ -103,7 +106,7 @@ export const useCreateFolder = ({
   };
 
   return {
-    createFolder: useCallback(createFolder, [
+    changeFolderBaseInfo: useCallback(changeFolderBaseInfo, [
       state.dataverseConnector,
       actionSetFolders,
     ]),

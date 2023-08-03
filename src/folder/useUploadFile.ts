@@ -1,13 +1,47 @@
-import { Folder, Folders } from "@dataverse/js-dataverse";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
-import { SYSTEM_CALL, StorageProvider } from "@dataverse/dataverse-connector";
+import {
+  MirrorFile,
+  SYSTEM_CALL,
+  StorageProvider,
+  StructuredFolder,
+  StructuredFolders,
+} from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
+import { useMutation } from "../utils";
+import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { MutationStatus } from "../types";
 
-export const useUploadFile = () => {
+export const useUploadFile = ({
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  onError?: (error?: unknown) => void;
+  onPending?: () => void;
+  onSuccess?: (result?: {
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolders;
+  }) => void;
+}) => {
   const { state } = useStore();
   const { actionSetFolders } = useAction();
+
+  const {
+    result,
+    setResult,
+    error,
+    setError,
+    status,
+    setStatus,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
+  } = useMutation();
 
   /**
    * add mirror to folder by folderId
@@ -16,7 +50,7 @@ export const useUploadFile = () => {
    * @param reRender reRender page ?
    * @param syncImmediately sync ?
    */
-  const uploadFile = ({
+  const uploadFile = async ({
     folderId,
     fileBase64,
     fileName,
@@ -29,42 +63,65 @@ export const useUploadFile = () => {
     fileName: string;
     encrypted: boolean;
     storageProvider: StorageProvider;
-    reRender: boolean;
-  }): Promise<{
-    allFolders: Folders;
-    currentFolder: Folder;
-  }> =>
-    new Promise((resolve, reject) => {
-      state.dataverseConnector
-        ?.runOS({
-          method: SYSTEM_CALL.uploadFile,
-          params: {
-            folderId,
-            fileBase64,
-            fileName,
-            encrypted,
-            storageProvider,
-          },
-        })
-        .then(result => {
-          if (reRender) {
-            actionSetFolders(
-              deepAssignRenameKey(result.allFolders, [
-                { mirror: "mirrorFile" },
-              ]) as Folders,
-            );
-          }
-          resolve(result);
-        })
-        .catch(e => {
-          reject(e);
-        });
-    });
+    reRender?: boolean;
+  }) => {
+    try {
+      if (!state.dataverseConnector) {
+        throw DATAVERSE_CONNECTOR_UNDEFINED;
+      }
+
+      setStatus(MutationStatus.Pending);
+      if (onPending) {
+        onPending();
+      }
+
+      const result = await state.dataverseConnector.runOS({
+        method: SYSTEM_CALL.uploadFile,
+        params: {
+          folderId,
+          fileBase64,
+          fileName,
+          encrypted,
+          storageProvider,
+        },
+      });
+
+      if (reRender) {
+        actionSetFolders(
+          deepAssignRenameKey(result.allFolders, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolders,
+        );
+      }
+
+      setResult(result);
+      setStatus(MutationStatus.Succeed);
+      if (onSuccess) {
+        onSuccess(result);
+      }
+      return result;
+    } catch (error) {
+      setError(error);
+      setStatus(MutationStatus.Failed);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
+    }
+  };
 
   return {
     uploadFile: useCallback(uploadFile, [
       state.dataverseConnector,
       actionSetFolders,
     ]),
+    result,
+    error,
+    status,
+    isIdle,
+    isPending,
+    isSucceed,
+    isFailed,
+    reset,
   };
 };

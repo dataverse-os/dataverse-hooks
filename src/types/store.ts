@@ -13,14 +13,11 @@ export enum ActionType {
   LoadStreams,
   UpdateStream,
   SetFolders,
-  SetLocalFolderIdToRemoteFolderId,
-  SetLocalFolderIdToRemoteFolderIdMap,
-  SetProfileStream,
 }
 
 export type DataverseContextType = {
   state: {
-    dataverseConnector?: DataverseConnector;
+    dataverseConnector: DataverseConnector;
     address?: string;
     chain?: Chain;
     wallet?: WALLET;

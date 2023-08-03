@@ -64,6 +64,11 @@ export const reducer = (
       break;
     }
 
+    case ActionType.SetFolders: {
+      state.folders = payload;
+      break;
+    }
+
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }

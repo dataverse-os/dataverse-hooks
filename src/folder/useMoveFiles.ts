@@ -1,9 +1,9 @@
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
+  MirrorFiles,
   SYSTEM_CALL,
   StructuredFolder,
-  FolderType,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
@@ -12,7 +12,7 @@ import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
-export const useCreateFolder = ({
+export const useMoveFiles = ({
   onError,
   onPending,
   onSuccess,
@@ -20,8 +20,10 @@ export const useCreateFolder = ({
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: {
+    sourceFolders: StructuredFolders;
+    targetFolder: StructuredFolder;
+    movedFiles: MirrorFiles;
     allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
   }) => void;
 }) => {
   const { state } = useStore();
@@ -42,22 +44,22 @@ export const useCreateFolder = ({
   } = useMutation();
 
   /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
+   * move mirror from sourceFolder to targetFolder by id
+   * @param sourceMirrorIds source mirrors id
+   * @param targetFolderId target folder id
    * @param reRender reRender page ?
+   * @param syncImmediately sync ?
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
+  const moveFiles = async ({
+    sourceIndexFileIds,
+    targetFolderId,
     reRender = true,
+    syncImmediately = false,
   }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
+    sourceIndexFileIds: string[];
+    targetFolderId: string;
     reRender?: boolean;
+    syncImmediately?: boolean;
   }) => {
     try {
       if (!state.dataverseConnector) {
@@ -70,11 +72,11 @@ export const useCreateFolder = ({
       }
 
       const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
+        method: SYSTEM_CALL.moveFiles,
         params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
+          targetFolderId,
+          sourceIndexFileIds,
+          syncImmediately,
         },
       });
 
@@ -103,7 +105,7 @@ export const useCreateFolder = ({
   };
 
   return {
-    createFolder: useCallback(createFolder, [
+    moveFiles: useCallback(moveFiles, [
       state.dataverseConnector,
       actionSetFolders,
     ]),

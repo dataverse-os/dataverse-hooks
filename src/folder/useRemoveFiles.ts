@@ -1,18 +1,17 @@
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
+  MirrorFiles,
   SYSTEM_CALL,
-  StructuredFolder,
-  FolderType,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
-import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { useMutation } from "../utils";
 
-export const useCreateFolder = ({
+export const useRemoveFiles = ({
   onError,
   onPending,
   onSuccess,
@@ -21,7 +20,8 @@ export const useCreateFolder = ({
   onPending?: () => void;
   onSuccess?: (result?: {
     allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
+    removedFiles: MirrorFiles;
+    sourceFolders: StructuredFolders;
   }) => void;
 }) => {
   const { state } = useStore();
@@ -42,23 +42,24 @@ export const useCreateFolder = ({
   } = useMutation();
 
   /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
+   * remove mirror by both folderId and mirrorId
+   * @param mirrorIds mirrors id
    * @param reRender reRender page ?
+   * @param syncImmediately sync ?
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
+  const removeFiles = async ({
+    indexFileIds,
     reRender = true,
+    syncImmediately = false,
   }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
+    indexFileIds: string[];
     reRender?: boolean;
-  }) => {
+    syncImmediately?: boolean;
+  }): Promise<{
+    allFolders: StructuredFolders;
+    removedFiles: MirrorFiles;
+    sourceFolders: StructuredFolders;
+  }> => {
     try {
       if (!state.dataverseConnector) {
         throw DATAVERSE_CONNECTOR_UNDEFINED;
@@ -70,11 +71,10 @@ export const useCreateFolder = ({
       }
 
       const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
+        method: SYSTEM_CALL.removeFiles,
         params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
+          indexFileIds,
+          syncImmediately,
         },
       });
 
@@ -103,7 +103,7 @@ export const useCreateFolder = ({
   };
 
   return {
-    createFolder: useCallback(createFolder, [
+    removeFiles: useCallback(removeFiles, [
       state.dataverseConnector,
       actionSetFolders,
     ]),

@@ -1,18 +1,18 @@
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
+  FolderType,
   SYSTEM_CALL,
   StructuredFolder,
-  FolderType,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
-import { MutationStatus } from "../types";
 import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { MutationStatus } from "../types";
 
-export const useCreateFolder = ({
+export const useChangeFolderType = ({
   onError,
   onPending,
   onSuccess,
@@ -20,8 +20,8 @@ export const useCreateFolder = ({
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: {
+    currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
-    newFolder: StructuredFolder;
   }) => void;
 }) => {
   const { state } = useStore();
@@ -42,22 +42,22 @@ export const useCreateFolder = ({
   } = useMutation();
 
   /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
+   * change folder type by folderId (only public and privacy is supported)
+   * @param folderId folder id
+   * @param targetType folder type
    * @param reRender reRender page ?
+   * @param sync sync ?
    */
-  const createFolder = async ({
-    folderType,
-    folderName,
-    folderDescription,
+  const changeFolderType = async ({
+    folderId,
+    targetFolderType,
     reRender = true,
+    syncImmediately = false,
   }: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
+    folderId: string;
+    targetFolderType: FolderType;
     reRender?: boolean;
+    syncImmediately?: boolean;
   }) => {
     try {
       if (!state.dataverseConnector) {
@@ -70,11 +70,11 @@ export const useCreateFolder = ({
       }
 
       const result = await state.dataverseConnector.runOS({
-        method: SYSTEM_CALL.createFolder,
+        method: SYSTEM_CALL.changeFolderType,
         params: {
-          folderType: folderType as any,
-          folderName,
-          folderDescription,
+          folderId,
+          targetFolderType: targetFolderType as any,
+          syncImmediately,
         },
       });
 
@@ -103,7 +103,7 @@ export const useCreateFolder = ({
   };
 
   return {
-    createFolder: useCallback(createFolder, [
+    changeFolderType: useCallback(changeFolderType, [
       state.dataverseConnector,
       actionSetFolders,
     ]),
