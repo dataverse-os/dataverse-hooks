@@ -3,7 +3,7 @@ import {
   DataverseConnector,
   StreamRecord,
   WALLET,
-  StructuredFolders as Folders,
+  StructuredFolders,
 } from "@dataverse/dataverse-connector";
 
 export enum ActionType {
@@ -25,10 +25,7 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     streamsMap: Record<string, StreamRecord>;
-    folders: Folders;
-    localFolderIdToRemoteFolderId?: Record<string, string>;
-    localFolderIdToRemoteFolderIdMap?: Record<string, Record<string, string>>;
-    profileStream: StreamObject;
+    folders: StructuredFolders;
   };
   dispatch: React.Dispatch<any>;
 };

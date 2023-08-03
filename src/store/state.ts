@@ -14,10 +14,6 @@ export const initialState: StateType = {
   pkh: undefined,
   streamsMap: {},
   folders: {},
-  profileStream: {
-    streamId: "",
-    streamContent: {},
-  },
 };
 
 export const reducer = (
