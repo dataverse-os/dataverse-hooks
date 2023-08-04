@@ -3,3 +3,4 @@ export * from "./types";
 export * from "./app";
 export * from "./model";
 export * from "./folder";
+export * from "./profile";

@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/hooks",
-  "version": "1.0.8",
+  "version": "1.0.11",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "rm -rf ./dist && pnpm build:esm && pnpm build:cjs",
+    "build": "rm -rf ./dist && pnpm lint:fix && pnpm build:esm && pnpm build:cjs",
     "wbuild": "del /q dist && pnpm build:esm && pnpm build:cjs",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts,.tsx",
@@ -23,7 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dataverse/dataverse-connector": "^1.0.18",
+    "@dataverse/dataverse-connector": "^1.0.22",
     "@dataverse/model-parser": "^1.0.2",
     "@dataverse/wallet-adapter": "^1.0.3",
     "react": "^18.2.0",
@@ -34,10 +34,11 @@
     "@types/lodash": "^4.14.196",
     "@types/react": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^5.0.0",
     "husky": "^8.0.3",
-    "eslint": "^8.45.0",
     "prettier": "^3.0.0"
   }
 }

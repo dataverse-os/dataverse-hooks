@@ -4,7 +4,7 @@ import { useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useGetProfiles = (params?: {
+export const useProfiles = (params?: {
   onError?: (error?: unknown) => void;
   onPending?: () => void;
   onSuccess?: (result?: string[]) => void;
