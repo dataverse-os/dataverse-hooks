@@ -1,10 +1,7 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import {
-  DataverseConnector,
-  StreamRecord,
-} from "@dataverse/dataverse-connector";
-// import _ from "lodash";
+import { DataverseConnector } from "@dataverse/dataverse-connector";
+import _ from "lodash";
 
 export const initialState: StateType = {
   dataverseConnector: new DataverseConnector(),
@@ -23,7 +20,6 @@ export const reducer = (
   },
 ) => {
   const { type, payload } = action;
-  // const clonedState: StateType = _.cloneDeep(state);
 
   switch (type) {
     case ActionType.ConnectWallet: {
@@ -41,7 +37,12 @@ export const reducer = (
 
     case ActionType.CreateStream: {
       const streamId = payload.streamId;
-      state.streamsMap[streamId] = payload as StreamRecord;
+      state.streamsMap[streamId] = {
+        pkh: payload.pkh,
+        appId: payload.appId,
+        modelId: payload.modelId,
+        streamContent: payload.streamContent,
+      };
       break;
     }
 
@@ -63,5 +64,5 @@ export const reducer = (
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-  return state;
+  return _.cloneDeep(state);
 };

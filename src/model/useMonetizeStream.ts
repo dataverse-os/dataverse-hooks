@@ -1,7 +1,7 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
-import { useProfiles } from "../profile/useProfiles";
+import { PROFILES_NOT_EXSIT } from "../errors";
+import { useProfiles } from "../profile";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
@@ -46,17 +46,12 @@ export const useMonetizeStream = (params?: {
       decryptionConditions,
     }: MonetizeStreamArgs) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
         }
         if (!profileId) {
-          const profileIds = await getProfiles(
-            state.dataverseConnector.address!,
-          );
+          const profileIds = await getProfiles(state.address);
           if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
           }
@@ -103,7 +98,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, state.streamsMap, actionUpdateStream],
+    [state.address, state.streamsMap, actionUpdateStream],
   );
 
   return {

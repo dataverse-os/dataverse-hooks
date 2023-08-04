@@ -1,6 +1,5 @@
 import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
@@ -31,9 +30,6 @@ export const useUpdateStream = (params?: {
   const updateStream = useCallback(
     async ({ model, streamId, stream, encrypted }: UpdateStreamArgs) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
@@ -88,7 +84,7 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, state.streamsMap, actionUpdateStream],
+    [state.streamsMap, actionUpdateStream],
   );
 
   return {
