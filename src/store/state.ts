@@ -43,7 +43,6 @@ export const reducer = (
         modelId: payload.modelId,
         streamContent: payload.streamContent,
       };
-      state.streamsMap = _.cloneDeep(state.streamsMap);
       break;
     }
 
@@ -58,7 +57,6 @@ export const reducer = (
         ...state.streamsMap[streamId],
         streamContent,
       };
-      state.streamsMap = _.cloneDeep(state.streamsMap);
       break;
     }
 
@@ -66,5 +64,5 @@ export const reducer = (
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-  return state;
+  return _.cloneDeep(state);
 };
