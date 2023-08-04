@@ -2,4 +2,4 @@ export * from "./store";
 export * from "./types";
 export * from "./app";
 export * from "./model";
-export * from "./profile/useProfiles";
+export * from "./profile";
