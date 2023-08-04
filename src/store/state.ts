@@ -2,6 +2,8 @@ import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
   DataverseConnector,
+  MirrorFile,
+  Mirrors,
   StreamRecord,
 } from "@dataverse/dataverse-connector";
 // import _ from "lodash";
@@ -13,7 +15,7 @@ export const initialState: StateType = {
   chain: undefined,
   pkh: undefined,
   streamsMap: {},
-  folders: {},
+  folderMap: {},
 };
 
 export const reducer = (
@@ -61,21 +63,39 @@ export const reducer = (
     }
 
     case ActionType.SetFolders: {
-      state.folders = payload;
+      state.folderMap = payload;
       break;
     }
 
     case ActionType.UpdateFolders: {
       const folders = payload instanceof Array ? payload : [payload];
       folders.forEach(folder => {
-        state.folders[folder.folderId] = folder;
+        state.folderMap[folder.folderId] = folder;
       });
       break;
     }
 
     case ActionType.DeleteFolder: {
       const folderId = payload;
-      delete state.folders[folderId];
+      delete state.folderMap[folderId];
+      break;
+    }
+
+    case ActionType.UpdateFoldersByFile: {
+      const file: MirrorFile = payload;
+      Object.keys(state.folderMap).forEach(folderId => {
+        const folder = state.folderMap[folderId];
+        if (typeof folder.mirrors !== "string") {
+          Object.keys(folder.mirrors).forEach(mirrorId => {
+            const mirror = (folder.mirrors as Mirrors)[mirrorId];
+            if (mirror.mirrorFile.indexFileId === file.indexFileId) {
+              (state.folderMap[folderId].mirrors as Mirrors)[
+                mirrorId
+              ].mirrorFile = file;
+            }
+          });
+        }
+      });
       break;
     }
 

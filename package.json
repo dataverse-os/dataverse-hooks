@@ -13,7 +13,7 @@
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
     "build": "rm -rf ./dist && pnpm lint:fix && pnpm build:esm && pnpm build:cjs",
-    "wbuild": "del /q dist && pnpm build:esm && pnpm build:cjs",
+    "wbuild": "del /q dist && pnpm lint:fix && pnpm build:esm && pnpm build:cjs",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",

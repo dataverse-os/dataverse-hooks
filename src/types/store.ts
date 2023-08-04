@@ -15,6 +15,7 @@ export enum ActionType {
   SetFolders,
   UpdateFolders,
   DeleteFolder,
+  UpdateFoldersByFile,
 }
 
 export type DataverseContextType = {
@@ -25,7 +26,7 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     streamsMap: Record<string, StreamRecord>;
-    folders: StructuredFolders;
+    folderMap: StructuredFolders;
   };
   dispatch: React.Dispatch<any>;
 };

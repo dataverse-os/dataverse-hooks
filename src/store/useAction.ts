@@ -1,5 +1,6 @@
 import {
   Chain,
+  MirrorFile,
   StructuredFolder,
   StructuredFolders,
   WALLET,
@@ -110,6 +111,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateFoldersByFile = useCallback(
+    (file: MirrorFile) => {
+      dispatch({
+        type: ActionType.UpdateFoldersByFile,
+        payload: file,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
@@ -119,5 +130,6 @@ export const useAction = () => {
     actionSetFolders,
     actionUpdateFolders,
     actionDeleteFolder,
+    actionUpdateFoldersByFile,
   };
 };
