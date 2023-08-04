@@ -1,12 +1,17 @@
 <br/>
 <p align="center">
 <a href=" " target="_blank">
-<img src="./logo.svg" width="180" alt="Dataverse logo">
+<img src="https://github.com/dataverse-os/dataverse-connector/raw/main/logo.svg" width="180" alt="Dataverse logo">
 </a >
 </p >
 <br/>
 
 # Dataverse Hooks
+
+[![npm version](https://img.shields.io/npm/v/@dataverse/hooks.svg)](https://www.npmjs.com/package/@dataverse/hooks)
+![npm](https://img.shields.io/npm/dw/@dataverse/hooks)
+[![License](https://img.shields.io/npm/l/@dataverse/hooks.svg)](https://github.com/dataverse-os/hooks/blob/main/LICENSE.md)
+
 
 ## Overview
 
