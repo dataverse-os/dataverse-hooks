@@ -15,7 +15,7 @@ export enum ActionType {
 
 export type DataverseContextType = {
   state: {
-    dataverseConnector?: DataverseConnector;
+    dataverseConnector: DataverseConnector;
     address?: string;
     chain?: Chain;
     wallet?: WALLET;

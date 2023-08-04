@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { ADDRESS_UNDEFINED, DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
@@ -28,10 +28,6 @@ export const useProfiles = (params?: {
   const getProfiles = useCallback(
     async (accountAddress?: string) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         const targetAddress = state.address || accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
@@ -60,7 +56,7 @@ export const useProfiles = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, state.address],
+    [state.address],
   );
 
   return {

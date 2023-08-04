@@ -3,7 +3,6 @@ import { useStore } from "../store";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useAction } from "../store/useAction";
 
 export const useCapability = (params?: {
@@ -32,9 +31,6 @@ export const useCapability = (params?: {
   const createCapability = useCallback(
     async (appId: string) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params?.onPending();
@@ -62,7 +58,7 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, actionCreateCapability],
+    [actionCreateCapability],
   );
 
   return {

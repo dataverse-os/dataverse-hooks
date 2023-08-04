@@ -1,6 +1,5 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
@@ -44,10 +43,6 @@ export const useCreateStream = ({
   const createStream = useCallback(
     async (args: CreateStreamArgs[StreamType]) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
@@ -118,7 +113,7 @@ export const useCreateStream = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionCreateStream],
+    [actionCreateStream],
   );
 
   return {

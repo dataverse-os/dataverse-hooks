@@ -3,7 +3,6 @@ import { useStore } from "../store";
 import { useMutation } from "../utils";
 import { LoadStreamsResult, MutationStatus } from "../types";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useAction } from "../store/useAction";
 
 export const useFeeds = (params?: {
@@ -31,9 +30,6 @@ export const useFeeds = (params?: {
   const loadFeeds = useCallback(
     async (modelId: string) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
@@ -65,7 +61,7 @@ export const useFeeds = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, actionLoadStreams],
+    [actionLoadStreams],
   );
 
   return {

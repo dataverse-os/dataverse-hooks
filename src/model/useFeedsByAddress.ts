@@ -7,7 +7,6 @@ import {
   MutationStatus,
 } from "../types";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useAction } from "../store/useAction";
 
 export const useFeedsByAddress = (params?: {
@@ -35,9 +34,6 @@ export const useFeedsByAddress = (params?: {
   const loadFeedsByAddress = useCallback(
     async ({ pkh, modelId }: LoadStreamsByArgs) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
@@ -69,7 +65,7 @@ export const useFeedsByAddress = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, actionLoadStreams],
+    [actionLoadStreams],
   );
 
   return {
