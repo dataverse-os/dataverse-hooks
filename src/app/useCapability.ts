@@ -10,7 +10,7 @@ export const useCapability = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
 
   const { actionCreateCapability } = useAction();
 
@@ -35,7 +35,7 @@ export const useCapability = (params?: {
         if (params?.onPending) {
           params?.onPending();
         }
-        const currentPkh = await state.dataverseConnector.runOS({
+        const currentPkh = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createCapability,
           params: {
             appId,

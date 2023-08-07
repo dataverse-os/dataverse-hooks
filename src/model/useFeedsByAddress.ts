@@ -14,7 +14,7 @@ export const useFeedsByAddress = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: LoadStreamsByResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionLoadStreams } = useAction();
 
   const {
@@ -39,14 +39,13 @@ export const useFeedsByAddress = (params?: {
           params.onPending();
         }
 
-        const streams: LoadStreamsByResult =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.loadStreamsBy,
-            params: {
-              modelId,
-              pkh,
-            },
-          });
+        const streams: LoadStreamsByResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadStreamsBy,
+          params: {
+            modelId,
+            pkh,
+          },
+        });
 
         actionLoadStreams(streams);
 

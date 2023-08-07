@@ -16,7 +16,7 @@ export const useMonetizeStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, state } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -62,7 +62,7 @@ export const useMonetizeStream = (params?: {
           streamContent = state.streamsMap[streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.monetizeFile,
             params: {
               streamId,

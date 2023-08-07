@@ -1,10 +1,8 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import { DataverseConnector } from "@dataverse/dataverse-connector";
 import _ from "lodash";
 
 export const initialState: StateType = {
-  dataverseConnector: new DataverseConnector(),
   address: undefined,
   wallet: undefined,
   chain: undefined,

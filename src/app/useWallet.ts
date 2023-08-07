@@ -12,7 +12,7 @@ export const useWallet = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionConnectWallet } = useAction();
 
   const { connectAsync } = useConnect({
@@ -40,7 +40,7 @@ export const useWallet = (params?: {
         if (params?.onPending) {
           params.onPending();
         }
-        const connectResult = await state.dataverseConnector.connectWallet({
+        const connectResult = await dataverseConnector.connectWallet({
           wallet,
           provider,
         });

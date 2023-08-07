@@ -22,7 +22,7 @@ export const useCreateStream = ({
   onPending?: () => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionCreateStream } = useAction();
   const { monetizeStream } = useMonetizeStream();
 
@@ -70,7 +70,7 @@ export const useCreateStream = ({
         };
 
         const createdStream: CreateStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.createStream,
             params: {
               modelId: args.modelId,

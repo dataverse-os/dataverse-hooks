@@ -10,7 +10,7 @@ export const useUnlockStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -35,7 +35,7 @@ export const useUnlockStream = (params?: {
           params.onPending();
         }
 
-        const unlockResult = await state.dataverseConnector.runOS({
+        const unlockResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.unlock,
           params: {
             streamId,

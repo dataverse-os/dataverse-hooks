@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "rm -rf ./dist && pnpm lint:fix && pnpm build:esm && pnpm build:cjs",
+    "build": "rm -rf ./dist && pnpm build:esm && pnpm build:cjs",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",

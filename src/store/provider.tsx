@@ -1,3 +1,4 @@
+import { DataverseConnector } from "@dataverse/dataverse-connector";
 import React, { ReactNode, useMemo, useReducer } from "react";
 import { createConfig, WagmiConfig } from "wagmi";
 import { initialState, reducer } from "./state";
@@ -9,6 +10,7 @@ export const DataverseContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const dataverseConnector = new DataverseConnector();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const config = useMemo(
@@ -22,7 +24,7 @@ export const DataverseContextProvider = ({
   );
 
   return (
-    <DataverseContext.Provider value={{ state, dispatch }}>
+    <DataverseContext.Provider value={{ dataverseConnector, state, dispatch }}>
       <WagmiConfig config={config}>{children}</WagmiConfig>
     </DataverseContext.Provider>
   );

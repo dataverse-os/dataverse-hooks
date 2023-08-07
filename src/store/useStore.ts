@@ -1,12 +1,10 @@
 import { createContext, useContext } from "react";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import { DataverseContextType } from "../types";
-import { initialState } from "./state";
 
-export const DataverseContext = createContext<DataverseContextType>({
-  state: initialState,
-  dispatch: () => {},
-});
+export const DataverseContext = createContext<DataverseContextType>(
+  {} as DataverseContextType,
+);
 
 export const useStore = () => {
   const context = useContext(DataverseContext);
@@ -14,9 +12,10 @@ export const useStore = () => {
     throw DATAVERSE_CONTEXT_PROVIDER_ERROR;
   }
 
-  const { state } = context;
+  const { dataverseConnector, state } = context;
 
   return {
+    dataverseConnector,
     state,
   };
 };

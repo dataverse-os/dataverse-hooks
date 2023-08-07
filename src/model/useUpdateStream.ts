@@ -10,7 +10,7 @@ export const useUpdateStream = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, state } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -53,15 +53,16 @@ export const useUpdateStream = (params?: {
           encrypted: JSON.stringify(encrypted),
         };
 
-        const updateResult: UpdateStreamResult =
-          await state.dataverseConnector.runOS({
+        const updateResult: UpdateStreamResult = await dataverseConnector.runOS(
+          {
             method: SYSTEM_CALL.updateStream,
             params: {
               streamId,
               streamContent,
               syncImmediately: true,
             },
-          });
+          },
+        );
 
         actionUpdateStream({
           streamId,

@@ -9,7 +9,7 @@ export const useProfiles = (params?: {
   onPending?: () => void;
   onSuccess?: (result?: string[]) => void;
 }) => {
-  const { state } = useStore();
+  const { state, dataverseConnector } = useStore();
 
   const {
     result,
@@ -38,7 +38,7 @@ export const useProfiles = (params?: {
           params.onPending();
         }
         const profileIds = (
-          await state.dataverseConnector.getProfiles(targetAddress)
+          await dataverseConnector.getProfiles(targetAddress)
         ).map(value => value.id);
         setResult(profileIds);
         setStatus(MutationStatus.Succeed);
