@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
 <a href=" " target="_blank">
-<img src="https://github.com/dataverse-os/dataverse-connector/raw/main/logo.svg" width="180" alt="Dataverse logo">
+<img src="https://bafybeifozdhcbbfydy2rs6vbkbbtj3wc4vjlz5zg2cnqhb2g4rm2o5ldna.ipfs.w3s.link/dataverse.svg" width="180" alt="Dataverse logo">
 </a >
 </p >
 <br/>
