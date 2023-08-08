@@ -1,4 +1,10 @@
-import { Chain, WALLET } from "@dataverse/dataverse-connector";
+import {
+  Chain,
+  MirrorFile,
+  StructuredFolder,
+  StructuredFolders,
+  WALLET,
+} from "@dataverse/dataverse-connector";
 import { useCallback, useContext } from "react";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
@@ -76,6 +82,15 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionSetFolders = useCallback(
+    (folders: StructuredFolders) => {
+      dispatch({
+        type: ActionType.SetFolders,
+        payload: folders,
+      },
+    [dispatch],
+  );
+
   const actionLoadProfileIds = useCallback(
     (profileIds: string[]) => {
       dispatch({
@@ -86,11 +101,41 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateFolders = useCallback(
+    (newFolders: StructuredFolder | StructuredFolders) => {
+      dispatch({
+        type: ActionType.UpdateFolders,
+        payload: newFolders,
+      });
+    },
+    [dispatch],
+  );
+
   const actionCreateProfile = useCallback(
     (profileId: string) => {
       dispatch({
         type: ActionType.CreateProfileId,
         payload: profileId,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionDeleteFolder = useCallback(
+    (folderId: string) => {
+      dispatch({
+        type: ActionType.DeleteFolder,
+        payload: folderId,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateFoldersByFile = useCallback(
+    (file: MirrorFile) => {
+      dispatch({
+        type: ActionType.UpdateFoldersByFile,
+        payload: file,
       });
     },
     [dispatch],
@@ -112,6 +157,10 @@ export const useAction = () => {
     actionCreateStream,
     actionUpdateStream,
     actionLoadStreams,
+    actionSetFolders,
+    actionUpdateFolders,
+    actionDeleteFolder,
+    actionUpdateFoldersByFile,
     actionLoadProfileIds,
     actionCreateProfile,
     actionUpdateDatatokenInfo,

@@ -1,5 +1,10 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
+import {
+  MirrorFile,
+  Mirrors,
+  StreamRecord,
+} from "@dataverse/dataverse-connector";
 import _ from "lodash";
 
 export const initialState: StateType = {
@@ -9,6 +14,7 @@ export const initialState: StateType = {
   pkh: undefined,
   profileIds: undefined,
   streamsMap: {},
+  folderMap: {},
 };
 
 export const reducer = (
@@ -59,6 +65,43 @@ export const reducer = (
       break;
     }
 
+    case ActionType.SetFolders: {
+      state.folderMap = payload;
+      break;
+    }
+
+    case ActionType.UpdateFolders: {
+      const folders = payload instanceof Array ? payload : [payload];
+      folders.forEach(folder => {
+        state.folderMap[folder.folderId] = folder;
+      });
+      break;
+    }
+
+    case ActionType.DeleteFolder: {
+      const folderId = payload;
+      delete state.folderMap[folderId];
+      break;
+    }
+
+    case ActionType.UpdateFoldersByFile: {
+      const file: MirrorFile = payload;
+      Object.keys(state.folderMap).forEach(folderId => {
+        const folder = state.folderMap[folderId];
+        if (typeof folder.mirrors !== "string") {
+          Object.keys(folder.mirrors).forEach(mirrorId => {
+            const mirror = (folder.mirrors as Mirrors)[mirrorId];
+            if (mirror.mirrorFile.indexFileId === file.indexFileId) {
+              (state.folderMap[folderId].mirrors as Mirrors)[
+                mirrorId
+              ].mirrorFile = file;
+            }
+          });
+        }
+      });
+      break;
+    }
+      
     case ActionType.LoadProfileIds: {
       state.profileIds = payload;
       break;
@@ -86,5 +129,6 @@ export const reducer = (
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
+  
   return _.cloneDeep(state);
 };

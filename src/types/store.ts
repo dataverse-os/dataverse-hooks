@@ -3,6 +3,7 @@ import {
   DataverseConnector,
   StreamRecord,
   WALLET,
+  StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { DatatokenInfo } from "./params";
 
@@ -12,6 +13,10 @@ export enum ActionType {
   CreateStream,
   LoadStreams,
   UpdateStream,
+  SetFolders,
+  UpdateFolders,
+  DeleteFolder,
+  UpdateFoldersByFile,
   LoadProfileIds,
   CreateProfileId,
   UpdateDatatokenInfo,
@@ -24,6 +29,7 @@ export type DataverseContextType = {
     chain?: Chain;
     wallet?: WALLET;
     pkh?: string;
+    folderMap: StructuredFolders;
     profileIds?: string[];
     streamsMap: Record<
       string,
@@ -32,5 +38,10 @@ export type DataverseContextType = {
   };
   dispatch: React.Dispatch<any>;
 };
+
+export interface StreamObject {
+  streamId: string;
+  streamContent: Record<string, any>;
+}
 
 export type StateType = DataverseContextType["state"];
