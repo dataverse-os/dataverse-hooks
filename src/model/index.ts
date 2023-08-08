@@ -4,3 +4,4 @@ export * from "./useFeedsByAddress";
 export * from "./useMonetizeStream";
 export * from "./useUnlockStream";
 export * from "./useUpdateStream";
+export * from "./useDatatokenInfo";

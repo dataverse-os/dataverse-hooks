@@ -1,14 +1,13 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import { DataverseConnector } from "@dataverse/dataverse-connector";
 import _ from "lodash";
 
 export const initialState: StateType = {
-  dataverseConnector: new DataverseConnector(),
   address: undefined,
   wallet: undefined,
   chain: undefined,
   pkh: undefined,
+  profileIds: undefined,
   streamsMap: {},
 };
 
@@ -56,6 +55,29 @@ export const reducer = (
       state.streamsMap[streamId] = {
         ...state.streamsMap[streamId],
         streamContent,
+      };
+      break;
+    }
+
+    case ActionType.LoadProfileIds: {
+      state.profileIds = payload;
+      break;
+    }
+
+    case ActionType.CreateProfileId: {
+      if (state.profileIds) {
+        state.profileIds.push(payload);
+      } else {
+        state.profileIds = [payload];
+      }
+      break;
+    }
+
+    case ActionType.UpdateDatatokenInfo: {
+      const { streamId, datatokenInfo } = payload;
+      state.streamsMap[streamId] = {
+        ...state.streamsMap[streamId],
+        datatokenInfo,
       };
       break;
     }

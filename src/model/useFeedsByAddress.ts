@@ -10,11 +10,11 @@ import { useCallback } from "react";
 import { useAction } from "../store/useAction";
 
 export const useFeedsByAddress = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: LoadStreamsByResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: LoadStreamsByArgs) => void;
+  onSuccess?: (result: LoadStreamsByResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionLoadStreams } = useAction();
 
   const {
@@ -36,17 +36,16 @@ export const useFeedsByAddress = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({ pkh, modelId });
         }
 
-        const streams: LoadStreamsByResult =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.loadStreamsBy,
-            params: {
-              modelId,
-              pkh,
-            },
-          });
+        const streams: LoadStreamsByResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadStreamsBy,
+          params: {
+            modelId,
+            pkh,
+          },
+        });
 
         actionLoadStreams(streams);
 
@@ -76,6 +75,7 @@ export const useFeedsByAddress = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     loadFeedsByAddress,
   };

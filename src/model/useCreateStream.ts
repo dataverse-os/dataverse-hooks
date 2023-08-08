@@ -18,13 +18,15 @@ export const useCreateStream = ({
   onSuccess,
 }: {
   streamType: StreamType;
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: CreateStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: CreateStreamArgs[StreamType]) => void;
+  onSuccess?: (result: CreateStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionCreateStream } = useAction();
-  const { monetizeStream } = useMonetizeStream();
+  const { monetizeStream } = useMonetizeStream({
+    onPending: () => {},
+  });
 
   const {
     result,
@@ -45,7 +47,7 @@ export const useCreateStream = ({
       try {
         setStatus(MutationStatus.Pending);
         if (onPending) {
-          onPending();
+          onPending(args);
         }
 
         let encrypted;
@@ -70,7 +72,7 @@ export const useCreateStream = ({
         };
 
         const createdStream: CreateStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.createStream,
             params: {
               modelId: args.modelId,
@@ -124,6 +126,7 @@ export const useCreateStream = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     createStream,
   };

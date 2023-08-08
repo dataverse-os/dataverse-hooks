@@ -12,11 +12,11 @@ import {
 import { useMutation } from "../utils";
 
 export const useMonetizeStream = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MonetizeStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: MonetizeStreamArgs) => void;
+  onSuccess?: (result: MonetizeStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, address, profileIds, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -48,21 +48,36 @@ export const useMonetizeStream = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({
+            streamId,
+            profileId,
+            streamContent,
+            currency,
+            amount,
+            collectLimit,
+            decryptionConditions,
+          });
         }
+
         if (!profileId) {
-          const profileIds = await getProfiles(state.address);
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
         if (!streamContent) {
-          streamContent = state.streamsMap[streamId].streamContent;
+          streamContent = streamsMap[streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.monetizeFile,
             params: {
               streamId,
@@ -98,7 +113,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [state.address, state.streamsMap, actionUpdateStream],
+    [address, streamsMap, actionUpdateStream],
   );
 
   return {
@@ -109,6 +124,7 @@ export const useMonetizeStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     monetizeStream,
   };

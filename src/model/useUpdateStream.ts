@@ -6,11 +6,11 @@ import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 
 export const useUpdateStream = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: UpdateStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: UpdateStreamArgs) => void;
+  onSuccess?: (result: UpdateStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -32,12 +32,11 @@ export const useUpdateStream = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({ model, streamId, stream, encrypted });
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType =
-          state.streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&
@@ -53,15 +52,16 @@ export const useUpdateStream = (params?: {
           encrypted: JSON.stringify(encrypted),
         };
 
-        const updateResult: UpdateStreamResult =
-          await state.dataverseConnector.runOS({
+        const updateResult: UpdateStreamResult = await dataverseConnector.runOS(
+          {
             method: SYSTEM_CALL.updateStream,
             params: {
               streamId,
               streamContent,
               syncImmediately: true,
             },
-          });
+          },
+        );
 
         actionUpdateStream({
           streamId,
@@ -84,7 +84,7 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [state.streamsMap, actionUpdateStream],
+    [streamsMap, actionUpdateStream],
   );
 
   return {
@@ -95,6 +95,7 @@ export const useUpdateStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     updateStream,
   };

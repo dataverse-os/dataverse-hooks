@@ -80,6 +80,28 @@ export type MonetizeStreamResult = Awaited<
   ReturnType[SYSTEM_CALL.monetizeFile]
 >;
 
+export type DatatokenInfo = Partial<{
+  address: string;
+  collect_info: {
+    collect_nft_address: string;
+    sold_list: {
+      owner: string;
+      token_id: string;
+    }[];
+    price: {
+      amount: string;
+      currency: string;
+      currency_addr: string;
+    };
+    sold_num: number;
+    total: string;
+    who_can_free_collect: string[];
+  };
+  content_uri: string;
+  owner: string;
+  source: string;
+}>;
+
 export type UnlockStreamResult = Awaited<ReturnType[SYSTEM_CALL.unlock]>;
 
 export type UpdateStreamArgs = {

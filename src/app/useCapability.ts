@@ -6,11 +6,11 @@ import { useCallback } from "react";
 import { useAction } from "../store/useAction";
 
 export const useCapability = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onError?: (error: any) => void;
+  onPending?: (appId?: string) => void;
   onSuccess?: (result?: string) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
 
   const { actionCreateCapability } = useAction();
 
@@ -33,9 +33,9 @@ export const useCapability = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending();
+          params?.onPending(appId);
         }
-        const currentPkh = await state.dataverseConnector.runOS({
+        const currentPkh = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createCapability,
           params: {
             appId,
@@ -69,6 +69,7 @@ export const useCapability = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     createCapability,
   };

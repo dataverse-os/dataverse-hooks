@@ -1,6 +1,9 @@
 export const ADDRESS_UNDEFINED = new Error("No available address");
 export const PROFILES_NOT_EXSIT = new Error("Profiles not exsit");
 export const ACTION_TYPE_NOT_EXSITS = new Error("ActionType not exsits");
+export const DATATOKENID_NOT_EXIST = new Error(
+  "DatatokenId not exsits in this stream",
+);
 export const DATAVERSE_CONTEXT_PROVIDER_ERROR = new Error(
   "useStore must be used within a DataverseHooksProvider",
 );
