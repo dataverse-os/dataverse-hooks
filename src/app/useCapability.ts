@@ -69,6 +69,7 @@ export const useCapability = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     createCapability,
   };

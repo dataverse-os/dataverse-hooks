@@ -11,6 +11,8 @@ export enum ActionType {
   CreateStream,
   LoadStreams,
   UpdateStream,
+  LoadProfileIds,
+  CreateProfileId,
 }
 
 export type DataverseContextType = {
@@ -20,6 +22,7 @@ export type DataverseContextType = {
     chain?: Chain;
     wallet?: WALLET;
     pkh?: string;
+    profileIds: string[];
     streamsMap: Record<string, StreamRecord>;
   };
   dispatch: React.Dispatch<any>;

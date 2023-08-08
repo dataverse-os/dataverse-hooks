@@ -75,6 +75,7 @@ export const useFeedsByAddress = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     loadFeedsByAddress,
   };

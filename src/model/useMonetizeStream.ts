@@ -109,6 +109,7 @@ export const useMonetizeStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     monetizeStream,
   };

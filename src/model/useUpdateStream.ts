@@ -96,6 +96,7 @@ export const useUpdateStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     updateStream,
   };

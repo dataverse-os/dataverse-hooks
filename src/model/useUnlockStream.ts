@@ -74,6 +74,7 @@ export const useUnlockStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     unlockStream,
   };

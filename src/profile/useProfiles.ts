@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
+import { useAction } from "../store/useAction";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
@@ -10,6 +11,7 @@ export const useProfiles = (params?: {
   onSuccess?: (result?: string[]) => void;
 }) => {
   const { state, dataverseConnector } = useStore();
+  const { actionLoadProfileIds } = useAction();
 
   const {
     result,
@@ -40,6 +42,9 @@ export const useProfiles = (params?: {
         const profileIds = (
           await dataverseConnector.getProfiles(targetAddress)
         ).map(value => value.id);
+
+        actionLoadProfileIds(profileIds);
+
         setResult(profileIds);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
@@ -67,6 +72,7 @@ export const useProfiles = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     getProfiles,
   };

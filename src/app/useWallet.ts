@@ -75,6 +75,7 @@ export const useWallet = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     connectWallet,
   };

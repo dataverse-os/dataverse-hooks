@@ -77,6 +77,7 @@ export const useApp = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     connectApp,
   };

@@ -35,6 +35,7 @@ export const useMutation = () => {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
   };
 };

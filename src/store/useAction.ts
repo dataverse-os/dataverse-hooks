@@ -75,11 +75,33 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionLoadProfileIds = useCallback(
+    (profileIds: string[]) => {
+      dispatch({
+        type: ActionType.LoadProfileIds,
+        payload: profileIds,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionCreateProfile = useCallback(
+    (profileId: string) => {
+      dispatch({
+        type: ActionType.CreateProfileId,
+        payload: profileId,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
     actionCreateStream,
     actionUpdateStream,
     actionLoadStreams,
+    actionLoadProfileIds,
+    actionCreateProfile,
   };
 };

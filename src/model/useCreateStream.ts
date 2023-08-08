@@ -124,6 +124,7 @@ export const useCreateStream = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     createStream,
   };

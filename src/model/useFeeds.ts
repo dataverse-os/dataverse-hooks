@@ -70,6 +70,7 @@ export const useFeeds = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     loadFeeds,
   };
