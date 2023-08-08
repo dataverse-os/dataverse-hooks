@@ -10,6 +10,7 @@ import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
   CreateStreamResult,
+  DatatokenInfo,
   LoadStreamsByResult,
   LoadStreamsResult,
   MonetizeStreamResult,
@@ -86,6 +87,15 @@ export const useAction = () => {
       dispatch({
         type: ActionType.SetFolders,
         payload: folders,
+      },
+    [dispatch],
+  );
+
+  const actionLoadProfileIds = useCallback(
+    (profileIds: string[]) => {
+      dispatch({
+        type: ActionType.LoadProfileIds,
+        payload: profileIds,
       });
     },
     [dispatch],
@@ -96,6 +106,16 @@ export const useAction = () => {
       dispatch({
         type: ActionType.UpdateFolders,
         payload: newFolders,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionCreateProfile = useCallback(
+    (profileId: string) => {
+      dispatch({
+        type: ActionType.CreateProfileId,
+        payload: profileId,
       });
     },
     [dispatch],
@@ -121,6 +141,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateDatatokenInfo = useCallback(
+    (payload: { streamId: string; datatokenInfo: DatatokenInfo }) => {
+      dispatch({
+        type: ActionType.UpdateDatatokenInfo,
+        payload,
+      });
+    },
+    [],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
@@ -131,5 +161,8 @@ export const useAction = () => {
     actionUpdateFolders,
     actionDeleteFolder,
     actionUpdateFoldersByFile,
+    actionLoadProfileIds,
+    actionCreateProfile,
+    actionUpdateDatatokenInfo,
   };
 };

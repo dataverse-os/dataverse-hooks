@@ -1,6 +1,5 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
@@ -19,13 +18,15 @@ export const useCreateStream = ({
   onSuccess,
 }: {
   streamType: StreamType;
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: CreateStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: CreateStreamArgs[StreamType]) => void;
+  onSuccess?: (result: CreateStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionCreateStream } = useAction();
-  const { monetizeStream } = useMonetizeStream();
+  const { monetizeStream } = useMonetizeStream({
+    onPending: () => {},
+  });
 
   const {
     result,
@@ -44,13 +45,9 @@ export const useCreateStream = ({
   const createStream = useCallback(
     async (args: CreateStreamArgs[StreamType]) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
-          onPending();
+          onPending(args);
         }
 
         let encrypted;
@@ -75,7 +72,7 @@ export const useCreateStream = ({
         };
 
         const createdStream: CreateStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.createStream,
             params: {
               modelId: args.modelId,
@@ -118,7 +115,7 @@ export const useCreateStream = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionCreateStream],
+    [actionCreateStream],
   );
 
   return {
@@ -129,6 +126,7 @@ export const useCreateStream = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     createStream,
   };

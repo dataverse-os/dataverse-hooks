@@ -3,17 +3,16 @@ import { useMutation } from "../utils";
 import { useStore } from "../store";
 import { ConnectWalletResult, MutationStatus } from "../types";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useConnect } from "wagmi";
 import { dataverseWalletConnector } from "../store/wagmi";
 import { useAction } from "../store/useAction";
 
 export const useWallet = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onError?: (error: any) => void;
+  onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionConnectWallet } = useAction();
 
   const { connectAsync } = useConnect({
@@ -37,14 +36,11 @@ export const useWallet = (params?: {
   const connectWallet = useCallback(
     async ({ wallet, provider }: { wallet?: WALLET; provider?: any }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending();
         }
-        const connectResult = await state.dataverseConnector.connectWallet({
+        const connectResult = await dataverseConnector.connectWallet({
           wallet,
           provider,
         });
@@ -68,7 +64,7 @@ export const useWallet = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, actionConnectWallet],
+    [actionConnectWallet],
   );
 
   return {
@@ -79,6 +75,7 @@ export const useWallet = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     connectWallet,
   };

@@ -1,15 +1,17 @@
 import { useCallback } from "react";
-import { ADDRESS_UNDEFINED, DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
+import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
+import { useAction } from "../store/useAction";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
 export const useProfiles = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: string[]) => void;
+  onError?: (error: any) => void;
+  onPending?: (address: string) => void;
+  onSuccess?: (result: string[]) => void;
 }) => {
-  const { state } = useStore();
+  const { address, dataverseConnector } = useStore();
+  const { actionLoadProfileIds } = useAction();
 
   const {
     result,
@@ -28,22 +30,21 @@ export const useProfiles = (params?: {
   const getProfiles = useCallback(
     async (accountAddress?: string) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
-        const targetAddress = state.address || accountAddress;
+        const targetAddress = address || accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
         }
 
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending(targetAddress);
         }
         const profileIds = (
-          await state.dataverseConnector.getProfiles(targetAddress)
+          await dataverseConnector.getProfiles(targetAddress)
         ).map(value => value.id);
+
+        actionLoadProfileIds(profileIds);
+
         setResult(profileIds);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
@@ -60,17 +61,18 @@ export const useProfiles = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, state.address],
+    [address],
   );
 
   return {
-    result,
+    profileIds: result,
     error,
     status,
     isIdle,
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     getProfiles,
   };

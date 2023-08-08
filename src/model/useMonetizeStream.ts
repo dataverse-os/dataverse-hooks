@@ -1,7 +1,7 @@
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
-import { useProfiles } from "../profile/useProfiles";
+import { PROFILES_NOT_EXSIT } from "../errors";
+import { useProfiles } from "../profile";
 import { useStore } from "../store";
 import { useAction } from "../store/useAction";
 import {
@@ -12,11 +12,11 @@ import {
 import { useMutation } from "../utils";
 
 export const useMonetizeStream = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MonetizeStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: MonetizeStreamArgs) => void;
+  onSuccess?: (result: MonetizeStreamResult) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, address, profileIds, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -46,28 +46,38 @@ export const useMonetizeStream = (params?: {
       decryptionConditions,
     }: MonetizeStreamArgs) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({
+            streamId,
+            profileId,
+            streamContent,
+            currency,
+            amount,
+            collectLimit,
+            decryptionConditions,
+          });
         }
+
         if (!profileId) {
-          const profileIds = await getProfiles(
-            state.dataverseConnector.address!,
-          );
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
         if (!streamContent) {
-          streamContent = state.streamsMap[streamId].streamContent;
+          streamContent = streamsMap[streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.monetizeFile,
             params: {
               streamId,
@@ -103,7 +113,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [state.dataverseConnector, state.streamsMap, actionUpdateStream],
+    [address, streamsMap, actionUpdateStream],
   );
 
   return {
@@ -114,6 +124,7 @@ export const useMonetizeStream = (params?: {
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     monetizeStream,
   };

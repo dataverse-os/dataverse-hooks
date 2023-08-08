@@ -1,19 +1,18 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
-  DataverseConnector,
   MirrorFile,
   Mirrors,
   StreamRecord,
 } from "@dataverse/dataverse-connector";
-// import _ from "lodash";
+import _ from "lodash";
 
 export const initialState: StateType = {
-  dataverseConnector: new DataverseConnector(),
   address: undefined,
   wallet: undefined,
   chain: undefined,
   pkh: undefined,
+  profileIds: undefined,
   streamsMap: {},
   folderMap: {},
 };
@@ -26,7 +25,6 @@ export const reducer = (
   },
 ) => {
   const { type, payload } = action;
-  // const clonedState: StateType = _.cloneDeep(state);
 
   switch (type) {
     case ActionType.ConnectWallet: {
@@ -44,7 +42,12 @@ export const reducer = (
 
     case ActionType.CreateStream: {
       const streamId = payload.streamId;
-      state.streamsMap[streamId] = payload as StreamRecord;
+      state.streamsMap[streamId] = {
+        pkh: payload.pkh,
+        appId: payload.appId,
+        modelId: payload.modelId,
+        streamContent: payload.streamContent,
+      };
       break;
     }
 
@@ -98,10 +101,34 @@ export const reducer = (
       });
       break;
     }
+      
+    case ActionType.LoadProfileIds: {
+      state.profileIds = payload;
+      break;
+    }
+
+    case ActionType.CreateProfileId: {
+      if (state.profileIds) {
+        state.profileIds.push(payload);
+      } else {
+        state.profileIds = [payload];
+      }
+      break;
+    }
+
+    case ActionType.UpdateDatatokenInfo: {
+      const { streamId, datatokenInfo } = payload;
+      state.streamsMap[streamId] = {
+        ...state.streamsMap[streamId],
+        datatokenInfo,
+      };
+      break;
+    }
 
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-  return state;
+  
+  return _.cloneDeep(state);
 };

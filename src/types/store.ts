@@ -5,6 +5,7 @@ import {
   WALLET,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
+import { DatatokenInfo } from "./params";
 
 export enum ActionType {
   ConnectWallet,
@@ -16,17 +17,24 @@ export enum ActionType {
   UpdateFolders,
   DeleteFolder,
   UpdateFoldersByFile,
+  LoadProfileIds,
+  CreateProfileId,
+  UpdateDatatokenInfo,
 }
 
 export type DataverseContextType = {
+  dataverseConnector: DataverseConnector;
   state: {
-    dataverseConnector: DataverseConnector;
     address?: string;
     chain?: Chain;
     wallet?: WALLET;
     pkh?: string;
-    streamsMap: Record<string, StreamRecord>;
     folderMap: StructuredFolders;
+    profileIds?: string[];
+    streamsMap: Record<
+      string,
+      StreamRecord & { datatokenInfo?: DatatokenInfo }
+    >;
   };
   dispatch: React.Dispatch<any>;
 };
