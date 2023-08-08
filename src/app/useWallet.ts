@@ -9,7 +9,7 @@ import { useAction } from "../store/useAction";
 
 export const useWallet = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {
   const { dataverseConnector } = useStore();

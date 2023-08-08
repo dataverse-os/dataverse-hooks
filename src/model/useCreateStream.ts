@@ -19,7 +19,7 @@ export const useCreateStream = ({
 }: {
   streamType: StreamType;
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (args?: CreateStreamArgs[StreamType]) => void;
   onSuccess?: (result?: CreateStreamResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -45,7 +45,7 @@ export const useCreateStream = ({
       try {
         setStatus(MutationStatus.Pending);
         if (onPending) {
-          onPending();
+          onPending(args);
         }
 
         let encrypted;

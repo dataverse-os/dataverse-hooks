@@ -11,7 +11,7 @@ import { useAction } from "../store/useAction";
 
 export const useFeedsByAddress = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (args?: LoadStreamsByArgs) => void;
   onSuccess?: (result?: LoadStreamsByResult) => void;
 }) => {
   const { dataverseConnector } = useStore();

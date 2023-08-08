@@ -7,7 +7,7 @@ import { useMutation } from "../utils";
 
 export const useUpdateStream = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (args?: UpdateStreamArgs) => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
   const { dataverseConnector, state } = useStore();
@@ -32,7 +32,7 @@ export const useUpdateStream = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({ model, streamId, stream, encrypted });
         }
         const modelStream = model.streams[model.streams.length - 1];
 

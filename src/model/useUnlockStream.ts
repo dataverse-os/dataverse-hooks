@@ -7,7 +7,7 @@ import { useAction } from "../store/useAction";
 
 export const useUnlockStream = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (streamId?: string) => void;
   onSuccess?: (result?: UnlockStreamResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -32,7 +32,7 @@ export const useUnlockStream = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending(streamId);
         }
 
         const unlockResult = await dataverseConnector.runOS({

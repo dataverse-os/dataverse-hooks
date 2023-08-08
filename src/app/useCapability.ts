@@ -7,7 +7,7 @@ import { useAction } from "../store/useAction";
 
 export const useCapability = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (appId?: string) => void;
   onSuccess?: (result?: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -33,7 +33,7 @@ export const useCapability = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending();
+          params?.onPending(appId);
         }
         const currentPkh = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createCapability,

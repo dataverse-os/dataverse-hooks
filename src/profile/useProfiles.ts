@@ -7,7 +7,7 @@ import { useMutation } from "../utils";
 
 export const useProfiles = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (address?: string) => void;
   onSuccess?: (result?: string[]) => void;
 }) => {
   const { state, dataverseConnector } = useStore();
@@ -37,7 +37,7 @@ export const useProfiles = (params?: {
 
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending(targetAddress);
         }
         const profileIds = (
           await dataverseConnector.getProfiles(targetAddress)

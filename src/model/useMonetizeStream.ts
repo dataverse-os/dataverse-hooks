@@ -13,7 +13,7 @@ import { useMutation } from "../utils";
 
 export const useMonetizeStream = (params?: {
   onError?: (error?: unknown) => void;
-  onPending?: () => void;
+  onPending?: (args?: MonetizeStreamArgs) => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
   const { dataverseConnector, state } = useStore();
@@ -48,7 +48,15 @@ export const useMonetizeStream = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({
+            streamId,
+            profileId,
+            streamContent,
+            currency,
+            amount,
+            collectLimit,
+            decryptionConditions,
+          });
         }
         if (!profileId) {
           const profileIds = await getProfiles(state.address);
