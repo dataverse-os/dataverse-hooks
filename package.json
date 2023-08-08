@@ -1,7 +1,7 @@
 {
   "name": "@dataverse/hooks",
-  "version": "1.0.12",
-  "description": "",
+  "version": "1.0.13",
+  "description": "React hooks of dataverse app.",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
