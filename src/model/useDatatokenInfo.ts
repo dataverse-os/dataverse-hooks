@@ -1,17 +1,17 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
 import { useMutation } from "../utils";
-import { MutationStatus, UnlockStreamResult } from "../types";
+import { DatatokenInfo, MutationStatus } from "../types";
 import { useCallback } from "react";
 import { useAction } from "../store/useAction";
+import { DATATOKENID_NOT_EXIST } from "../errors";
 
-export const useUnlockStream = (params?: {
+export const useDatatokenInfo = (params?: {
   onError?: (error: any) => void;
   onPending?: (streamId: string) => void;
-  onSuccess?: (result: UnlockStreamResult) => void;
+  onSuccess?: (result: DatatokenInfo) => void;
 }) => {
-  const { dataverseConnector } = useStore();
-  const { actionUpdateStream } = useAction();
+  const { dataverseConnector, streamsMap } = useStore();
+  const { actionUpdateDatatokenInfo } = useAction();
 
   const {
     result,
@@ -27,7 +27,7 @@ export const useUnlockStream = (params?: {
     reset,
   } = useMutation();
 
-  const unlockStream = useCallback(
+  const getDatatokenInfo = useCallback(
     async (streamId: string) => {
       try {
         setStatus(MutationStatus.Pending);
@@ -35,25 +35,26 @@ export const useUnlockStream = (params?: {
           params.onPending(streamId);
         }
 
-        const unlockResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.unlock,
-          params: {
-            streamId,
-          },
-        });
+        const datatokenId = streamsMap[streamId].streamContent.file.datatokenId;
 
-        actionUpdateStream({
+        if (!datatokenId) {
+          throw DATATOKENID_NOT_EXIST;
+        }
+
+        const datatokenInfo: DatatokenInfo =
+          await dataverseConnector.getDatatokenBaseInfo(datatokenId);
+
+        actionUpdateDatatokenInfo({
           streamId,
-          ...unlockResult,
+          datatokenInfo,
         });
 
         setStatus(MutationStatus.Succeed);
-        setResult(unlockResult);
+        setResult(datatokenInfo);
         if (params?.onSuccess) {
-          params.onSuccess(unlockResult);
+          params.onSuccess(datatokenInfo);
         }
-
-        return unlockResult;
+        return datatokenInfo;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
@@ -63,11 +64,11 @@ export const useUnlockStream = (params?: {
         throw error;
       }
     },
-    [actionUpdateStream],
+    [actionUpdateDatatokenInfo],
   );
 
   return {
-    unlockedStreamContent: result,
+    datatokenInfo: result as DatatokenInfo,
     error,
     status,
     isIdle,
@@ -76,6 +77,6 @@ export const useUnlockStream = (params?: {
     isFailed,
     setStatus,
     reset,
-    unlockStream,
+    getDatatokenInfo,
   };
 };

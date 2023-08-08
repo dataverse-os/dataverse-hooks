@@ -5,9 +5,9 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
 export const useCreateProfile = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: (handle?: string) => void;
-  onSuccess?: (result?: string) => void;
+  onError?: (error: any) => void;
+  onPending?: (handle: string) => void;
+  onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionCreateProfile } = useAction();

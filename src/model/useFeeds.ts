@@ -6,9 +6,9 @@ import { useCallback } from "react";
 import { useAction } from "../store/useAction";
 
 export const useFeeds = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: (modelId?: string) => void;
-  onSuccess?: (result?: LoadStreamsResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (modelId: string) => void;
+  onSuccess?: (result: LoadStreamsResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionLoadStreams } = useAction();

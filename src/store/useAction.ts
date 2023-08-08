@@ -4,6 +4,7 @@ import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
   CreateStreamResult,
+  DatatokenInfo,
   LoadStreamsByResult,
   LoadStreamsResult,
   MonetizeStreamResult,
@@ -95,6 +96,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateDatatokenInfo = useCallback(
+    (payload: { streamId: string; datatokenInfo: DatatokenInfo }) => {
+      dispatch({
+        type: ActionType.UpdateDatatokenInfo,
+        payload,
+      });
+    },
+    [],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
@@ -103,5 +114,6 @@ export const useAction = () => {
     actionLoadStreams,
     actionLoadProfileIds,
     actionCreateProfile,
+    actionUpdateDatatokenInfo,
   };
 };

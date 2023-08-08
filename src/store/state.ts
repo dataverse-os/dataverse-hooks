@@ -7,7 +7,7 @@ export const initialState: StateType = {
   wallet: undefined,
   chain: undefined,
   pkh: undefined,
-  profileIds: [],
+  profileIds: undefined,
   streamsMap: {},
 };
 
@@ -65,7 +65,20 @@ export const reducer = (
     }
 
     case ActionType.CreateProfileId: {
-      state.profileIds.push(payload);
+      if (state.profileIds) {
+        state.profileIds.push(payload);
+      } else {
+        state.profileIds = [payload];
+      }
+      break;
+    }
+
+    case ActionType.UpdateDatatokenInfo: {
+      const { streamId, datatokenInfo } = payload;
+      state.streamsMap[streamId] = {
+        ...state.streamsMap[streamId],
+        datatokenInfo,
+      };
       break;
     }
 

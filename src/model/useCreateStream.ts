@@ -18,9 +18,9 @@ export const useCreateStream = ({
   onSuccess,
 }: {
   streamType: StreamType;
-  onError?: (error?: unknown) => void;
-  onPending?: (args?: CreateStreamArgs[StreamType]) => void;
-  onSuccess?: (result?: CreateStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: CreateStreamArgs[StreamType]) => void;
+  onSuccess?: (result: CreateStreamResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionCreateStream } = useAction();

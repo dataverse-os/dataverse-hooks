@@ -6,9 +6,9 @@ import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 
 export const useUpdateStream = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: (args?: UpdateStreamArgs) => void;
-  onSuccess?: (result?: UpdateStreamResult) => void;
+  onError?: (error: any) => void;
+  onPending?: (args: UpdateStreamArgs) => void;
+  onSuccess?: (result: UpdateStreamResult) => void;
 }) => {
   const { dataverseConnector, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();

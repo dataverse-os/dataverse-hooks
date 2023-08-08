@@ -6,9 +6,9 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
 export const useProfiles = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: (address?: string) => void;
-  onSuccess?: (result?: string[]) => void;
+  onError?: (error: any) => void;
+  onPending?: (address: string) => void;
+  onSuccess?: (result: string[]) => void;
 }) => {
   const { address, dataverseConnector } = useStore();
   const { actionLoadProfileIds } = useAction();

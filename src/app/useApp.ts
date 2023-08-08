@@ -6,7 +6,7 @@ import { useMutation } from "../utils";
 import { useCallback } from "react";
 
 export const useApp = (params?: {
-  onError?: (error?: unknown) => void;
+  onError?: (error: any) => void;
   onPending?: (args?: {
     appId: string;
     wallet?: WALLET;

@@ -8,7 +8,7 @@ import { dataverseWalletConnector } from "../store/wagmi";
 import { useAction } from "../store/useAction";
 
 export const useWallet = (params?: {
-  onError?: (error?: unknown) => void;
+  onError?: (error: any) => void;
   onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
   onSuccess?: (result?: ConnectWalletResult) => void;
 }) => {

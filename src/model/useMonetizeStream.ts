@@ -12,11 +12,11 @@ import {
 import { useMutation } from "../utils";
 
 export const useMonetizeStream = (params?: {
-  onError?: (error: unknown) => void;
+  onError?: (error: any) => void;
   onPending?: (args: MonetizeStreamArgs) => void;
-  onSuccess?: (result?: MonetizeStreamResult) => void;
+  onSuccess?: (result: MonetizeStreamResult) => void;
 }) => {
-  const { dataverseConnector, address, streamsMap } = useStore();
+  const { dataverseConnector, address, profileIds, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -58,12 +58,19 @@ export const useMonetizeStream = (params?: {
             decryptionConditions,
           });
         }
+
         if (!profileId) {
-          const profileIds = await getProfiles(address);
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
         if (!streamContent) {

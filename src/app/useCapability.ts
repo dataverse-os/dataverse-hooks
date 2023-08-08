@@ -6,7 +6,7 @@ import { useCallback } from "react";
 import { useAction } from "../store/useAction";
 
 export const useCapability = (params?: {
-  onError?: (error?: unknown) => void;
+  onError?: (error: any) => void;
   onPending?: (appId?: string) => void;
   onSuccess?: (result?: string) => void;
 }) => {
