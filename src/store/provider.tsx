@@ -10,8 +10,9 @@ export const DataverseContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const dataverseConnector = new DataverseConnector();
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const dataverseConnector = useMemo(() => new DataverseConnector(), []);
 
   const config = useMemo(
     () =>
