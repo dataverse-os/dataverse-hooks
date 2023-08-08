@@ -10,7 +10,7 @@ export const useUpdateStream = (params?: {
   onPending?: (args?: UpdateStreamArgs) => void;
   onSuccess?: (result?: UpdateStreamResult) => void;
 }) => {
-  const { dataverseConnector, state } = useStore();
+  const { dataverseConnector, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -36,8 +36,7 @@ export const useUpdateStream = (params?: {
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType =
-          state.streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&
@@ -85,7 +84,7 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [state.streamsMap, actionUpdateStream],
+    [streamsMap, actionUpdateStream],
   );
 
   return {

@@ -10,7 +10,7 @@ export const useProfiles = (params?: {
   onPending?: (address?: string) => void;
   onSuccess?: (result?: string[]) => void;
 }) => {
-  const { state, dataverseConnector } = useStore();
+  const { address, dataverseConnector } = useStore();
   const { actionLoadProfileIds } = useAction();
 
   const {
@@ -30,7 +30,7 @@ export const useProfiles = (params?: {
   const getProfiles = useCallback(
     async (accountAddress?: string) => {
       try {
-        const targetAddress = state.address || accountAddress;
+        const targetAddress = address || accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
         }
@@ -61,7 +61,7 @@ export const useProfiles = (params?: {
         throw error;
       }
     },
-    [state.address],
+    [address],
   );
 
   return {

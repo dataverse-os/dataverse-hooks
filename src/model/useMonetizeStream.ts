@@ -12,11 +12,11 @@ import {
 import { useMutation } from "../utils";
 
 export const useMonetizeStream = (params?: {
-  onError?: (error?: unknown) => void;
-  onPending?: (args?: MonetizeStreamArgs) => void;
+  onError?: (error: unknown) => void;
+  onPending?: (args: MonetizeStreamArgs) => void;
   onSuccess?: (result?: MonetizeStreamResult) => void;
 }) => {
-  const { dataverseConnector, state } = useStore();
+  const { dataverseConnector, address, streamsMap } = useStore();
   const { actionUpdateStream } = useAction();
 
   const {
@@ -59,7 +59,7 @@ export const useMonetizeStream = (params?: {
           });
         }
         if (!profileId) {
-          const profileIds = await getProfiles(state.address);
+          const profileIds = await getProfiles(address);
           if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
           }
@@ -67,7 +67,7 @@ export const useMonetizeStream = (params?: {
         }
 
         if (!streamContent) {
-          streamContent = state.streamsMap[streamId].streamContent;
+          streamContent = streamsMap[streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
           await dataverseConnector.runOS({
@@ -106,7 +106,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [state.address, state.streamsMap, actionUpdateStream],
+    [address, streamsMap, actionUpdateStream],
   );
 
   return {

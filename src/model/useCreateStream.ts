@@ -24,7 +24,9 @@ export const useCreateStream = ({
 }) => {
   const { dataverseConnector } = useStore();
   const { actionCreateStream } = useAction();
-  const { monetizeStream } = useMonetizeStream();
+  const { monetizeStream } = useMonetizeStream({
+    onPending: () => {},
+  });
 
   const {
     result,

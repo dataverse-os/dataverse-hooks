@@ -16,6 +16,6 @@ export const useStore = () => {
 
   return {
     dataverseConnector,
-    state,
+    ...state,
   };
 };
