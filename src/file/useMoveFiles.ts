@@ -10,14 +10,15 @@ import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 
-export const useMoveFiles = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFiles) => void;
+export const useMoveFiles = (params?: {
+  onError?: (error: unknown) => void;
+  onPending?: (args: {
+    sourceIndexFileIds: string[];
+    targetFolderId: string;
+    reRender?: boolean;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: MirrorFiles) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
@@ -57,8 +58,13 @@ export const useMoveFiles = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            sourceIndexFileIds,
+            targetFolderId,
+            reRender,
+            syncImmediately,
+          });
         }
 
         const { allFolders, sourceFolders, targetFolder, movedFiles } =
@@ -88,15 +94,15 @@ export const useMoveFiles = ({
 
         setResult(movedFiles);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(movedFiles);
+        if (params?.onSuccess) {
+          params.onSuccess(movedFiles);
         }
         return movedFiles;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -112,6 +118,7 @@ export const useMoveFiles = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     moveFiles,
   };

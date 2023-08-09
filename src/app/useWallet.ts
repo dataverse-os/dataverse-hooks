@@ -9,8 +9,8 @@ import { useAction } from "../store";
 
 export const useWallet = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
-  onSuccess?: (result?: ConnectWalletResult) => void;
+  onPending?: (args: { wallet?: WALLET; provider?: any }) => void;
+  onSuccess?: (result: ConnectWalletResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionConnectWallet } = useAction();
@@ -38,7 +38,7 @@ export const useWallet = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({ wallet, provider });
         }
         const connectResult = await dataverseConnector.connectWallet({
           wallet,

@@ -36,7 +36,7 @@ export const useUpdateStream = (params?: {
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType = streamsMap![streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&

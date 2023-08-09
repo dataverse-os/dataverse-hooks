@@ -7,8 +7,8 @@ import { useAction } from "../store";
 
 export const useCapability = (params?: {
   onError?: (error: any) => void;
-  onPending?: (appId?: string) => void;
-  onSuccess?: (result?: string) => void;
+  onPending?: (appId: string) => void;
+  onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
 

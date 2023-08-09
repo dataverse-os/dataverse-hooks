@@ -6,12 +6,8 @@ import { useCallback } from "react";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useReadAllFolders = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
+export const useReadAllFolders = (params?: {
+  onError?: (error: any) => void;
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolders) => void;
 }) => {
@@ -40,8 +36,8 @@ export const useReadAllFolders = ({
   const readAllFolders = useCallback(async () => {
     try {
       setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
+      if (params?.onPending) {
+        params.onPending();
       }
 
       const allFolders = await dataverseConnector.runOS({
@@ -56,15 +52,15 @@ export const useReadAllFolders = ({
 
       setResult(allFolders);
       setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(allFolders);
+      if (params?.onSuccess) {
+        params.onSuccess(allFolders);
       }
       return allFolders;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
+      if (params?.onError) {
+        params.onError(error);
       }
       throw error;
     }
@@ -78,6 +74,7 @@ export const useReadAllFolders = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     readAllFolders,
   };

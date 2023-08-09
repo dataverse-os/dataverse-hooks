@@ -11,14 +11,15 @@ import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 
-export const useChangeFolderType = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+export const useChangeFolderType = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId: string;
+    targetFolderType: FolderType;
+    reRender?: boolean;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
@@ -58,8 +59,13 @@ export const useChangeFolderType = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            targetFolderType,
+            reRender,
+            syncImmediately,
+          });
         }
 
         const { allFolders, currentFolder } = await dataverseConnector.runOS({
@@ -87,15 +93,15 @@ export const useChangeFolderType = ({
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFolder);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFolder);
         }
         return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -111,6 +117,7 @@ export const useChangeFolderType = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     changeFolderType,
   };

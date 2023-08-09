@@ -10,14 +10,14 @@ import { useCallback } from "react";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useDeleteFolder = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+export const useDeleteFolder = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId: string;
+    reRender?: boolean;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders, actionDeleteFolder } = useAction();
@@ -53,8 +53,12 @@ export const useDeleteFolder = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            reRender,
+            syncImmediately,
+          });
         }
 
         const { allFolders, currentFolder } = await dataverseConnector.runOS({
@@ -77,15 +81,15 @@ export const useDeleteFolder = ({
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFolder);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFolder);
         }
         return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -101,6 +105,7 @@ export const useDeleteFolder = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     deleteFolder,
   };

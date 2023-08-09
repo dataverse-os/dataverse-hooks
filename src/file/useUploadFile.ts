@@ -12,14 +12,17 @@ import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 
-export const useUploadFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFile) => void;
+export const useUploadFile = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId?: string;
+    fileBase64: string;
+    fileName: string;
+    encrypted: boolean;
+    storageProvider: StorageProvider;
+    reRender?: boolean;
+  }) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
@@ -54,7 +57,7 @@ export const useUploadFile = ({
       storageProvider,
       reRender = true,
     }: {
-      folderId: string;
+      folderId?: string;
       fileBase64: string;
       fileName: string;
       encrypted: boolean;
@@ -63,8 +66,15 @@ export const useUploadFile = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            fileBase64,
+            fileName,
+            encrypted,
+            storageProvider,
+            reRender,
+          });
         }
 
         const { allFolders, currentFolder, newFile } =
@@ -95,15 +105,15 @@ export const useUploadFile = ({
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(newFile);
+        if (params?.onSuccess) {
+          params.onSuccess(newFile);
         }
         return newFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -119,6 +129,7 @@ export const useUploadFile = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     uploadFile,
   };

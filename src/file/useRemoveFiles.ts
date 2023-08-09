@@ -10,14 +10,14 @@ import { useCallback } from "react";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useRemoveFiles = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFiles) => void;
+export const useRemoveFiles = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    indexFileIds: string[];
+    reRender?: boolean;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: MirrorFiles) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
@@ -54,8 +54,12 @@ export const useRemoveFiles = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            indexFileIds,
+            reRender,
+            syncImmediately,
+          });
         }
 
         const { allFolders, sourceFolders, removedFiles } =
@@ -83,15 +87,15 @@ export const useRemoveFiles = ({
 
         setResult(removedFiles);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(removedFiles);
+        if (params?.onSuccess) {
+          params.onSuccess(removedFiles);
         }
         return removedFiles;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -107,6 +111,7 @@ export const useRemoveFiles = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     removeFiles,
   };

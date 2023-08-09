@@ -35,7 +35,8 @@ export const useDatatokenInfo = (params?: {
           params.onPending(streamId);
         }
 
-        const datatokenId = streamsMap[streamId].streamContent.file.datatokenId;
+        const datatokenId =
+          streamsMap![streamId].streamContent.file.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;
@@ -64,7 +65,7 @@ export const useDatatokenInfo = (params?: {
         throw error;
       }
     },
-    [actionUpdateDatatokenInfo],
+    [streamsMap, actionUpdateDatatokenInfo],
   );
 
   return {

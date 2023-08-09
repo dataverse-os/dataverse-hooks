@@ -9,7 +9,7 @@ export const initialState: StateType = {
   chain: undefined,
   pkh: undefined,
   profileIds: undefined,
-  streamsMap: {},
+  streamsMap: undefined,
   folderMap: {},
 };
 
@@ -38,6 +38,9 @@ export const reducer = (
 
     case ActionType.CreateStream: {
       const streamId = payload.streamId;
+      if (!state.streamsMap) {
+        state.streamsMap = {};
+      }
       state.streamsMap[streamId] = {
         pkh: payload.pkh,
         appId: payload.appId,
@@ -54,8 +57,8 @@ export const reducer = (
 
     case ActionType.UpdateStream: {
       const { streamId, streamContent } = payload;
-      state.streamsMap[streamId] = {
-        ...state.streamsMap[streamId],
+      state.streamsMap![streamId] = {
+        ...state.streamsMap![streamId],
         streamContent,
       };
       break;
@@ -114,8 +117,8 @@ export const reducer = (
 
     case ActionType.UpdateDatatokenInfo: {
       const { streamId, datatokenInfo } = payload;
-      state.streamsMap[streamId] = {
-        ...state.streamsMap[streamId],
+      state.streamsMap![streamId] = {
+        ...state.streamsMap![streamId],
         datatokenInfo,
       };
       break;

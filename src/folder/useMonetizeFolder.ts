@@ -13,14 +13,18 @@ import { MutationStatus } from "../types";
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 
-export const useMonetizeFolder = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+export const useMonetizeFolder = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId: string;
+    folderDescription: string;
+    profileId?: string | undefined;
+    currency: Currency;
+    amount: number;
+    collectLimit: number;
+    reRender?: boolean;
+  }) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector, address, profileIds } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
@@ -61,8 +65,16 @@ export const useMonetizeFolder = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            folderDescription,
+            profileId,
+            currency,
+            amount,
+            collectLimit,
+            reRender,
+          });
         }
 
         if (!profileId) {
@@ -109,15 +121,15 @@ export const useMonetizeFolder = ({
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFolder);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFolder);
         }
         return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }

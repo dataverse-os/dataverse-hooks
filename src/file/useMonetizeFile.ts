@@ -11,16 +11,18 @@ import { MutationStatus } from "../types";
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 
-export const useMonetizeFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFile) => void;
+export const useMonetizeFile = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    indexFileId: string;
+    profileId?: string | undefined;
+    currency: Currency;
+    amount: number;
+    collectLimit: number;
+  }) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
-  const { dataverseConnector } = useStore();
+  const { dataverseConnector, address, profileIds } = useStore();
   const { actionSetFolders, actionUpdateFoldersByFile } = useAction();
 
   const {
@@ -55,16 +57,28 @@ export const useMonetizeFile = ({
     }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            indexFileId,
+            profileId,
+            currency,
+            amount,
+            collectLimit,
+          });
         }
 
         if (!profileId) {
-          const profileIds = await getProfiles(dataverseConnector.address!);
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
         const { streamContent } = await dataverseConnector.runOS({
@@ -84,20 +98,20 @@ export const useMonetizeFile = ({
 
         setResult(streamContent.file);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(streamContent.file);
+        if (params?.onSuccess) {
+          params.onSuccess(streamContent.file);
         }
         return streamContent.file;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [actionSetFolders, actionUpdateFoldersByFile],
+    [address, profileIds, actionSetFolders, actionUpdateFoldersByFile],
   );
 
   return {
@@ -108,6 +122,7 @@ export const useMonetizeFile = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     monetizeFile,
   };

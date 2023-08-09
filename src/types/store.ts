@@ -31,7 +31,7 @@ export type DataverseContextType = {
     pkh?: string;
     folderMap: StructuredFolders;
     profileIds?: string[];
-    streamsMap: Record<
+    streamsMap?: Record<
       string,
       StreamRecord & { datatokenInfo?: DatatokenInfo }
     >;
