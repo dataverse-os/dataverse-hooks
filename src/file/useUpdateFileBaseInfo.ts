@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   FileInfo,
   MirrorFile,
@@ -11,7 +11,6 @@ import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
 export const useUpdateFileBaseInfo = ({
   onError,
@@ -22,7 +21,7 @@ export const useUpdateFileBaseInfo = ({
   onPending?: () => void;
   onSuccess?: (result?: MirrorFile) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -62,17 +61,13 @@ export const useUpdateFileBaseInfo = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
         const { allFolders, currentFolder, currentFile } =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.updateFileBaseInfo,
             params: {
               indexFileId,
@@ -110,7 +105,7 @@ export const useUpdateFileBaseInfo = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

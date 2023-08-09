@@ -1,10 +1,9 @@
 import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useMutation } from "../utils";
 
 export const useReadAllFolders = ({
@@ -16,7 +15,7 @@ export const useReadAllFolders = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolders) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -40,16 +39,12 @@ export const useReadAllFolders = ({
    */
   const readAllFolders = useCallback(async () => {
     try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
-
       setStatus(MutationStatus.Pending);
       if (onPending) {
         onPending();
       }
 
-      const allFolders = await state.dataverseConnector.runOS({
+      const allFolders = await dataverseConnector.runOS({
         method: SYSTEM_CALL.readFolders,
       });
 
@@ -73,7 +68,7 @@ export const useReadAllFolders = ({
       }
       throw error;
     }
-  }, [state.dataverseConnector, actionSetFolders, actionUpdateFolders]);
+  }, [actionSetFolders, actionUpdateFolders]);
 
   return {
     allFolders: result,

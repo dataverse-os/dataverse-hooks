@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   MonetizeStreamArgs,
   MonetizeStreamResult,
@@ -113,7 +113,7 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [address, streamsMap, actionUpdateStream],
+    [address, streamsMap, profileIds, actionUpdateStream],
   );
 
   return {

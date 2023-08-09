@@ -5,7 +5,7 @@ import { ConnectWalletResult, MutationStatus } from "../types";
 import { useCallback } from "react";
 import { useConnect } from "wagmi";
 import { dataverseWalletConnector } from "../store/wagmi";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 
 export const useWallet = (params?: {
   onError?: (error: any) => void;

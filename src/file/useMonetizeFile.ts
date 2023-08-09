@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   Currency,
   MirrorFile,
@@ -8,7 +8,7 @@ import {
 import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
+import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 
 export const useMonetizeFile = ({
@@ -20,7 +20,7 @@ export const useMonetizeFile = ({
   onPending?: () => void;
   onSuccess?: (result?: MirrorFile) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFoldersByFile } = useAction();
 
   const {
@@ -54,26 +54,20 @@ export const useMonetizeFile = ({
       collectLimit: number;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
         if (!profileId) {
-          const profileIds = await getProfiles(
-            state.dataverseConnector.address!,
-          );
+          const profileIds = await getProfiles(dataverseConnector.address!);
           if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
           }
           profileId = profileIds[0];
         }
 
-        const { streamContent } = await state.dataverseConnector.runOS({
+        const { streamContent } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.monetizeFile,
           params: {
             indexFileId,
@@ -103,7 +97,7 @@ export const useMonetizeFile = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFoldersByFile],
+    [actionSetFolders, actionUpdateFoldersByFile],
   );
 
   return {

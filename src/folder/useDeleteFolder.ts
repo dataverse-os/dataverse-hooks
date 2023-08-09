@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   SYSTEM_CALL,
   StructuredFolder,
@@ -8,7 +8,6 @@ import {
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useMutation } from "../utils";
 
 export const useDeleteFolder = ({
@@ -20,7 +19,7 @@ export const useDeleteFolder = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionDeleteFolder } = useAction();
 
   const {
@@ -53,23 +52,18 @@ export const useDeleteFolder = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.deleteFolder,
-            params: {
-              folderId,
-              syncImmediately,
-            },
-          });
+        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteFolder,
+          params: {
+            folderId,
+            syncImmediately,
+          },
+        });
 
         if (reRender) {
           actionSetFolders(
@@ -96,7 +90,7 @@ export const useDeleteFolder = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionDeleteFolder],
+    [actionSetFolders, actionDeleteFolder],
   );
 
   return {

@@ -1,10 +1,6 @@
 import { ActionType, StateType } from "../types";
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import {
-  MirrorFile,
-  Mirrors,
-  StreamRecord,
-} from "@dataverse/dataverse-connector";
+import { MirrorFile, Mirrors } from "@dataverse/dataverse-connector";
 import _ from "lodash";
 
 export const initialState: StateType = {
@@ -101,7 +97,7 @@ export const reducer = (
       });
       break;
     }
-      
+
     case ActionType.LoadProfileIds: {
       state.profileIds = payload;
       break;
@@ -129,6 +125,6 @@ export const reducer = (
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-  
+
   return _.cloneDeep(state);
 };

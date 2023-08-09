@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   MirrorFile,
   SYSTEM_CALL,
@@ -10,7 +10,6 @@ import {
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { MutationStatus } from "../types";
 
 export const useUploadFile = ({
@@ -22,7 +21,7 @@ export const useUploadFile = ({
   onPending?: () => void;
   onSuccess?: (result?: MirrorFile) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -63,17 +62,13 @@ export const useUploadFile = ({
       reRender?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
         const { allFolders, currentFolder, newFile } =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.uploadFile,
             params: {
               folderId,
@@ -113,7 +108,7 @@ export const useUploadFile = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

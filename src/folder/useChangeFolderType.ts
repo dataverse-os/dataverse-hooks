@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   FolderType,
   SYSTEM_CALL,
@@ -9,7 +9,6 @@ import {
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { MutationStatus } from "../types";
 
 export const useChangeFolderType = ({
@@ -21,7 +20,7 @@ export const useChangeFolderType = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -58,24 +57,19 @@ export const useChangeFolderType = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.changeFolderType,
-            params: {
-              folderId,
-              targetFolderType: targetFolderType as any,
-              syncImmediately,
-            },
-          });
+        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.changeFolderType,
+          params: {
+            folderId,
+            targetFolderType: targetFolderType as any,
+            syncImmediately,
+          },
+        });
 
         if (reRender) {
           actionSetFolders(
@@ -106,7 +100,7 @@ export const useChangeFolderType = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

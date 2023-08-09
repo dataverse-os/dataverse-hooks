@@ -87,7 +87,8 @@ export const useAction = () => {
       dispatch({
         type: ActionType.SetFolders,
         payload: folders,
-      },
+      });
+    },
     [dispatch],
   );
 

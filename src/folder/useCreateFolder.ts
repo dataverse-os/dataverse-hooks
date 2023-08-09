@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   SYSTEM_CALL,
   StructuredFolder,
@@ -10,7 +10,6 @@ import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
 export const useCreateFolder = ({
   onError,
@@ -21,7 +20,7 @@ export const useCreateFolder = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -58,16 +57,12 @@ export const useCreateFolder = ({
       reRender?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
-        const { allFolders, newFolder } = await state.dataverseConnector.runOS({
+        const { allFolders, newFolder } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createFolder,
           params: {
             folderType: folderType as any,
@@ -105,7 +100,7 @@ export const useCreateFolder = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

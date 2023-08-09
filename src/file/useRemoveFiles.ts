@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   MirrorFiles,
   SYSTEM_CALL,
@@ -8,7 +8,6 @@ import {
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { useMutation } from "../utils";
 
 export const useRemoveFiles = ({
@@ -20,7 +19,7 @@ export const useRemoveFiles = ({
   onPending?: () => void;
   onSuccess?: (result?: MirrorFiles) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -54,17 +53,13 @@ export const useRemoveFiles = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
         const { allFolders, sourceFolders, removedFiles } =
-          await state.dataverseConnector.runOS({
+          await dataverseConnector.runOS({
             method: SYSTEM_CALL.removeFiles,
             params: {
               indexFileIds,
@@ -101,7 +96,7 @@ export const useRemoveFiles = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

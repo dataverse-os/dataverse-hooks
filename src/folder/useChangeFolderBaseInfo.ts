@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   SYSTEM_CALL,
   StructuredFolder,
@@ -8,7 +8,6 @@ import {
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 import { MutationStatus } from "../types";
 
 export const useChangeFolderBaseInfo = ({
@@ -20,7 +19,7 @@ export const useChangeFolderBaseInfo = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -60,25 +59,20 @@ export const useChangeFolderBaseInfo = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.updateFolderBaseInfo,
-            params: {
-              folderId,
-              newFolderName,
-              newFolderDescription,
-              syncImmediately,
-            },
-          });
+        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateFolderBaseInfo,
+          params: {
+            folderId,
+            newFolderName,
+            newFolderDescription,
+            syncImmediately,
+          },
+        });
 
         if (reRender) {
           actionSetFolders(
@@ -109,7 +103,7 @@ export const useChangeFolderBaseInfo = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [actionSetFolders, actionUpdateFolders],
   );
 
   return {

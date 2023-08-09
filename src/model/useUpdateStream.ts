@@ -1,7 +1,7 @@
 import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 

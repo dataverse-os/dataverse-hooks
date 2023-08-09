@@ -3,7 +3,7 @@ import { useStore } from "../store";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
 import { useCallback } from "react";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 
 export const useCapability = (params?: {
   onError?: (error: any) => void;

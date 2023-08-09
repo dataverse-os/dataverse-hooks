@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   SYSTEM_CALL,
   StructuredFolder,
@@ -10,7 +10,7 @@ import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
 import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
+import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 
 export const useMonetizeFolder = ({
@@ -22,7 +22,7 @@ export const useMonetizeFolder = ({
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
+  const { dataverseConnector, address, profileIds } = useStore();
   const { actionSetFolders, actionUpdateFolders } = useAction();
 
   const {
@@ -60,39 +60,38 @@ export const useMonetizeFolder = ({
       reRender?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
         if (onPending) {
           onPending();
         }
 
         if (!profileId) {
-          const profileIds = await getProfiles(
-            state.dataverseConnector.address!,
-          );
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.monetizeFolder,
-            params: {
-              folderId,
-              folderDescription,
-              datatokenVars: {
-                profileId,
-                currency,
-                amount,
-                collectLimit,
-              },
+        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.monetizeFolder,
+          params: {
+            folderId,
+            folderDescription,
+            datatokenVars: {
+              profileId,
+              currency,
+              amount,
+              collectLimit,
             },
-          });
+          },
+        });
 
         if (reRender) {
           actionSetFolders(
@@ -123,7 +122,7 @@ export const useMonetizeFolder = ({
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [address, profileIds, actionSetFolders, actionUpdateFolders],
   );
 
   return {
