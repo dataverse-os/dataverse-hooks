@@ -6,13 +6,17 @@ import { useMutation } from "../utils";
 import { useCallback, useEffect } from "react";
 import { useAction, useStore } from "../store";
 
-export const useApp = (params?: {
+export const useApp = ({
+  appId,
+  autoConnect = true,
+  onError,
+  onPending,
+  onSuccess,
+}: {
+  appId: string;
+  autoConnect?: boolean;
   onError?: (error: any) => void;
-  onPending?: (args: {
-    appId: string;
-    wallet?: WALLET;
-    provider?: any;
-  }) => void;
+  onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
   onSuccess?: (result: ConnectResult) => void;
 }) => {
   const { dataverseConnector, address, pkh } = useStore();
@@ -42,9 +46,12 @@ export const useApp = (params?: {
   }, []);
 
   const autoConnectApp = useCallback(async () => {
-    if (!address && !pkh) {
+    if (autoConnect && !address && !pkh) {
       const hasCapability = await dataverseConnector.runOS({
         method: SYSTEM_CALL.checkCapability,
+        params: {
+          appId,
+        },
       });
 
       if (hasCapability) {
@@ -59,28 +66,19 @@ export const useApp = (params?: {
         }
       }
     }
-  }, [dataverseConnector, address, pkh]);
+  }, [dataverseConnector, address, pkh, autoConnect]);
 
   const connectApp = useCallback(
-    async ({
-      appId,
-      wallet,
-      provider,
-    }: {
-      appId: string;
-      wallet?: WALLET;
-      provider?: any;
-    }) => {
+    async (args?: { wallet?: WALLET; provider?: any }) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (params?.onPending) {
-          params.onPending({
-            appId,
-            wallet,
-            provider,
-          });
+        if (onPending) {
+          onPending(args);
         }
-        const connectWalletResult = await connectWallet({ wallet, provider });
+        const connectWalletResult = await connectWallet({
+          wallet: args?.wallet,
+          provider: args?.provider,
+        });
         const pkh = await createCapability(appId);
         const connectResult = {
           ...connectWalletResult,
@@ -89,16 +87,16 @@ export const useApp = (params?: {
 
         setResult(connectResult);
         setStatus(MutationStatus.Succeed);
-        if (params?.onSuccess) {
-          params.onSuccess(connectResult);
+        if (onSuccess) {
+          onSuccess(connectResult);
         }
 
         return connectResult;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (params?.onError) {
-          params.onError(error);
+        if (onError) {
+          onError(error);
         }
         throw error;
       }
