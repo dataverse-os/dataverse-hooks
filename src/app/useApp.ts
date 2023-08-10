@@ -5,6 +5,8 @@ import { useWallet } from "./useWallet";
 import { useMutation } from "../utils";
 import { useCallback, useEffect } from "react";
 import { useAction, useStore } from "../store";
+import { useAccount, useConnect } from "wagmi";
+import { dataverseWalletConnector } from "../store/wagmi";
 
 export const useApp = ({
   appId,
@@ -26,6 +28,11 @@ export const useApp = ({
   const { connectWallet } = useWallet();
 
   const { createCapability } = useCapability();
+
+  const wagmiAccount = useAccount();
+  const { connectAsync } = useConnect({
+    connector: dataverseWalletConnector,
+  });
 
   const {
     result,
@@ -63,6 +70,10 @@ export const useApp = ({
           });
           const currentPkh = dataverseConnector.getCurrentPkh();
           actionCreateCapability(currentPkh);
+        }
+
+        if (!wagmiAccount.isConnected) {
+          await connectAsync();
         }
       }
     }

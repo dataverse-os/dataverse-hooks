@@ -1,15 +1,21 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "react"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "prettier",
+    "plugin:react/recommended"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
-    "no-console": 2, // Means warning
+    "no-console": 2, // Means error
     "prettier/prettier": 2, // Means error
     "@typescript-eslint/no-explicit-any": "off"
   }
