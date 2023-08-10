@@ -84,7 +84,17 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [streamsMap, actionUpdateStream],
+    [
+      dataverseConnector,
+      streamsMap,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

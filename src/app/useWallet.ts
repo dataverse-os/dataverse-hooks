@@ -69,7 +69,16 @@ export const useWallet = (params?: {
         throw error;
       }
     },
-    [isWagmiConnected],
+    [
+      isWagmiConnected,
+      dataverseConnector,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

@@ -61,7 +61,17 @@ export const useProfiles = (params?: {
         throw error;
       }
     },
-    [address],
+    [
+      address,
+      dataverseConnector,
+      actionLoadProfileIds,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

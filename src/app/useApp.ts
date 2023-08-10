@@ -77,7 +77,14 @@ export const useApp = ({
         }
       }
     }
-  }, [dataverseConnector, address, pkh, autoConnect]);
+  }, [
+    dataverseConnector,
+    address,
+    pkh,
+    autoConnect,
+    actionConnectWallet,
+    actionCreateCapability,
+  ]);
 
   const connectApp = useCallback(
     async (args?: { wallet?: WALLET; provider?: any }) => {
@@ -112,7 +119,17 @@ export const useApp = ({
         throw error;
       }
     },
-    [dataverseConnector, connectWallet, createCapability],
+    [
+      dataverseConnector,
+      connectWallet,
+      createCapability,
+      setStatus,
+      setError,
+      setResult,
+      onPending,
+      onError,
+      onSuccess,
+    ],
   );
 
   return {

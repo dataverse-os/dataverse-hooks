@@ -134,7 +134,19 @@ export const useMonetizeFolder = (params?: {
         throw error;
       }
     },
-    [address, profileIds, actionSetFolders, actionUpdateFolders],
+    [
+      address,
+      profileIds,
+      dataverseConnector,
+      actionSetFolders,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

@@ -63,7 +63,16 @@ export const useUnlockStream = (params?: {
         throw error;
       }
     },
-    [actionUpdateStream],
+    [
+      dataverseConnector,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

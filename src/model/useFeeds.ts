@@ -59,7 +59,16 @@ export const useFeeds = (params?: {
         throw error;
       }
     },
-    [actionLoadStreams],
+    [
+      dataverseConnector,
+      actionLoadStreams,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

@@ -23,7 +23,7 @@ export const useMonetizeFile = (params?: {
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector, address, profileIds } = useStore();
-  const { actionSetFolders, actionUpdateFoldersByFile } = useAction();
+  const { actionUpdateFoldersByFile } = useAction();
 
   const {
     result,
@@ -111,7 +111,18 @@ export const useMonetizeFile = (params?: {
         throw error;
       }
     },
-    [address, profileIds, actionSetFolders, actionUpdateFoldersByFile],
+    [
+      address,
+      profileIds,
+      dataverseConnector,
+      actionUpdateFoldersByFile,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

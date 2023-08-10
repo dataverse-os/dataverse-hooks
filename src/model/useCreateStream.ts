@@ -115,7 +115,17 @@ export const useCreateStream = ({
         throw error;
       }
     },
-    [actionCreateStream],
+    [
+      streamType,
+      dataverseConnector,
+      actionCreateStream,
+      setStatus,
+      setError,
+      setResult,
+      onPending,
+      onError,
+      onSuccess,
+    ],
   );
 
   return {

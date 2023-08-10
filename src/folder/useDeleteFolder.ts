@@ -94,7 +94,17 @@ export const useDeleteFolder = (params?: {
         throw error;
       }
     },
-    [actionSetFolders, actionDeleteFolder],
+    [
+      dataverseConnector,
+      actionSetFolders,
+      actionDeleteFolder,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

@@ -65,7 +65,17 @@ export const useDatatokenInfo = (params?: {
         throw error;
       }
     },
-    [streamsMap, actionUpdateDatatokenInfo],
+    [
+      dataverseConnector,
+      streamsMap,
+      actionUpdateDatatokenInfo,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

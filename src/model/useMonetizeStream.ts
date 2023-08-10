@@ -113,7 +113,19 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [address, streamsMap, profileIds, actionUpdateStream],
+    [
+      address,
+      streamsMap,
+      profileIds,
+      dataverseConnector,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

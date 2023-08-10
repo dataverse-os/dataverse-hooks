@@ -58,7 +58,16 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [actionCreateCapability],
+    [
+      dataverseConnector,
+      actionCreateCapability,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

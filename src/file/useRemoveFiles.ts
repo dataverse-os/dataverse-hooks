@@ -100,7 +100,17 @@ export const useRemoveFiles = (params?: {
         throw error;
       }
     },
-    [actionSetFolders, actionUpdateFolders],
+    [
+      dataverseConnector,
+      actionSetFolders,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

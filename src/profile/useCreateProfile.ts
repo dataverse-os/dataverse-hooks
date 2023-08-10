@@ -26,32 +26,44 @@ export const useCreateProfile = (params?: {
     reset,
   } = useMutation();
 
-  const createProfile = useCallback(async (handle: string) => {
-    try {
-      setStatus(MutationStatus.Pending);
-      if (params?.onPending) {
-        params.onPending(handle);
-      }
-      const profileId = await dataverseConnector.createProfile(handle);
+  const createProfile = useCallback(
+    async (handle: string) => {
+      try {
+        setStatus(MutationStatus.Pending);
+        if (params?.onPending) {
+          params.onPending(handle);
+        }
+        const profileId = await dataverseConnector.createProfile(handle);
 
-      actionCreateProfile(profileId);
+        actionCreateProfile(profileId);
 
-      setResult(profileId);
-      setStatus(MutationStatus.Succeed);
-      if (params?.onSuccess) {
-        params.onSuccess(profileId);
-      }
+        setResult(profileId);
+        setStatus(MutationStatus.Succeed);
+        if (params?.onSuccess) {
+          params.onSuccess(profileId);
+        }
 
-      return profileId;
-    } catch (error) {
-      setStatus(MutationStatus.Failed);
-      setError(error);
-      if (params?.onError) {
-        params.onError(error);
+        return profileId;
+      } catch (error) {
+        setStatus(MutationStatus.Failed);
+        setError(error);
+        if (params?.onError) {
+          params.onError(error);
+        }
+        throw error;
       }
-      throw error;
-    }
-  }, []);
+    },
+    [
+      dataverseConnector,
+      actionCreateProfile,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
+  );
 
   return {
     profileIds: result,
