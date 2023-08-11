@@ -1,9 +1,10 @@
-import { useStore } from "../store";
-import { useMutation } from "../utils";
-import { DatatokenInfo, MutationStatus } from "../types";
 import { useCallback } from "react";
-import { useAction } from "../store/useAction";
+
 import { DATATOKENID_NOT_EXIST } from "../errors";
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { DatatokenInfo, MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useDatatokenInfo = (params?: {
   onError?: (error: any) => void;
@@ -35,7 +36,8 @@ export const useDatatokenInfo = (params?: {
           params.onPending(streamId);
         }
 
-        const datatokenId = streamsMap[streamId].streamContent.file.datatokenId;
+        const datatokenId =
+          streamsMap![streamId].streamContent.file.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;
@@ -64,7 +66,17 @@ export const useDatatokenInfo = (params?: {
         throw error;
       }
     },
-    [actionUpdateDatatokenInfo],
+    [
+      dataverseConnector,
+      streamsMap,
+      actionUpdateDatatokenInfo,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

@@ -1,7 +1,7 @@
+import { DataverseWalletConnector } from "@dataverse/wallet-adapter";
 import { configureChains } from "wagmi";
 import { mainnet } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import { DataverseWalletConnector } from "@dataverse/wallet-adapter";
 
 const polygonMumbai = {
   id: 80001,

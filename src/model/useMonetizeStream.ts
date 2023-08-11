@@ -1,9 +1,11 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
+
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   MonetizeStreamArgs,
   MonetizeStreamResult,
@@ -74,7 +76,7 @@ export const useMonetizeStream = (params?: {
         }
 
         if (!streamContent) {
-          streamContent = streamsMap[streamId].streamContent;
+          streamContent = streamsMap![streamId].streamContent;
         }
         const monetizeResult: MonetizeStreamResult =
           await dataverseConnector.runOS({
@@ -113,7 +115,19 @@ export const useMonetizeStream = (params?: {
         throw error;
       }
     },
-    [address, streamsMap, actionUpdateStream],
+    [
+      address,
+      streamsMap,
+      profileIds,
+      dataverseConnector,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

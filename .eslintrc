@@ -1,16 +1,49 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "react", "import"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "prettier",
+    "plugin:react/recommended"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
-    "no-console": 2, // Means warning
+    "no-console": 2, // Means error
     "prettier/prettier": 2, // Means error
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling"],
+          "object",
+          "type",
+          "index"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "{react,react-dom/**}",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
   }
 }

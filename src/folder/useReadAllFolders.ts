@@ -1,23 +1,20 @@
-import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
-import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
-import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
-import { useMutation } from "../utils";
 
-export const useReadAllFolders = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
+import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useReadAllFolders = (params?: {
+  onError?: (error: any) => void;
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolders) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector } = useStore();
+  const { actionSetFolders } = useAction();
 
   const {
     result,
@@ -40,16 +37,12 @@ export const useReadAllFolders = ({
    */
   const readAllFolders = useCallback(async () => {
     try {
-      if (!state.dataverseConnector) {
-        throw DATAVERSE_CONNECTOR_UNDEFINED;
-      }
-
       setStatus(MutationStatus.Pending);
-      if (onPending) {
-        onPending();
+      if (params?.onPending) {
+        params.onPending();
       }
 
-      const allFolders = await state.dataverseConnector.runOS({
+      const allFolders = await dataverseConnector.runOS({
         method: SYSTEM_CALL.readFolders,
       });
 
@@ -61,19 +54,28 @@ export const useReadAllFolders = ({
 
       setResult(allFolders);
       setStatus(MutationStatus.Succeed);
-      if (onSuccess) {
-        onSuccess(allFolders);
+      if (params?.onSuccess) {
+        params.onSuccess(allFolders);
       }
       return allFolders;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
-      if (onError) {
-        onError(error);
+      if (params?.onError) {
+        params.onError(error);
       }
       throw error;
     }
-  }, [state.dataverseConnector, actionSetFolders, actionUpdateFolders]);
+  }, [
+    dataverseConnector,
+    actionSetFolders,
+    setStatus,
+    setError,
+    setResult,
+    params?.onPending,
+    params?.onError,
+    params?.onSuccess,
+  ]);
 
   return {
     allFolders: result,
@@ -83,6 +85,7 @@ export const useReadAllFolders = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     readAllFolders,
   };

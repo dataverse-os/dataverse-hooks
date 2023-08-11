@@ -1,14 +1,16 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
-import { useStore } from "../store";
-import { useMutation } from "../utils";
-import { MutationStatus } from "../types";
 import { useCallback } from "react";
-import { useAction } from "../store/useAction";
+
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useCapability = (params?: {
   onError?: (error: any) => void;
-  onPending?: (appId?: string) => void;
-  onSuccess?: (result?: string) => void;
+  onPending?: (appId: string) => void;
+  onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
 
@@ -58,7 +60,16 @@ export const useCapability = (params?: {
         throw error;
       }
     },
-    [actionCreateCapability],
+    [
+      dataverseConnector,
+      actionCreateCapability,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

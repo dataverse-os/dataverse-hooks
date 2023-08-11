@@ -1,27 +1,25 @@
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
-import {
-  SYSTEM_CALL,
-  StructuredFolder,
-  StructuredFolders,
-} from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
-import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
-import { MutationStatus } from "../types";
 
-export const useChangeFolderBaseInfo = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useChangeFolderBaseInfo = (params?: {
+  onError?: (error: unknown) => void;
+  onPending?: (args: {
+    folderId: string;
+    newFolderName: string;
+    newFolderDescription?: string;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector } = useStore();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -50,66 +48,65 @@ export const useChangeFolderBaseInfo = ({
       folderId,
       newFolderName,
       newFolderDescription,
-      reRender = true,
       syncImmediately,
     }: {
       folderId: string;
       newFolderName: string;
       newFolderDescription?: string;
-      reRender?: boolean;
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
-        }
-
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.updateFolderBaseInfo,
-            params: {
-              folderId,
-              newFolderName,
-              newFolderDescription,
-              syncImmediately,
-            },
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            newFolderName,
+            newFolderDescription,
+            syncImmediately,
           });
-
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
         }
+
+        const { currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateFolderBaseInfo,
+          params: {
+            folderId,
+            newFolderName,
+            newFolderDescription,
+            syncImmediately,
+          },
+        });
+
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFolder);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFolder);
         }
         return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [
+      dataverseConnector,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {
@@ -120,6 +117,7 @@ export const useChangeFolderBaseInfo = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     changeFolderBaseInfo,
   };

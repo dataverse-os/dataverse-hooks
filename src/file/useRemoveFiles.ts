@@ -1,27 +1,27 @@
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useCallback } from "react";
+
 import {
   MirrorFiles,
   SYSTEM_CALL,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
-import { useMutation } from "../utils";
 
-export const useRemoveFiles = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFiles) => void;
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useRemoveFiles = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    indexFileIds: string[];
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: MirrorFiles) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector } = useStore();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -46,7 +46,6 @@ export const useRemoveFiles = ({
   const removeFiles = useCallback(
     async ({
       indexFileIds,
-      reRender = true,
       syncImmediately = false,
     }: {
       indexFileIds: string[];
@@ -54,54 +53,53 @@ export const useRemoveFiles = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
-        }
-
-        const { allFolders, sourceFolders, removedFiles } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.removeFiles,
-            params: {
-              indexFileIds,
-              syncImmediately,
-            },
+        if (params?.onPending) {
+          params.onPending({
+            indexFileIds,
+            syncImmediately,
           });
-
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(Object.values(sourceFolders || {}), [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
         }
+
+        const { sourceFolders, removedFiles } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.removeFiles,
+          params: {
+            indexFileIds,
+            syncImmediately,
+          },
+        });
+
+        actionUpdateFolders(
+          deepAssignRenameKey(Object.values(sourceFolders || {}), [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolders,
+        );
 
         setResult(removedFiles);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(removedFiles);
+        if (params?.onSuccess) {
+          params.onSuccess(removedFiles);
         }
         return removedFiles;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [
+      dataverseConnector,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {
@@ -112,6 +110,7 @@ export const useRemoveFiles = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     removeFiles,
   };

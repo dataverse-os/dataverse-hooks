@@ -1,9 +1,11 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
-import { useStore } from "../store";
-import { useMutation } from "../utils";
-import { MutationStatus, UnlockStreamResult } from "../types";
 import { useCallback } from "react";
-import { useAction } from "../store/useAction";
+
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus, UnlockStreamResult } from "../types";
+import { useMutation } from "../utils";
 
 export const useUnlockStream = (params?: {
   onError?: (error: any) => void;
@@ -63,7 +65,16 @@ export const useUnlockStream = (params?: {
         throw error;
       }
     },
-    [actionUpdateStream],
+    [
+      dataverseConnector,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

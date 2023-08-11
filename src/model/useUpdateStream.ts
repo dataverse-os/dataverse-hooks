@@ -1,7 +1,9 @@
-import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
+
+import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
+
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
 import { useMutation } from "../utils";
 
@@ -36,7 +38,7 @@ export const useUpdateStream = (params?: {
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = streamsMap[streamId]?.streamContent.file.fileType;
+        const fileType = streamsMap![streamId]?.streamContent.file.fileType;
         if (
           !modelStream.isPublicDomain &&
           stream &&
@@ -84,7 +86,17 @@ export const useUpdateStream = (params?: {
         throw error;
       }
     },
-    [streamsMap, actionUpdateStream],
+    [
+      dataverseConnector,
+      streamsMap,
+      actionUpdateStream,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

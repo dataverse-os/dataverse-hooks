@@ -1,19 +1,24 @@
-import { WALLET } from "@dataverse/dataverse-connector";
-import { useMutation } from "../utils";
-import { useStore } from "../store";
-import { ConnectWalletResult, MutationStatus } from "../types";
 import { useCallback } from "react";
-import { useConnect } from "wagmi";
+
+import { WALLET } from "@dataverse/dataverse-connector";
+import { useAccount, useConnect } from "wagmi";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
 import { dataverseWalletConnector } from "../store/wagmi";
-import { useAction } from "../store/useAction";
+import { ConnectWalletResult, MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useWallet = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args?: { wallet?: WALLET; provider?: any }) => void;
-  onSuccess?: (result?: ConnectWalletResult) => void;
+  onPending?: (args: { wallet?: WALLET; provider?: any }) => void;
+  onSuccess?: (result: ConnectWalletResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
+
   const { actionConnectWallet } = useAction();
+
+  const { isConnected: isWagmiConnected } = useAccount();
 
   const { connectAsync } = useConnect({
     connector: dataverseWalletConnector,
@@ -38,14 +43,16 @@ export const useWallet = (params?: {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending();
+          params.onPending({ wallet, provider });
         }
         const connectResult = await dataverseConnector.connectWallet({
           wallet,
           provider,
         });
 
-        await connectAsync();
+        if (!isWagmiConnected) {
+          await connectAsync();
+        }
 
         actionConnectWallet(connectResult);
         setStatus(MutationStatus.Succeed);
@@ -64,7 +71,16 @@ export const useWallet = (params?: {
         throw error;
       }
     },
-    [actionConnectWallet],
+    [
+      isWagmiConnected,
+      dataverseConnector,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

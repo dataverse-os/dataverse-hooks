@@ -1,6 +1,8 @@
-import { DataverseConnector } from "@dataverse/dataverse-connector";
 import React, { ReactNode, useMemo, useReducer } from "react";
+
+import { DataverseConnector } from "@dataverse/dataverse-connector";
 import { createConfig, WagmiConfig } from "wagmi";
+
 import { initialState, reducer } from "./state";
 import { DataverseContext } from "./useStore";
 import { dataverseWalletConnector, publicClient } from "./wagmi";

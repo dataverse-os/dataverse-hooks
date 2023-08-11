@@ -1,7 +1,10 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
+
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
+import { useMonetizeStream } from "./useMonetizeStream";
 import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useAction } from "../store";
 import {
   CreateStreamArgs,
   CreateStreamResult,
@@ -9,7 +12,6 @@ import {
   StreamType,
 } from "../types";
 import { useMutation } from "../utils";
-import { useMonetizeStream } from "./useMonetizeStream";
 
 export const useCreateStream = ({
   streamType,
@@ -115,7 +117,17 @@ export const useCreateStream = ({
         throw error;
       }
     },
-    [actionCreateStream],
+    [
+      streamType,
+      dataverseConnector,
+      actionCreateStream,
+      setStatus,
+      setError,
+      setResult,
+      onPending,
+      onError,
+      onSuccess,
+    ],
   );
 
   return {

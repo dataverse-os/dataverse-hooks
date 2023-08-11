@@ -1,29 +1,29 @@
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useCallback } from "react";
+
 import {
   FileInfo,
   MirrorFile,
   SYSTEM_CALL,
   StructuredFolder,
-  StructuredFolders,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
-import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
 
-export const useUpdateFileBaseInfo = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFile) => void;
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useUpdateFileBaseInfo = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    indexFileId: string;
+    fileInfo: FileInfo;
+    syncImmediately?: boolean;
+  }) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector } = useStore();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -53,7 +53,6 @@ export const useUpdateFileBaseInfo = ({
     async ({
       indexFileId,
       fileInfo,
-      reRender = true,
       syncImmediately = false,
     }: {
       indexFileId: string;
@@ -62,55 +61,55 @@ export const useUpdateFileBaseInfo = ({
       syncImmediately?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
-        }
-
-        const { allFolders, currentFolder, currentFile } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.updateFileBaseInfo,
-            params: {
-              indexFileId,
-              fileInfo,
-              syncImmediately,
-            },
+        if (params?.onPending) {
+          params.onPending({
+            indexFileId,
+            fileInfo,
+            syncImmediately,
           });
-
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
         }
+
+        const { currentFolder, currentFile } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateFileBaseInfo,
+          params: {
+            indexFileId,
+            fileInfo,
+            syncImmediately,
+          },
+        });
+
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(currentFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFile);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFile);
         }
         return currentFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [
+      dataverseConnector,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {
@@ -121,6 +120,7 @@ export const useUpdateFileBaseInfo = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     updateFileBaseInfo,
   };

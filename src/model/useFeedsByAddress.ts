@@ -1,13 +1,15 @@
+import { useCallback } from "react";
+
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
 import { useStore } from "../store";
-import { useMutation } from "../utils";
+import { useAction } from "../store";
 import {
   LoadStreamsByArgs,
   LoadStreamsByResult,
   MutationStatus,
 } from "../types";
-import { useCallback } from "react";
-import { useAction } from "../store/useAction";
+import { useMutation } from "../utils";
 
 export const useFeedsByAddress = (params?: {
   onError?: (error: any) => void;
@@ -64,7 +66,16 @@ export const useFeedsByAddress = (params?: {
         throw error;
       }
     },
-    [actionLoadStreams],
+    [
+      dataverseConnector,
+      actionLoadStreams,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

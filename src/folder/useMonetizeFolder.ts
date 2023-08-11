@@ -1,29 +1,33 @@
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useCallback } from "react";
+
 import {
   SYSTEM_CALL,
   StructuredFolder,
-  StructuredFolders,
   Currency,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
-import { MutationStatus } from "../types";
-import { DATAVERSE_CONNECTOR_UNDEFINED, PROFILES_NOT_EXSIT } from "../errors";
-import { useProfiles } from "../profile";
 
-export const useMonetizeFolder = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+import { PROFILES_NOT_EXSIT } from "../errors";
+import { useProfiles } from "../profile";
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useMonetizeFolder = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId: string;
+    folderDescription: string;
+    profileId?: string | undefined;
+    currency: Currency;
+    amount: number;
+    collectLimit: number;
+  }) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector, address, profileIds } = useStore();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -49,7 +53,6 @@ export const useMonetizeFolder = ({
       currency,
       amount,
       collectLimit,
-      reRender = true,
     }: {
       folderId: string;
       folderDescription: string;
@@ -57,73 +60,81 @@ export const useMonetizeFolder = ({
       currency: Currency;
       amount: number;
       collectLimit: number;
-      reRender?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            folderDescription,
+            profileId,
+            currency,
+            amount,
+            collectLimit,
+          });
         }
 
         if (!profileId) {
-          const profileIds = await getProfiles(
-            state.dataverseConnector.address!,
-          );
-          if (profileIds.length === 0) {
+          if (profileIds === undefined) {
+            const gettedProfileIds = await getProfiles(address);
+            if (gettedProfileIds.length === 0) {
+              throw PROFILES_NOT_EXSIT;
+            }
+            profileId = gettedProfileIds[0];
+          } else if (profileIds.length === 0) {
             throw PROFILES_NOT_EXSIT;
+          } else {
+            profileId = profileIds[0];
           }
-          profileId = profileIds[0];
         }
 
-        const { allFolders, currentFolder } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.monetizeFolder,
-            params: {
-              folderId,
-              folderDescription,
-              datatokenVars: {
-                profileId,
-                currency,
-                amount,
-                collectLimit,
-              },
+        const { currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.monetizeFolder,
+          params: {
+            folderId,
+            folderDescription,
+            datatokenVars: {
+              profileId,
+              currency,
+              amount,
+              collectLimit,
             },
-          });
+          },
+        });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFolder);
+        if (params?.onSuccess) {
+          params.onSuccess(currentFolder);
         }
         return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [
+      address,
+      profileIds,
+      dataverseConnector,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {

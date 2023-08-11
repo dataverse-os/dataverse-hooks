@@ -1,29 +1,31 @@
-import { useStore } from "../store";
-import { useAction } from "../store/useAction";
+import { useCallback } from "react";
+
 import {
   MirrorFile,
   SYSTEM_CALL,
   StorageProvider,
   StructuredFolder,
-  StructuredFolders,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
-import { DATAVERSE_CONNECTOR_UNDEFINED } from "../errors";
-import { MutationStatus } from "../types";
 
-export const useUploadFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
-  onError?: (error?: unknown) => void;
-  onPending?: () => void;
-  onSuccess?: (result?: MirrorFile) => void;
+import { useStore } from "../store";
+import { useAction } from "../store";
+import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
+
+export const useUploadFile = (params?: {
+  onError?: (error: any) => void;
+  onPending?: (args: {
+    folderId?: string;
+    fileBase64: string;
+    fileName: string;
+    encrypted: boolean;
+    storageProvider: StorageProvider;
+  }) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
-  const { state } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { dataverseConnector } = useStore();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -53,67 +55,67 @@ export const useUploadFile = ({
       fileName,
       encrypted,
       storageProvider,
-      reRender = true,
     }: {
-      folderId: string;
+      folderId?: string;
       fileBase64: string;
       fileName: string;
       encrypted: boolean;
       storageProvider: StorageProvider;
-      reRender?: boolean;
     }) => {
       try {
-        if (!state.dataverseConnector) {
-          throw DATAVERSE_CONNECTOR_UNDEFINED;
-        }
-
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending();
-        }
-
-        const { allFolders, currentFolder, newFile } =
-          await state.dataverseConnector.runOS({
-            method: SYSTEM_CALL.uploadFile,
-            params: {
-              folderId,
-              fileBase64,
-              fileName,
-              encrypted,
-              storageProvider,
-            },
+        if (params?.onPending) {
+          params.onPending({
+            folderId,
+            fileBase64,
+            fileName,
+            encrypted,
+            storageProvider,
           });
-
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
         }
+
+        const { currentFolder, newFile } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.uploadFile,
+          params: {
+            folderId,
+            fileBase64,
+            fileName,
+            encrypted,
+            storageProvider,
+          },
+        });
+
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(newFile);
+        if (params?.onSuccess) {
+          params.onSuccess(newFile);
         }
         return newFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
     },
-    [state.dataverseConnector, actionSetFolders, actionUpdateFolders],
+    [
+      dataverseConnector,
+      actionUpdateFolders,
+      setStatus,
+      setError,
+      setResult,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
+    ],
   );
 
   return {
@@ -124,6 +126,7 @@ export const useUploadFile = ({
     isPending,
     isSucceed,
     isFailed,
+    setStatus,
     reset,
     uploadFile,
   };
