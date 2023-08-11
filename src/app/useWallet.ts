@@ -1,11 +1,13 @@
-import { WALLET } from "@dataverse/dataverse-connector";
-import { useMutation } from "../utils";
-import { useStore } from "../store";
-import { ConnectWalletResult, MutationStatus } from "../types";
 import { useCallback } from "react";
+
+import { WALLET } from "@dataverse/dataverse-connector";
 import { useAccount, useConnect } from "wagmi";
-import { dataverseWalletConnector } from "../store/wagmi";
+
+import { useStore } from "../store";
 import { useAction } from "../store";
+import { dataverseWalletConnector } from "../store/wagmi";
+import { ConnectWalletResult, MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useWallet = (params?: {
   onError?: (error: any) => void;

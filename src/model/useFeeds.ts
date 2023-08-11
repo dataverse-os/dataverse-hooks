@@ -1,9 +1,11 @@
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
-import { useStore } from "../store";
-import { useMutation } from "../utils";
-import { LoadStreamsResult, MutationStatus } from "../types";
 import { useCallback } from "react";
+
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
+import { useStore } from "../store";
 import { useAction } from "../store";
+import { LoadStreamsResult, MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useFeeds = (params?: {
   onError?: (error: any) => void;

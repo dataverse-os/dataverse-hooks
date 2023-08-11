@@ -5,6 +5,7 @@ import {
   WALLET,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
+
 import { DatatokenInfo } from "./params";
 
 export enum ActionType {

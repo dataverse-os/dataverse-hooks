@@ -1,10 +1,12 @@
+import { useCallback } from "react";
+
+import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
+
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
 import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
 
 export const useChangeFolderBaseInfo = (params?: {
   onError?: (error: unknown) => void;

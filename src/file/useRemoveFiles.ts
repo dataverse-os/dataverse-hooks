@@ -1,14 +1,16 @@
-import { useStore } from "../store";
-import { useAction } from "../store";
+import { useCallback } from "react";
+
 import {
   MirrorFiles,
   SYSTEM_CALL,
   StructuredFolders,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
 
 export const useRemoveFiles = (params?: {
   onError?: (error: any) => void;

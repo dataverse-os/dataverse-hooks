@@ -1,15 +1,17 @@
-import { useStore } from "../store";
-import { useAction } from "../store";
+import { useCallback } from "react";
+
 import {
   MirrorFile,
   SYSTEM_CALL,
   StorageProvider,
   StructuredFolder,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
 import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
 
 export const useUploadFile = (params?: {
   onError?: (error: any) => void;

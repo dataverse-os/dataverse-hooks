@@ -1,12 +1,14 @@
+import { useCallback, useEffect } from "react";
+
 import { SYSTEM_CALL, WALLET } from "@dataverse/dataverse-connector";
-import { ConnectResult, MutationStatus } from "../types";
+import { useAccount, useConnect } from "wagmi";
+
 import { useCapability } from "./useCapability";
 import { useWallet } from "./useWallet";
-import { useMutation } from "../utils";
-import { useCallback, useEffect } from "react";
 import { useAction, useStore } from "../store";
-import { useAccount, useConnect } from "wagmi";
 import { dataverseWalletConnector } from "../store/wagmi";
+import { ConnectResult, MutationStatus } from "../types";
+import { useMutation } from "../utils";
 
 export const useApp = ({
   appId,

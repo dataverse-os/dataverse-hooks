@@ -1,10 +1,11 @@
-import { ActionType, StateType } from "../types";
+import { Mirrors } from "@dataverse/dataverse-connector";
+
 import {
   ACTION_TYPE_NOT_EXSITS,
   FOLDERS_MAP_UNDEFINED,
   STREAMS_MAP_UNDEFINED,
 } from "../errors";
-import { Mirrors } from "@dataverse/dataverse-connector";
+import { ActionType, StateType } from "../types";
 
 export const initialState: StateType = {
   address: undefined,

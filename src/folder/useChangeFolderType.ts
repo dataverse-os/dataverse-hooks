@@ -1,14 +1,16 @@
-import { useStore } from "../store";
-import { useAction } from "../store";
+import { useCallback } from "react";
+
 import {
   FolderType,
   SYSTEM_CALL,
   StructuredFolder,
 } from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
-import { useMutation } from "../utils";
+
+import { useStore } from "../store";
+import { useAction } from "../store";
 import { MutationStatus } from "../types";
+import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
 
 export const useChangeFolderType = (params?: {
   onError?: (error: any) => void;

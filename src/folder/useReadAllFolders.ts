@@ -1,10 +1,12 @@
+import { useCallback } from "react";
+
 import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
+
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { deepAssignRenameKey } from "../utils/object";
-import { useCallback } from "react";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
+import { deepAssignRenameKey } from "../utils/object";
 
 export const useReadAllFolders = (params?: {
   onError?: (error: any) => void;

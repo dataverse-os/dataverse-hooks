@@ -1,3 +1,5 @@
+import { useCallback, useContext } from "react";
+
 import {
   Chain,
   MirrorFile,
@@ -5,7 +7,8 @@ import {
   StructuredFolders,
   WALLET,
 } from "@dataverse/dataverse-connector";
-import { useCallback, useContext } from "react";
+
+import { DataverseContext } from "./useStore";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
@@ -17,7 +20,6 @@ import {
   UnlockStreamResult,
   UpdateStreamResult,
 } from "../types";
-import { DataverseContext } from "./useStore";
 
 export const useAction = () => {
   const context = useContext(DataverseContext);
