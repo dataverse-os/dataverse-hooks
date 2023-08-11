@@ -4,7 +4,6 @@ import {
   SYSTEM_CALL,
   StructuredFolder,
   FolderType,
-  StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
@@ -17,12 +16,11 @@ export const useCreateFolder = (params?: {
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
-    reRender?: boolean;
   }) => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -50,12 +48,10 @@ export const useCreateFolder = (params?: {
       folderType,
       folderName,
       folderDescription,
-      reRender = true,
     }: {
       folderType: FolderType;
       folderName: string;
       folderDescription?: string;
-      reRender?: boolean;
     }) => {
       try {
         setStatus(MutationStatus.Pending);
@@ -64,11 +60,11 @@ export const useCreateFolder = (params?: {
             folderType,
             folderName,
             folderDescription,
-            reRender,
+            // reRender,
           });
         }
 
-        const { allFolders, newFolder } = await dataverseConnector.runOS({
+        const { newFolder } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createFolder,
           params: {
             folderType: folderType as any,
@@ -77,19 +73,11 @@ export const useCreateFolder = (params?: {
           },
         });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(newFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(newFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(newFolder);
         setStatus(MutationStatus.Succeed);
@@ -108,7 +96,6 @@ export const useCreateFolder = (params?: {
     },
     [
       dataverseConnector,
-      actionSetFolders,
       actionUpdateFolders,
       setStatus,
       setError,

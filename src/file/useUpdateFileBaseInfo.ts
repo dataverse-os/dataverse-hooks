@@ -5,7 +5,6 @@ import {
   MirrorFile,
   SYSTEM_CALL,
   StructuredFolder,
-  StructuredFolders,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
 import { useCallback } from "react";
@@ -17,13 +16,12 @@ export const useUpdateFileBaseInfo = (params?: {
   onPending?: (args: {
     indexFileId: string;
     fileInfo: FileInfo;
-    reRender?: boolean;
     syncImmediately?: boolean;
   }) => void;
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -53,7 +51,6 @@ export const useUpdateFileBaseInfo = (params?: {
     async ({
       indexFileId,
       fileInfo,
-      reRender = true,
       syncImmediately = false,
     }: {
       indexFileId: string;
@@ -67,34 +64,24 @@ export const useUpdateFileBaseInfo = (params?: {
           params.onPending({
             indexFileId,
             fileInfo,
-            reRender,
             syncImmediately,
           });
         }
 
-        const { allFolders, currentFolder, currentFile } =
-          await dataverseConnector.runOS({
-            method: SYSTEM_CALL.updateFileBaseInfo,
-            params: {
-              indexFileId,
-              fileInfo,
-              syncImmediately,
-            },
-          });
+        const { currentFolder, currentFile } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateFileBaseInfo,
+          params: {
+            indexFileId,
+            fileInfo,
+            syncImmediately,
+          },
+        });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(currentFile);
         setStatus(MutationStatus.Succeed);
@@ -113,7 +100,6 @@ export const useUpdateFileBaseInfo = (params?: {
     },
     [
       dataverseConnector,
-      actionSetFolders,
       actionUpdateFolders,
       setStatus,
       setError,

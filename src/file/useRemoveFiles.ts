@@ -14,13 +14,12 @@ export const useRemoveFiles = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: {
     indexFileIds: string[];
-    reRender?: boolean;
     syncImmediately?: boolean;
   }) => void;
   onSuccess?: (result: MirrorFiles) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -45,7 +44,6 @@ export const useRemoveFiles = (params?: {
   const removeFiles = useCallback(
     async ({
       indexFileIds,
-      reRender = true,
       syncImmediately = false,
     }: {
       indexFileIds: string[];
@@ -57,33 +55,23 @@ export const useRemoveFiles = (params?: {
         if (params?.onPending) {
           params.onPending({
             indexFileIds,
-            reRender,
             syncImmediately,
           });
         }
 
-        const { allFolders, sourceFolders, removedFiles } =
-          await dataverseConnector.runOS({
-            method: SYSTEM_CALL.removeFiles,
-            params: {
-              indexFileIds,
-              syncImmediately,
-            },
-          });
+        const { sourceFolders, removedFiles } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.removeFiles,
+          params: {
+            indexFileIds,
+            syncImmediately,
+          },
+        });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(Object.values(sourceFolders || {}), [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(Object.values(sourceFolders || {}), [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolders,
+        );
 
         setResult(removedFiles);
         setStatus(MutationStatus.Succeed);
@@ -102,7 +90,6 @@ export const useRemoveFiles = (params?: {
     },
     [
       dataverseConnector,
-      actionSetFolders,
       actionUpdateFolders,
       setStatus,
       setError,

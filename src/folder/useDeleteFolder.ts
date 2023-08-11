@@ -1,11 +1,6 @@
 import { useStore } from "../store";
 import { useAction } from "../store";
-import {
-  SYSTEM_CALL,
-  StructuredFolder,
-  StructuredFolders,
-} from "@dataverse/dataverse-connector";
-import { deepAssignRenameKey } from "../utils/object";
+import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
 import { useCallback } from "react";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
@@ -20,7 +15,7 @@ export const useDeleteFolder = (params?: {
   onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionDeleteFolder } = useAction();
+  const { actionDeleteFolder } = useAction();
 
   const {
     result,
@@ -44,11 +39,9 @@ export const useDeleteFolder = (params?: {
   const deleteFolder = useCallback(
     async ({
       folderId,
-      reRender = true,
       syncImmediately,
     }: {
       folderId: string;
-      reRender?: boolean;
       syncImmediately?: boolean;
     }) => {
       try {
@@ -56,12 +49,11 @@ export const useDeleteFolder = (params?: {
         if (params?.onPending) {
           params.onPending({
             folderId,
-            reRender,
             syncImmediately,
           });
         }
 
-        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+        const { currentFolder } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.deleteFolder,
           params: {
             folderId,
@@ -69,15 +61,7 @@ export const useDeleteFolder = (params?: {
           },
         });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionDeleteFolder(currentFolder.folderId);
-        }
+        actionDeleteFolder(currentFolder.folderId);
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
@@ -96,7 +80,6 @@ export const useDeleteFolder = (params?: {
     },
     [
       dataverseConnector,
-      actionSetFolders,
       actionDeleteFolder,
       setStatus,
       setError,

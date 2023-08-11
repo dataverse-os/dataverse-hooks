@@ -15,13 +15,12 @@ export const useMoveFiles = (params?: {
   onPending?: (args: {
     sourceIndexFileIds: string[];
     targetFolderId: string;
-    reRender?: boolean;
     syncImmediately?: boolean;
   }) => void;
   onSuccess?: (result: MirrorFiles) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -48,7 +47,6 @@ export const useMoveFiles = (params?: {
     async ({
       sourceIndexFileIds,
       targetFolderId,
-      reRender = true,
       syncImmediately = false,
     }: {
       sourceIndexFileIds: string[];
@@ -62,12 +60,11 @@ export const useMoveFiles = (params?: {
           params.onPending({
             sourceIndexFileIds,
             targetFolderId,
-            reRender,
             syncImmediately,
           });
         }
 
-        const { allFolders, sourceFolders, targetFolder, movedFiles } =
+        const { sourceFolders, targetFolder, movedFiles } =
           await dataverseConnector.runOS({
             method: SYSTEM_CALL.moveFiles,
             params: {
@@ -77,20 +74,12 @@ export const useMoveFiles = (params?: {
             },
           });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(
-              Object.values(sourceFolders || {}).concat(targetFolder),
-              [{ mirror: "mirrorFile" }],
-            ) as StructuredFolders,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(
+            Object.values(sourceFolders || {}).concat(targetFolder),
+            [{ mirror: "mirrorFile" }],
+          ) as StructuredFolders,
+        );
 
         setResult(movedFiles);
         setStatus(MutationStatus.Succeed);
@@ -109,7 +98,6 @@ export const useMoveFiles = (params?: {
     },
     [
       dataverseConnector,
-      actionSetFolders,
       actionUpdateFolders,
       setStatus,
       setError,

@@ -60,8 +60,8 @@ export const useAction = () => {
   const actionUpdateStream = useCallback(
     (
       updatedStream:
-        | MonetizeStreamResult
-        | UnlockStreamResult
+        | (MonetizeStreamResult & { streamId: string })
+        | (UnlockStreamResult & { streamId: string })
         | (UpdateStreamResult & { streamId: string }),
     ) => {
       dispatch({

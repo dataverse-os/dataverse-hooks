@@ -29,12 +29,12 @@ export type DataverseContextType = {
     chain?: Chain;
     wallet?: WALLET;
     pkh?: string;
-    folderMap: StructuredFolders;
     profileIds?: string[];
     streamsMap?: Record<
       string,
       StreamRecord & { datatokenInfo?: DatatokenInfo }
     >;
+    foldersMap?: StructuredFolders;
   };
   dispatch: React.Dispatch<any>;
 };

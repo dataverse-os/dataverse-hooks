@@ -12,7 +12,7 @@ export const useReadAllFolders = (params?: {
   onSuccess?: (result?: StructuredFolders) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionSetFolders } = useAction();
 
   const {
     result,
@@ -67,7 +67,6 @@ export const useReadAllFolders = (params?: {
   }, [
     dataverseConnector,
     actionSetFolders,
-    actionUpdateFolders,
     setStatus,
     setError,
     setResult,

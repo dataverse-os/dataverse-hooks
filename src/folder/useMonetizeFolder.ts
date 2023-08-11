@@ -3,7 +3,6 @@ import { useAction } from "../store";
 import {
   SYSTEM_CALL,
   StructuredFolder,
-  StructuredFolders,
   Currency,
 } from "@dataverse/dataverse-connector";
 import { deepAssignRenameKey } from "../utils/object";
@@ -22,12 +21,11 @@ export const useMonetizeFolder = (params?: {
     currency: Currency;
     amount: number;
     collectLimit: number;
-    reRender?: boolean;
   }) => void;
   onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector, address, profileIds } = useStore();
-  const { actionSetFolders, actionUpdateFolders } = useAction();
+  const { actionUpdateFolders } = useAction();
 
   const {
     result,
@@ -53,7 +51,6 @@ export const useMonetizeFolder = (params?: {
       currency,
       amount,
       collectLimit,
-      reRender = true,
     }: {
       folderId: string;
       folderDescription: string;
@@ -61,7 +58,6 @@ export const useMonetizeFolder = (params?: {
       currency: Currency;
       amount: number;
       collectLimit: number;
-      reRender?: boolean;
     }) => {
       try {
         setStatus(MutationStatus.Pending);
@@ -73,7 +69,6 @@ export const useMonetizeFolder = (params?: {
             currency,
             amount,
             collectLimit,
-            reRender,
           });
         }
 
@@ -91,7 +86,7 @@ export const useMonetizeFolder = (params?: {
           }
         }
 
-        const { allFolders, currentFolder } = await dataverseConnector.runOS({
+        const { currentFolder } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.monetizeFolder,
           params: {
             folderId,
@@ -105,19 +100,11 @@ export const useMonetizeFolder = (params?: {
           },
         });
 
-        if (reRender) {
-          actionSetFolders(
-            deepAssignRenameKey(allFolders, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolders,
-          );
-        } else {
-          actionUpdateFolders(
-            deepAssignRenameKey(currentFolder, [
-              { mirror: "mirrorFile" },
-            ]) as StructuredFolder,
-          );
-        }
+        actionUpdateFolders(
+          deepAssignRenameKey(currentFolder, [
+            { mirror: "mirrorFile" },
+          ]) as StructuredFolder,
+        );
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
@@ -138,7 +125,6 @@ export const useMonetizeFolder = (params?: {
       address,
       profileIds,
       dataverseConnector,
-      actionSetFolders,
       actionUpdateFolders,
       setStatus,
       setError,

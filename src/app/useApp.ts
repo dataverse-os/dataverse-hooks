@@ -10,7 +10,7 @@ import { dataverseWalletConnector } from "../store/wagmi";
 
 export const useApp = ({
   appId,
-  autoConnect = true,
+  autoConnect = false,
   onError,
   onPending,
   onSuccess,
@@ -29,7 +29,8 @@ export const useApp = ({
 
   const { createCapability } = useCapability();
 
-  const wagmiAccount = useAccount();
+  const { isConnected: isWagmiConnected } = useAccount();
+
   const { connectAsync } = useConnect({
     connector: dataverseWalletConnector,
   });
@@ -49,11 +50,13 @@ export const useApp = ({
   } = useMutation();
 
   useEffect(() => {
-    autoConnectApp();
-  }, []);
+    if (autoConnect) {
+      autoConnectApp();
+    }
+  }, [autoConnect]);
 
   const autoConnectApp = useCallback(async () => {
-    if (autoConnect && !address && !pkh) {
+    if (!address && !pkh) {
       const hasCapability = await dataverseConnector.runOS({
         method: SYSTEM_CALL.checkCapability,
         params: {
@@ -72,7 +75,7 @@ export const useApp = ({
           actionCreateCapability(currentPkh);
         }
 
-        if (!wagmiAccount.isConnected) {
+        if (!isWagmiConnected) {
           await connectAsync();
         }
       }
@@ -81,7 +84,7 @@ export const useApp = ({
     dataverseConnector,
     address,
     pkh,
-    autoConnect,
+    isWagmiConnected,
     actionConnectWallet,
     actionCreateCapability,
   ]);

@@ -1,7 +1,10 @@
 import { ActionType, StateType } from "../types";
-import { ACTION_TYPE_NOT_EXSITS } from "../errors";
-import { MirrorFile, Mirrors } from "@dataverse/dataverse-connector";
-import _ from "lodash";
+import {
+  ACTION_TYPE_NOT_EXSITS,
+  FOLDERS_MAP_UNDEFINED,
+  STREAMS_MAP_UNDEFINED,
+} from "../errors";
+import { Mirrors } from "@dataverse/dataverse-connector";
 
 export const initialState: StateType = {
   address: undefined,
@@ -10,7 +13,7 @@ export const initialState: StateType = {
   pkh: undefined,
   profileIds: undefined,
   streamsMap: undefined,
-  folderMap: {},
+  foldersMap: undefined,
 };
 
 export const reducer = (
@@ -25,109 +28,161 @@ export const reducer = (
   switch (type) {
     case ActionType.ConnectWallet: {
       const { address, chain, wallet } = payload;
-      state.address = address;
-      state.chain = chain;
-      state.wallet = wallet;
-      break;
+
+      return {
+        ...state,
+        address,
+        chain,
+        wallet,
+      };
     }
 
     case ActionType.CreateCapability: {
-      state.pkh = payload;
-      break;
+      return {
+        ...state,
+        pkh: payload,
+      };
     }
 
     case ActionType.CreateStream: {
-      const streamId = payload.streamId;
-      if (!state.streamsMap) {
-        state.streamsMap = {};
-      }
-      state.streamsMap[streamId] = {
-        pkh: payload.pkh,
-        appId: payload.appId,
-        modelId: payload.modelId,
-        streamContent: payload.streamContent,
+      const { streamId, pkh, appId, modelId, streamContent } = payload;
+
+      return {
+        ...state,
+        streamsMap: {
+          ...state.streamsMap,
+          [streamId]: {
+            pkh,
+            appId,
+            modelId,
+            streamContent,
+          },
+        },
       };
-      break;
     }
 
     case ActionType.LoadStreams: {
-      state.streamsMap = payload;
-      break;
+      return {
+        ...state,
+        streamsMap: payload,
+      };
     }
 
     case ActionType.UpdateStream: {
       const { streamId, streamContent } = payload;
-      state.streamsMap![streamId] = {
-        ...state.streamsMap![streamId],
-        streamContent,
+
+      if (!state.streamsMap) {
+        throw STREAMS_MAP_UNDEFINED;
+      }
+
+      return {
+        ...state,
+        streamsMap: {
+          ...state.streamsMap,
+          [streamId]: {
+            ...state.streamsMap[streamId],
+            streamContent,
+          },
+        },
       };
-      break;
-    }
-
-    case ActionType.SetFolders: {
-      state.folderMap = payload;
-      break;
-    }
-
-    case ActionType.UpdateFolders: {
-      const folders = payload instanceof Array ? payload : [payload];
-      folders.forEach(folder => {
-        state.folderMap[folder.folderId] = folder;
-      });
-      break;
-    }
-
-    case ActionType.DeleteFolder: {
-      const folderId = payload;
-      delete state.folderMap[folderId];
-      break;
-    }
-
-    case ActionType.UpdateFoldersByFile: {
-      const file: MirrorFile = payload;
-      Object.keys(state.folderMap).forEach(folderId => {
-        const folder = state.folderMap[folderId];
-        if (typeof folder.mirrors !== "string") {
-          Object.keys(folder.mirrors).forEach(mirrorId => {
-            const mirror = (folder.mirrors as Mirrors)[mirrorId];
-            if (mirror.mirrorFile.indexFileId === file.indexFileId) {
-              (state.folderMap[folderId].mirrors as Mirrors)[
-                mirrorId
-              ].mirrorFile = file;
-            }
-          });
-        }
-      });
-      break;
     }
 
     case ActionType.LoadProfileIds: {
-      state.profileIds = payload;
-      break;
+      return {
+        ...state,
+        profileIds: payload,
+      };
     }
 
     case ActionType.CreateProfileId: {
-      if (state.profileIds) {
-        state.profileIds.push(payload);
-      } else {
-        state.profileIds = [payload];
-      }
-      break;
+      return {
+        ...state,
+        profileIds: state.profileIds
+          ? [...state.profileIds, payload]
+          : [payload],
+      };
     }
 
     case ActionType.UpdateDatatokenInfo: {
       const { streamId, datatokenInfo } = payload;
-      state.streamsMap![streamId] = {
-        ...state.streamsMap![streamId],
-        datatokenInfo,
+
+      if (!state.streamsMap) {
+        throw STREAMS_MAP_UNDEFINED;
+      }
+
+      return {
+        ...state,
+        streamsMap: {
+          ...state.streamsMap,
+          [streamId]: {
+            ...state.streamsMap[streamId],
+            datatokenInfo,
+          },
+        },
       };
-      break;
+    }
+
+    case ActionType.SetFolders: {
+      return {
+        ...state,
+        foldersMap: payload,
+      };
+    }
+
+    case ActionType.UpdateFolders: {
+      const folders = payload instanceof Array ? payload : [payload];
+
+      return {
+        ...state,
+        foldersMap: {
+          ...state.foldersMap,
+          ...Object.assign(
+            {},
+            ...folders.map(folder => {
+              return {
+                [folder.folderId]: folder,
+              };
+            }),
+          ),
+        },
+      };
+    }
+
+    case ActionType.DeleteFolder: {
+      const _state = {
+        ...state,
+      };
+      if (!_state.foldersMap) {
+        throw FOLDERS_MAP_UNDEFINED;
+      }
+      delete _state.foldersMap[payload];
+      return _state;
+    }
+
+    case ActionType.UpdateFoldersByFile: {
+      const _state = { ...state };
+      if (!_state.foldersMap) {
+        throw FOLDERS_MAP_UNDEFINED;
+      }
+      Object.keys(_state.foldersMap).forEach(folderId => {
+        const folder = _state.foldersMap![folderId];
+        if (typeof folder.mirrors !== "string") {
+          Object.keys(folder.mirrors).forEach(mirrorId => {
+            const mirror = (folder.mirrors as Mirrors)[mirrorId];
+            if (mirror.mirrorFile.indexFileId === payload.indexFileId) {
+              (_state.foldersMap![folderId].mirrors as Mirrors)[
+                mirrorId
+              ].mirrorFile = payload;
+            }
+          });
+        }
+      });
+
+      return _state;
     }
 
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }
   }
-
-  return _.cloneDeep(state);
 };
