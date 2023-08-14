@@ -20,7 +20,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@dataverse/dataverse-connector": "^1.0.22",
     "@dataverse/model-parser": "^1.0.2",
