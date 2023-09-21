@@ -4,16 +4,16 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { LoadStreamsResult, MutationStatus } from "../types";
+import { MutationStatus, UnlockFileResult } from "../types";
 import { useMutation } from "../utils";
 
-export const useFeeds = (params?: {
+export const useUnlockStream = (params?: {
   onError?: (error: any) => void;
-  onPending?: (modelId: string) => void;
-  onSuccess?: (result: LoadStreamsResult) => void;
+  onPending?: (streamId: string) => void;
+  onSuccess?: (result: UnlockFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadStreams } = useAction();
+  const { actionUpdateFile: actionUpdateStream } = useAction();
 
   const {
     result,
@@ -29,29 +29,33 @@ export const useFeeds = (params?: {
     reset,
   } = useMutation();
 
-  const loadFeeds = useCallback(
-    async (modelId: string) => {
+  const unlockStream = useCallback(
+    async (streamId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(modelId);
+          params.onPending(streamId);
         }
 
-        const streams: LoadStreamsResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
+        const unlockResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.unlock,
           params: {
-            modelId,
+            streamId,
           },
         });
 
-        actionLoadStreams(streams);
+        actionUpdateStream({
+          fileId: streamId,
+          ...unlockResult,
+        });
 
         setStatus(MutationStatus.Succeed);
-        setResult(streams);
+        setResult(unlockResult);
         if (params?.onSuccess) {
-          params.onSuccess(streams);
+          params.onSuccess(unlockResult);
         }
-        return streams;
+
+        return unlockResult;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
@@ -63,7 +67,7 @@ export const useFeeds = (params?: {
     },
     [
       dataverseConnector,
-      actionLoadStreams,
+      actionUpdateStream,
       setStatus,
       setError,
       setResult,
@@ -74,7 +78,7 @@ export const useFeeds = (params?: {
   );
 
   return {
-    feeds: result,
+    unlockedStreamContent: result,
     error,
     status,
     isIdle,
@@ -83,6 +87,6 @@ export const useFeeds = (params?: {
     isFailed,
     setStatus,
     reset,
-    loadFeeds,
+    unlockStream,
   };
 };

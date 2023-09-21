@@ -1,31 +1,21 @@
 import { useCallback } from "react";
 
-import {
-  Currency,
-  MirrorFile,
-  SYSTEM_CALL,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { MonetizeFileArgs, MonetizeFileResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
 export const useMonetizeFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    indexFileId: string;
-    profileId?: string | undefined;
-    currency: Currency;
-    amount: number;
-    collectLimit: number;
-  }) => void;
-  onSuccess?: (result: MirrorFile) => void;
+  onPending?: (args: MonetizeFileArgs) => void;
+  onSuccess?: (result: MonetizeFileResult) => void;
 }) => {
-  const { dataverseConnector, address, profileIds } = useStore();
-  const { actionUpdateFoldersByFile } = useAction();
+  const { dataverseConnector, address, profileIds, filesMap } = useStore();
+  const { actionUpdateFile: actionUpdateStream } = useAction();
 
   const {
     result,
@@ -45,27 +35,23 @@ export const useMonetizeFile = (params?: {
 
   const monetizeFile = useCallback(
     async ({
-      indexFileId,
+      fileId,
       profileId,
       currency,
       amount,
       collectLimit,
-    }: {
-      indexFileId: string;
-      profileId?: string | undefined;
-      currency: Currency;
-      amount: number;
-      collectLimit: number;
-    }) => {
+      decryptionConditions,
+    }: MonetizeFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending({
-            indexFileId,
+            fileId,
             profileId,
             currency,
             amount,
             collectLimit,
+            decryptionConditions,
           });
         }
 
@@ -83,30 +69,36 @@ export const useMonetizeFile = (params?: {
           }
         }
 
-        const { streamContent } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.monetizeFile,
-          params: {
-            indexFileId,
-            datatokenVars: {
-              profileId,
-              currency,
-              amount,
-              collectLimit,
+        const monetizeResult: MonetizeFileResult =
+          await dataverseConnector.runOS({
+            method: SYSTEM_CALL.monetizeFile,
+            params: {
+              fileId,
+              datatokenVars: {
+                profileId,
+                currency,
+                amount,
+                collectLimit,
+              },
+              decryptionConditions,
             },
-          },
+          });
+
+        setStatus(MutationStatus.Succeed);
+        setResult(monetizeResult);
+        if (params?.onSuccess) {
+          params.onSuccess(monetizeResult);
+        }
+
+        actionUpdateStream({
+          fileId,
+          ...monetizeResult,
         });
 
-        actionUpdateFoldersByFile(streamContent.file);
-
-        setResult(streamContent.file);
-        setStatus(MutationStatus.Succeed);
-        if (params?.onSuccess) {
-          params.onSuccess(streamContent.file);
-        }
-        return streamContent.file;
+        return monetizeResult;
       } catch (error) {
-        setError(error);
         setStatus(MutationStatus.Failed);
+        setError(error);
         if (params?.onError) {
           params.onError(error);
         }
@@ -115,9 +107,10 @@ export const useMonetizeFile = (params?: {
     },
     [
       address,
+      filesMap,
       profileIds,
       dataverseConnector,
-      actionUpdateFoldersByFile,
+      actionUpdateStream,
       setStatus,
       setError,
       setResult,
@@ -128,7 +121,7 @@ export const useMonetizeFile = (params?: {
   );
 
   return {
-    monetizedFile: result,
+    monetizedFileContent: result,
     error,
     status,
     isIdle,

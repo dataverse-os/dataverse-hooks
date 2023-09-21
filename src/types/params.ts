@@ -3,23 +3,25 @@ import {
   Currency,
   DecryptionConditions,
   ReturnType,
-  StreamRecord,
+  MirrorFileRecord,
   SYSTEM_CALL,
   WALLET,
+  RequestType,
 } from "@dataverse/dataverse-connector";
 import { Model } from "@dataverse/model-parser";
 
-export enum StreamType {
+export enum FileType {
   Public = "Public",
   Encrypted = "Encrypted",
   Payable = "Payable",
 }
 
-export interface CreateStreamArgs {
-  Public: CreatePublicStreamArgs;
-  Encrypted: CreateEncryptedStreamArgs;
-  Payable: CreatePayableStreamArgs;
-}
+/* export interface CreateFileArgs {
+  Public: CreatePublicFileArgs;
+  Encrypted: CreateEncryptedFileArgs;
+  Payable: CreatePayableFileArgs;
+} */
+export type CreateFileArgs = RequestType[SYSTEM_CALL.createFile];
 
 export type ConnectWalletResult = {
   address: string;
@@ -34,27 +36,27 @@ export type ConnectResult = {
   pkh: string;
 };
 
-export type LoadStreamsResult = Record<string, StreamRecord>;
+export type LoadFilesResult = Record<string, MirrorFileRecord>;
 
-export type LoadStreamsByArgs = {
+export type LoadFilesByArgs = {
   pkh: string;
   modelId: string;
 };
 
-export type LoadStreamsByResult = LoadStreamsResult;
+export type LoadFilesByResult = LoadFilesResult;
 
-type CreatePublicStreamArgs = {
+/* type CreatePublicFileArgs = {
   modelId: string;
   stream?: object;
 };
 
-type CreateEncryptedStreamArgs = {
+type CreateEncryptedFileArgs = {
   modelId: string;
   stream: object;
   encrypted: object;
 };
 
-type CreatePayableStreamArgs = {
+type CreatePayableFileArgs = {
   modelId: string;
   profileId?: string;
   stream: object;
@@ -62,13 +64,14 @@ type CreatePayableStreamArgs = {
   amount: number;
   collectLimit: number;
   encrypted: object;
-};
+}; */
 
-export type CreateStreamResult = StreamRecord & { streamId: string };
+export type CreateFileResult = Awaited<
+  ReturnType[SYSTEM_CALL.createFile]
+>["fileContent"];
 
-export type MonetizeStreamArgs = {
-  streamId: string;
-  streamContent?: any;
+export type MonetizeFileArgs = {
+  fileId: string;
   profileId?: string;
   currency: Currency;
   amount: number;
@@ -76,9 +79,7 @@ export type MonetizeStreamArgs = {
   decryptionConditions?: DecryptionConditions;
 };
 
-export type MonetizeStreamResult = Awaited<
-  ReturnType[SYSTEM_CALL.monetizeFile]
->;
+export type MonetizeFileResult = Awaited<ReturnType[SYSTEM_CALL.monetizeFile]>;
 
 export type DatatokenInfo = Partial<{
   address: string;
@@ -102,13 +103,13 @@ export type DatatokenInfo = Partial<{
   source: string;
 }>;
 
-export type UnlockStreamResult = Awaited<ReturnType[SYSTEM_CALL.unlock]>;
+export type UnlockFileResult = Awaited<ReturnType[SYSTEM_CALL.unlockFile]>;
 
-export type UpdateStreamArgs = {
+export type UpdateFileArgs = {
   model: Model;
   streamId: string;
   stream: object;
   encrypted?: object;
 };
 
-export type UpdateStreamResult = Awaited<ReturnType[SYSTEM_CALL.updateStream]>;
+export type UpdateFileResult = Awaited<ReturnType[SYSTEM_CALL.updateFile]>;

@@ -4,20 +4,16 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import {
-  LoadStreamsByArgs,
-  LoadStreamsByResult,
-  MutationStatus,
-} from "../types";
+import { LoadFilesByArgs, LoadFilesByResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
 export const useFeedsByAddress = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: LoadStreamsByArgs) => void;
-  onSuccess?: (result: LoadStreamsByResult) => void;
+  onPending?: (args: LoadFilesByArgs) => void;
+  onSuccess?: (result: LoadFilesByResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadStreams } = useAction();
+  const { actionLoadFiles: actionLoadStreams } = useAction();
 
   const {
     result,
@@ -34,14 +30,14 @@ export const useFeedsByAddress = (params?: {
   } = useMutation();
 
   const loadFeedsByAddress = useCallback(
-    async ({ pkh, modelId }: LoadStreamsByArgs) => {
+    async ({ pkh, modelId }: LoadFilesByArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending({ pkh, modelId });
         }
 
-        const streams: LoadStreamsByResult = await dataverseConnector.runOS({
+        const streams: LoadFilesByResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.loadStreamsBy,
           params: {
             modelId,

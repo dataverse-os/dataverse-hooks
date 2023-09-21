@@ -4,7 +4,7 @@ import {
   Chain,
   MirrorFile,
   StructuredFolder,
-  StructuredFolders,
+  StructuredFolderRecord,
   WALLET,
 } from "@dataverse/dataverse-connector";
 
@@ -12,13 +12,13 @@ import { DataverseContext } from "./useStore";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
-  CreateStreamResult,
+  CreateFileResult,
   DatatokenInfo,
-  LoadStreamsByResult,
-  LoadStreamsResult,
-  MonetizeStreamResult,
-  UnlockStreamResult,
-  UpdateStreamResult,
+  LoadFilesByResult,
+  LoadFilesResult,
+  MonetizeFileResult,
+  UnlockFileResult,
+  UpdateFileResult,
 } from "../types";
 
 export const useAction = () => {
@@ -49,43 +49,43 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionCreateStream = useCallback(
-    (createdStream: CreateStreamResult) => {
+  const actionCreateFile = useCallback(
+    (createdFile: CreateFileResult) => {
       dispatch({
-        type: ActionType.CreateStream,
-        payload: createdStream,
+        type: ActionType.CreateFile,
+        payload: createdFile,
       });
     },
     [dispatch],
   );
 
-  const actionUpdateStream = useCallback(
+  const actionUpdateFile = useCallback(
     (
-      updatedStream:
-        | (MonetizeStreamResult & { streamId: string })
-        | (UnlockStreamResult & { streamId: string })
-        | (UpdateStreamResult & { streamId: string }),
+      updatedFile:
+        | (MonetizeFileResult & { fileId: string })
+        | (UnlockFileResult & { fileId: string })
+        | (UpdateFileResult & { fileId: string }),
     ) => {
       dispatch({
-        type: ActionType.UpdateStream,
-        payload: updatedStream,
+        type: ActionType.UpdateFile,
+        payload: updatedFile,
       });
     },
     [dispatch],
   );
 
-  const actionLoadStreams = useCallback(
-    (loadedStreams: LoadStreamsResult | LoadStreamsByResult) => {
+  const actionLoadFiles = useCallback(
+    (loadedFiles: LoadFilesResult | LoadFilesByResult) => {
       dispatch({
-        type: ActionType.LoadStreams,
-        payload: loadedStreams,
+        type: ActionType.LoadFiles,
+        payload: loadedFiles,
       });
     },
     [dispatch],
   );
 
   const actionSetFolders = useCallback(
-    (folders: StructuredFolders) => {
+    (folders: StructuredFolderRecord) => {
       dispatch({
         type: ActionType.SetFolders,
         payload: folders,
@@ -105,7 +105,7 @@ export const useAction = () => {
   );
 
   const actionUpdateFolders = useCallback(
-    (newFolders: StructuredFolder | StructuredFolders) => {
+    (newFolders: StructuredFolder | StructuredFolderRecord) => {
       dispatch({
         type: ActionType.UpdateFolders,
         payload: newFolders,
@@ -157,9 +157,9 @@ export const useAction = () => {
   return {
     actionConnectWallet,
     actionCreateCapability,
-    actionCreateStream,
-    actionUpdateStream,
-    actionLoadStreams,
+    actionCreateFile,
+    actionUpdateFile,
+    actionLoadFiles,
     actionSetFolders,
     actionUpdateFolders,
     actionDeleteFolder,

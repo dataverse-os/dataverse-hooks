@@ -4,16 +4,16 @@ import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus, UpdateStreamArgs, UpdateStreamResult } from "../types";
+import { MutationStatus, UpdateFileArgs, UpdateFileResult } from "../types";
 import { useMutation } from "../utils";
 
 export const useUpdateStream = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: UpdateStreamArgs) => void;
-  onSuccess?: (result: UpdateStreamResult) => void;
+  onPending?: (args: UpdateFileArgs) => void;
+  onSuccess?: (result: UpdateFileResult) => void;
 }) => {
-  const { dataverseConnector, streamsMap } = useStore();
-  const { actionUpdateStream } = useAction();
+  const { dataverseConnector, filesMap: streamsMap } = useStore();
+  const { actionUpdateFile: actionUpdateStream } = useAction();
 
   const {
     result,
@@ -30,7 +30,7 @@ export const useUpdateStream = (params?: {
   } = useMutation();
 
   const updateStream = useCallback(
-    async ({ model, streamId, stream, encrypted }: UpdateStreamArgs) => {
+    async ({ model, streamId, stream, encrypted }: UpdateFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
@@ -54,19 +54,17 @@ export const useUpdateStream = (params?: {
           encrypted: JSON.stringify(encrypted),
         };
 
-        const updateResult: UpdateStreamResult = await dataverseConnector.runOS(
-          {
-            method: SYSTEM_CALL.updateStream,
-            params: {
-              streamId,
-              streamContent,
-              syncImmediately: true,
-            },
+        const updateResult: UpdateFileResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateStream,
+          params: {
+            streamId,
+            streamContent,
+            syncImmediately: true,
           },
-        );
+        });
 
         actionUpdateStream({
-          streamId,
+          fileId: streamId,
           ...updateResult,
         });
 

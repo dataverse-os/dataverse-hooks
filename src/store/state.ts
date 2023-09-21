@@ -1,5 +1,3 @@
-import { Mirrors } from "@dataverse/dataverse-connector";
-
 import {
   ACTION_TYPE_NOT_EXSITS,
   FOLDERS_MAP_UNDEFINED,
@@ -13,7 +11,7 @@ export const initialState: StateType = {
   chain: undefined,
   pkh: undefined,
   profileIds: undefined,
-  streamsMap: undefined,
+  filesMap: undefined,
   foldersMap: undefined,
 };
 
@@ -45,14 +43,14 @@ export const reducer = (
       };
     }
 
-    case ActionType.CreateStream: {
-      const { streamId, pkh, appId, modelId, streamContent } = payload;
+    case ActionType.CreateFile: {
+      const { fileId, pkh, appId, modelId, streamContent } = payload;
 
       return {
         ...state,
-        streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
+        filesMap: {
+          ...state.filesMap,
+          [fileId]: {
             pkh,
             appId,
             modelId,
@@ -62,27 +60,27 @@ export const reducer = (
       };
     }
 
-    case ActionType.LoadStreams: {
+    case ActionType.LoadFiles: {
       return {
         ...state,
-        streamsMap: payload,
+        filesMap: payload,
       };
     }
 
-    case ActionType.UpdateStream: {
-      const { streamId, streamContent } = payload;
+    case ActionType.UpdateFile: {
+      const { fileId, fileContent } = payload;
 
-      if (!state.streamsMap) {
+      if (!state.filesMap) {
         throw STREAMS_MAP_UNDEFINED;
       }
 
       return {
         ...state,
-        streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
-            ...state.streamsMap[streamId],
-            streamContent,
+        filesMap: {
+          ...state.filesMap,
+          [fileId]: {
+            ...state.filesMap[fileId],
+            fileContent,
           },
         },
       };
@@ -105,18 +103,18 @@ export const reducer = (
     }
 
     case ActionType.UpdateDatatokenInfo: {
-      const { streamId, datatokenInfo } = payload;
+      const { fileId, datatokenInfo } = payload;
 
-      if (!state.streamsMap) {
+      if (!state.filesMap) {
         throw STREAMS_MAP_UNDEFINED;
       }
 
       return {
         ...state,
         streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
-            ...state.streamsMap[streamId],
+          ...state.filesMap,
+          [fileId]: {
+            ...state.filesMap[fileId],
             datatokenInfo,
           },
         },
@@ -167,16 +165,13 @@ export const reducer = (
       }
       Object.keys(_state.foldersMap).forEach(folderId => {
         const folder = _state.foldersMap![folderId];
-        if (typeof folder.mirrors !== "string") {
-          Object.keys(folder.mirrors).forEach(mirrorId => {
-            const mirror = (folder.mirrors as Mirrors)[mirrorId];
-            if (mirror.mirrorFile.indexFileId === payload.indexFileId) {
-              (_state.foldersMap![folderId].mirrors as Mirrors)[
-                mirrorId
-              ].mirrorFile = payload;
-            }
-          });
-        }
+        Object.keys(folder.mirrorRecord).forEach(mirrorId => {
+          const mirror = folder.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.fileId === payload.fileId) {
+            _state.foldersMap![folderId].mirrorRecord[mirrorId].mirrorFile =
+              payload;
+          }
+        });
       });
 
       return _state;

@@ -11,7 +11,7 @@ export const useDatatokenInfo = (params?: {
   onPending?: (streamId: string) => void;
   onSuccess?: (result: DatatokenInfo) => void;
 }) => {
-  const { dataverseConnector, streamsMap } = useStore();
+  const { dataverseConnector, filesMap } = useStore();
   const { actionUpdateDatatokenInfo } = useAction();
 
   const {
@@ -29,15 +29,15 @@ export const useDatatokenInfo = (params?: {
   } = useMutation();
 
   const getDatatokenInfo = useCallback(
-    async (streamId: string) => {
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(streamId);
+          params.onPending(fileId);
         }
 
         const datatokenId =
-          streamsMap![streamId].streamContent.file.datatokenId;
+          filesMap![fileId].accessControl?.monetizationProvider?.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;
@@ -47,7 +47,7 @@ export const useDatatokenInfo = (params?: {
           await dataverseConnector.getDatatokenBaseInfo(datatokenId);
 
         actionUpdateDatatokenInfo({
-          streamId,
+          streamId: fileId,
           datatokenInfo,
         });
 
@@ -68,7 +68,7 @@ export const useDatatokenInfo = (params?: {
     },
     [
       dataverseConnector,
-      streamsMap,
+      filesMap,
       actionUpdateDatatokenInfo,
       setStatus,
       setError,
