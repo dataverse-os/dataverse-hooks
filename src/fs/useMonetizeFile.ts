@@ -15,7 +15,7 @@ export const useMonetizeFile = (params?: {
   onSuccess?: (result: MonetizeFileResult) => void;
 }) => {
   const { dataverseConnector, address, profileIds, filesMap } = useStore();
-  const { actionUpdateFile } = useAction();
+  const { actionUpdateFile, actionUpdateFoldersByFile } = useAction();
 
   const {
     result,
@@ -86,17 +86,20 @@ export const useMonetizeFile = (params?: {
             },
           });
 
+        actionUpdateFile({
+          fileId,
+          ...monetizeResult,
+        });
+        actionUpdateFoldersByFile({
+          ...monetizeResult.fileContent.file,
+          content: monetizeResult.fileContent,
+        });
+
         setStatus(MutationStatus.Succeed);
         setResult(monetizeResult);
         if (params?.onSuccess) {
           params.onSuccess(monetizeResult);
         }
-
-        actionUpdateFile({
-          fileId,
-          ...monetizeResult,
-        });
-
         return monetizeResult;
       } catch (error) {
         setStatus(MutationStatus.Failed);

@@ -2,6 +2,7 @@ import {
   ACTION_TYPE_NOT_EXSITS,
   FOLDERS_MAP_UNDEFINED,
   FILES_MAP_UNDEFINED,
+  DATA_UNIONS_MAP_UNDEFINED,
 } from "../errors";
 import {
   ActionType,
@@ -18,6 +19,7 @@ export const initialState: StateType = {
   profileIds: undefined,
   filesMap: undefined,
   foldersMap: undefined,
+  dataUnionsMap: undefined,
 };
 
 export const reducer = (
@@ -175,6 +177,53 @@ export const reducer = (
           const mirror = folder.mirrorRecord[mirrorId];
           if (mirror.mirrorFile.fileId === payload.fileId) {
             _state.foldersMap![folderId].mirrorRecord[mirrorId].mirrorFile =
+              payload;
+          }
+        });
+      });
+
+      return _state;
+    }
+
+    case ActionType.SetDataUnions: {
+      return {
+        ...state,
+        dataUnionsMap: payload,
+      };
+    }
+
+    case ActionType.UpdateDataUnion: {
+      return {
+        ...state,
+        dataUnionsMap: {
+          ...state.dataUnionsMap,
+          [payload.folderId]: payload,
+        },
+      };
+    }
+
+    case ActionType.DeleteDataUnion: {
+      const _state = {
+        ...state,
+      };
+      if (!_state.dataUnionsMap) {
+        throw DATA_UNIONS_MAP_UNDEFINED;
+      }
+      delete _state.dataUnionsMap[payload];
+      return _state;
+    }
+
+    case ActionType.UpdateDataUnionsByFile: {
+      const _state = { ...state };
+      if (!_state.dataUnionsMap) {
+        throw DATA_UNIONS_MAP_UNDEFINED;
+      }
+      Object.keys(_state.dataUnionsMap).forEach(folderId => {
+        const dataUnion = _state.dataUnionsMap![folderId];
+        Object.keys(dataUnion.mirrorRecord).forEach(mirrorId => {
+          const mirror = dataUnion.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.fileId === payload.fileId) {
+            _state.dataUnionsMap![folderId].mirrorRecord[mirrorId].mirrorFile =
               payload;
           }
         });

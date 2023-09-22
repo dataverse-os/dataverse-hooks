@@ -151,7 +151,47 @@ export const useAction = () => {
         payload,
       });
     },
-    [],
+    [dispatch],
+  );
+
+  const actionSetDataUnions = useCallback(
+    (dataUnions: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetDataUnions,
+        payload: dataUnions,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateDataUnion = useCallback(
+    (dataUnion: StructuredFolder) => {
+      dispatch({
+        type: ActionType.UpdateDataUnion,
+        payload: dataUnion,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionDeleteDataUnion = useCallback(
+    (dataUnionId: string) => {
+      dispatch({
+        type: ActionType.DeleteDataUnion,
+        payload: dataUnionId,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateDataUnionsByFile = useCallback(
+    (file: MirrorFile) => {
+      dispatch({
+        type: ActionType.UpdateDataUnionsByFile,
+        payload: file,
+      });
+    },
+    [dispatch],
   );
 
   return {
@@ -167,5 +207,9 @@ export const useAction = () => {
     actionLoadProfileIds,
     actionCreateProfile,
     actionUpdateDatatokenInfo,
+    actionSetDataUnions,
+    actionUpdateDataUnion,
+    actionDeleteDataUnion,
+    actionUpdateDataUnionsByFile,
   };
 };

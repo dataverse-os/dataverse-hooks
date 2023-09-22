@@ -7,13 +7,13 @@ import { useAction } from "../store";
 import { MutationStatus, UnlockFileResult } from "../types";
 import { useMutation } from "../utils";
 
-export const useUnlockStream = (params?: {
+export const useUnlockFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (streamId: string) => void;
   onSuccess?: (result: UnlockFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFile } = useAction();
+  const { actionUpdateFile, actionUpdateFoldersByFile } = useAction();
 
   const {
     result,
@@ -45,6 +45,10 @@ export const useUnlockStream = (params?: {
         actionUpdateFile({
           fileId: fileId,
           ...unlockResult,
+        });
+        actionUpdateFoldersByFile({
+          ...unlockResult.fileContent.file,
+          content: unlockResult.fileContent,
         });
 
         setStatus(MutationStatus.Succeed);

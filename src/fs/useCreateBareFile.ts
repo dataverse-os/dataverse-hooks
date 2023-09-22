@@ -3,29 +3,22 @@ import { useCallback } from "react";
 import {
   MirrorFile,
   SYSTEM_CALL,
-  StorageProvider,
   StructuredFolder,
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { CreateBareFileArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
 export const useCreateBareFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    folderId?: string;
-    fileBase64: string;
-    fileName: string;
-    encrypted: boolean;
-    storageProvider: StorageProvider;
-  }) => void;
+  onPending?: (args: CreateBareFileArgs) => void;
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateDataUnionsByFile } = useAction();
 
   const {
     result,
@@ -49,40 +42,16 @@ export const useCreateBareFile = (params?: {
    * @param syncImmediately sync ?
    */
   const createBareFile = useCallback(
-    async ({
-      folderId,
-      fileBase64,
-      fileName,
-      encrypted,
-      storageProvider,
-    }: {
-      folderId?: string;
-      fileBase64: string;
-      fileName: string;
-      encrypted: boolean;
-      storageProvider: StorageProvider;
-    }) => {
+    async (args: CreateBareFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            folderId,
-            fileBase64,
-            fileName,
-            encrypted,
-            storageProvider,
-          });
+          params.onPending(args);
         }
 
         const { currentFolder, newFile } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createBareFile,
-          params: {
-            folderId,
-            fileBase64,
-            fileName,
-            encrypted,
-            storageProvider,
-          },
+          params: { ...args },
         });
 
         actionUpdateFolders(
@@ -90,6 +59,9 @@ export const useCreateBareFile = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
+        if (args.dataUnionId) {
+          actionUpdateDataUnionsByFile(newFile);
+        }
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
@@ -109,6 +81,7 @@ export const useCreateBareFile = (params?: {
     [
       dataverseConnector,
       actionUpdateFolders,
+      actionUpdateDataUnionsByFile,
       setStatus,
       setError,
       setResult,

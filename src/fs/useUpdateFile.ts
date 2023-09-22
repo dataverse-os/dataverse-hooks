@@ -13,7 +13,11 @@ export const useUpdateFile = (params?: {
   onSuccess?: (result: UpdateFileResult) => void;
 }) => {
   const { dataverseConnector, filesMap } = useStore();
-  const { actionUpdateFile } = useAction();
+  const {
+    actionUpdateFile,
+    actionUpdateFoldersByFile,
+    actionUpdateDataUnionsByFile,
+  } = useAction();
 
   const {
     result,
@@ -78,6 +82,14 @@ export const useUpdateFile = (params?: {
         actionUpdateFile({
           fileId: fileId,
           ...updateResult,
+        });
+        actionUpdateFoldersByFile({
+          ...updateResult.fileContent.file,
+          content: updateResult.fileContent.content,
+        });
+        actionUpdateDataUnionsByFile({
+          ...updateResult.fileContent.file,
+          content: updateResult.fileContent.content,
         });
 
         setStatus(MutationStatus.Succeed);

@@ -6,6 +6,8 @@ import {
   SYSTEM_CALL,
   WALLET,
   RequestType,
+  Action,
+  MirrorFile,
 } from "@dataverse/dataverse-connector";
 import { Model } from "@dataverse/model-parser";
 
@@ -112,3 +114,31 @@ export type UpdateFileArgs = {
 };
 
 export type UpdateFileResult = Awaited<ReturnType[SYSTEM_CALL.updateFile]>;
+
+export type CreateActionFileArgs = {
+  folderId?: string;
+  action: Action;
+  relationId: string;
+  fileName?: string;
+};
+
+export type CreateActionFileResult = MirrorFile;
+
+export type UpdateActionFileArgs = {
+  fileId: string;
+  fileName?: string | undefined;
+  isRelationIdEncrypted?: boolean | undefined;
+  isCommentEncrypted?: boolean | undefined;
+};
+
+export type UpdateActionFileResult = MirrorFile;
+
+export type CollectFileResult = Awaited<ReturnType[SYSTEM_CALL.collectFile]>;
+
+export type CreateDataUnionArgs = RequestType[SYSTEM_CALL.createDataUnion];
+
+export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
+
+export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile];
+
+export type UpdateBareFileArgs = RequestType[SYSTEM_CALL.updateBareFile];

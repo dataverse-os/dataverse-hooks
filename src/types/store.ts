@@ -22,6 +22,10 @@ export enum ActionType {
   LoadProfileIds,
   CreateProfileId,
   UpdateDatatokenInfo,
+  SetDataUnions,
+  UpdateDataUnion,
+  DeleteDataUnion,
+  UpdateDataUnionsByFile,
 }
 
 export type DataverseContextType = {
@@ -47,6 +51,7 @@ export type DataverseContextType = {
       } & { datatokenInfo?: DatatokenInfo }
     >;
     foldersMap?: StructuredFolderRecord;
+    dataUnionsMap?: StructuredFolderRecord;
   };
   dispatch: React.Dispatch<any>;
 };

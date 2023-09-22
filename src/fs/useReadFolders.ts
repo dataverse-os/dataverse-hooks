@@ -11,7 +11,7 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useReadAllFolders = (params?: {
+export const useReadFolders = (params?: {
   onError?: (error: any) => void;
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolderRecord) => void;
@@ -38,7 +38,7 @@ export const useReadAllFolders = (params?: {
    * folders
    * @returns
    */
-  const readAllFolders = useCallback(async () => {
+  const readFolders = useCallback(async () => {
     try {
       setStatus(MutationStatus.Pending);
       if (params?.onPending) {
@@ -81,7 +81,7 @@ export const useReadAllFolders = (params?: {
   ]);
 
   return {
-    allFolders: result,
+    folders: result,
     error,
     status,
     isIdle,
@@ -90,6 +90,6 @@ export const useReadAllFolders = (params?: {
     isFailed,
     setStatus,
     reset,
-    readAllFolders,
+    readFolders,
   };
 };
