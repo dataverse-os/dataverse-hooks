@@ -13,7 +13,7 @@ export const useFeeds = (params?: {
   onSuccess?: (result: LoadFilesResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadFiles: actionLoadStreams } = useAction();
+  const { actionLoadFiles } = useAction();
 
   const {
     result,
@@ -37,21 +37,21 @@ export const useFeeds = (params?: {
           params.onPending(modelId);
         }
 
-        const streams: LoadFilesResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
+        const files: LoadFilesResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadFilesBy,
           params: {
             modelId,
           },
         });
 
-        actionLoadStreams(streams);
+        actionLoadFiles(files);
 
         setStatus(MutationStatus.Succeed);
-        setResult(streams);
+        setResult(files);
         if (params?.onSuccess) {
-          params.onSuccess(streams);
+          params.onSuccess(files);
         }
-        return streams;
+        return files;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
@@ -63,7 +63,7 @@ export const useFeeds = (params?: {
     },
     [
       dataverseConnector,
-      actionLoadStreams,
+      actionLoadFiles,
       setStatus,
       setError,
       setResult,

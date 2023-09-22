@@ -1,9 +1,14 @@
 import {
   ACTION_TYPE_NOT_EXSITS,
   FOLDERS_MAP_UNDEFINED,
-  STREAMS_MAP_UNDEFINED,
+  FILES_MAP_UNDEFINED,
 } from "../errors";
-import { ActionType, StateType } from "../types";
+import {
+  ActionType,
+  CreateFileResult,
+  LoadFilesResult,
+  StateType,
+} from "../types";
 
 export const initialState: StateType = {
   address: undefined,
@@ -44,26 +49,27 @@ export const reducer = (
     }
 
     case ActionType.CreateFile: {
-      const { fileId, pkh, appId, modelId, streamContent } = payload;
+      const { pkh, appId, modelId, fileContent } = payload as CreateFileResult;
 
       return {
         ...state,
         filesMap: {
           ...state.filesMap,
-          [fileId]: {
+          [fileContent.file.fileId]: {
             pkh,
             appId,
             modelId,
-            streamContent,
+            fileContent,
           },
         },
       };
     }
 
     case ActionType.LoadFiles: {
+      const _payload = payload as LoadFilesResult;
       return {
         ...state,
-        filesMap: payload,
+        filesMap: _payload,
       };
     }
 
@@ -71,7 +77,7 @@ export const reducer = (
       const { fileId, fileContent } = payload;
 
       if (!state.filesMap) {
-        throw STREAMS_MAP_UNDEFINED;
+        throw FILES_MAP_UNDEFINED;
       }
 
       return {
@@ -106,12 +112,12 @@ export const reducer = (
       const { fileId, datatokenInfo } = payload;
 
       if (!state.filesMap) {
-        throw STREAMS_MAP_UNDEFINED;
+        throw FILES_MAP_UNDEFINED;
       }
 
       return {
         ...state,
-        streamsMap: {
+        filesMap: {
           ...state.filesMap,
           [fileId]: {
             ...state.filesMap[fileId],

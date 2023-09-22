@@ -1,6 +1,9 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
+import {
+  SYSTEM_CALL,
+  StructuredFolderRecord,
+} from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
@@ -11,7 +14,7 @@ import { deepAssignRenameKey } from "../utils/object";
 export const useReadAllFolders = (params?: {
   onError?: (error: any) => void;
   onPending?: () => void;
-  onSuccess?: (result?: StructuredFolders) => void;
+  onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionSetFolders } = useAction();
@@ -49,7 +52,7 @@ export const useReadAllFolders = (params?: {
       actionSetFolders(
         deepAssignRenameKey(allFolders, [
           { mirror: "mirrorFile" },
-        ]) as StructuredFolders,
+        ]) as StructuredFolderRecord,
       );
 
       setResult(allFolders);

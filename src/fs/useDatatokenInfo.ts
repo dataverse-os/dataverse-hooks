@@ -37,7 +37,8 @@ export const useDatatokenInfo = (params?: {
         }
 
         const datatokenId =
-          filesMap![fileId].accessControl?.monetizationProvider?.datatokenId;
+          filesMap![fileId].fileContent.file.accessControl?.monetizationProvider
+            ?.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;

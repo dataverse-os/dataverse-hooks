@@ -55,15 +55,13 @@ export const useCreateFile = ({
           ...args.fileContent,
         };
 
-        const createdFile: CreateFileResult = (
-          await dataverseConnector.runOS({
-            method: SYSTEM_CALL.createFile,
-            params: {
-              modelId: args.modelId,
-              fileContent: inputFileContent,
-            },
-          })
-        ).fileContent;
+        const createdFile: CreateFileResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createFile,
+          params: {
+            modelId: args.modelId,
+            fileContent: inputFileContent,
+          },
+        });
 
         actionCreateFile(createdFile);
 

@@ -13,7 +13,7 @@ export const useFeedsByAddress = (params?: {
   onSuccess?: (result: LoadFilesByResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadFiles: actionLoadStreams } = useAction();
+  const { actionLoadFiles } = useAction();
 
   const {
     result,
@@ -38,14 +38,14 @@ export const useFeedsByAddress = (params?: {
         }
 
         const streams: LoadFilesByResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
+          method: SYSTEM_CALL.loadFilesBy,
           params: {
             modelId,
             pkh,
           },
         });
 
-        actionLoadStreams(streams);
+        actionLoadFiles(streams);
 
         setStatus(MutationStatus.Succeed);
         setResult(streams);
@@ -64,7 +64,7 @@ export const useFeedsByAddress = (params?: {
     },
     [
       dataverseConnector,
-      actionLoadStreams,
+      actionLoadFiles,
       setStatus,
       setError,
       setResult,

@@ -3,7 +3,6 @@ import {
   Currency,
   DecryptionConditions,
   ReturnType,
-  MirrorFileRecord,
   SYSTEM_CALL,
   WALLET,
   RequestType,
@@ -36,7 +35,7 @@ export type ConnectResult = {
   pkh: string;
 };
 
-export type LoadFilesResult = Record<string, MirrorFileRecord>;
+export type LoadFilesResult = Awaited<ReturnType[SYSTEM_CALL.loadFilesBy]>;
 
 export type LoadFilesByArgs = {
   pkh: string;
@@ -66,9 +65,7 @@ type CreatePayableFileArgs = {
   encrypted: object;
 }; */
 
-export type CreateFileResult = Awaited<
-  ReturnType[SYSTEM_CALL.createFile]
->["fileContent"];
+export type CreateFileResult = Awaited<ReturnType[SYSTEM_CALL.createFile]>;
 
 export type MonetizeFileArgs = {
   fileId: string;
@@ -77,6 +74,7 @@ export type MonetizeFileArgs = {
   amount: number;
   collectLimit: number;
   decryptionConditions?: DecryptionConditions;
+  dataUnionId?: string;
 };
 
 export type MonetizeFileResult = Awaited<ReturnType[SYSTEM_CALL.monetizeFile]>;
@@ -107,8 +105,9 @@ export type UnlockFileResult = Awaited<ReturnType[SYSTEM_CALL.unlockFile]>;
 
 export type UpdateFileArgs = {
   model: Model;
-  streamId: string;
-  stream: object;
+  fileId: string;
+  fileName?: string;
+  fileContent?: object;
   encrypted?: object;
 };
 

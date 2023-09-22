@@ -5,6 +5,7 @@ import {
   StructuredFolderRecord,
   MirrorFile,
 } from "@dataverse/dataverse-connector";
+import { FileContent } from "@dataverse/dataverse-connector/dist/esm/types/fs";
 
 import { DatatokenInfo } from "./params";
 
@@ -31,7 +32,20 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     profileIds?: string[];
-    filesMap?: Record<string, MirrorFile & { datatokenInfo?: DatatokenInfo }>;
+    filesMap?: Record<
+      string,
+      {
+        appId: string;
+        modelId: string;
+        pkh: string;
+        fileContent:
+          | {
+              file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
+              content?: FileContent;
+            }
+          | FileContent;
+      } & { datatokenInfo?: DatatokenInfo }
+    >;
     foldersMap?: StructuredFolderRecord;
   };
   dispatch: React.Dispatch<any>;

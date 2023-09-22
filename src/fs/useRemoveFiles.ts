@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 
 import {
-  MirrorFiles,
+  MirrorFileRecord,
   SYSTEM_CALL,
-  StructuredFolders,
+  StructuredFolderRecord,
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
@@ -18,7 +18,7 @@ export const useRemoveFiles = (params?: {
     indexFileIds: string[];
     syncImmediately?: boolean;
   }) => void;
-  onSuccess?: (result: MirrorFiles) => void;
+  onSuccess?: (result: MirrorFileRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionUpdateFolders } = useAction();
@@ -64,7 +64,7 @@ export const useRemoveFiles = (params?: {
         const { sourceFolders, removedFiles } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.removeFiles,
           params: {
-            indexFileIds,
+            fileIds: indexFileIds,
             syncImmediately,
           },
         });
@@ -72,7 +72,7 @@ export const useRemoveFiles = (params?: {
         actionUpdateFolders(
           deepAssignRenameKey(Object.values(sourceFolders || {}), [
             { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
+          ]) as StructuredFolderRecord,
         );
 
         setResult(removedFiles);

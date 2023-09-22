@@ -15,7 +15,7 @@ export const useMonetizeFile = (params?: {
   onSuccess?: (result: MonetizeFileResult) => void;
 }) => {
   const { dataverseConnector, address, profileIds, filesMap } = useStore();
-  const { actionUpdateFile: actionUpdateStream } = useAction();
+  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -41,6 +41,7 @@ export const useMonetizeFile = (params?: {
       amount,
       collectLimit,
       decryptionConditions,
+      dataUnionId,
     }: MonetizeFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
@@ -81,6 +82,7 @@ export const useMonetizeFile = (params?: {
                 collectLimit,
               },
               decryptionConditions,
+              dataUnionId,
             },
           });
 
@@ -90,7 +92,7 @@ export const useMonetizeFile = (params?: {
           params.onSuccess(monetizeResult);
         }
 
-        actionUpdateStream({
+        actionUpdateFile({
           fileId,
           ...monetizeResult,
         });
@@ -110,7 +112,7 @@ export const useMonetizeFile = (params?: {
       filesMap,
       profileIds,
       dataverseConnector,
-      actionUpdateStream,
+      actionUpdateFile,
       setStatus,
       setError,
       setResult,

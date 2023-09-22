@@ -7,13 +7,13 @@ import { useAction } from "../store";
 import { MutationStatus, UpdateFileArgs, UpdateFileResult } from "../types";
 import { useMutation } from "../utils";
 
-export const useUpdateStream = (params?: {
+export const useUpdateFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: UpdateFileArgs) => void;
   onSuccess?: (result: UpdateFileResult) => void;
 }) => {
-  const { dataverseConnector, filesMap: streamsMap } = useStore();
-  const { actionUpdateFile: actionUpdateStream } = useAction();
+  const { dataverseConnector, filesMap } = useStore();
+  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -29,42 +29,54 @@ export const useUpdateStream = (params?: {
     reset,
   } = useMutation();
 
-  const updateStream = useCallback(
-    async ({ model, streamId, stream, encrypted }: UpdateFileArgs) => {
+  const updateFile = useCallback(
+    async ({
+      model,
+      fileId,
+      fileName,
+      fileContent,
+      encrypted,
+    }: UpdateFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({ model, streamId, stream, encrypted });
+          params.onPending({
+            model,
+            fileId,
+            fileContent,
+            encrypted,
+          });
         }
         const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = streamsMap![streamId]?.streamContent.file.fileType;
+        const fileType = filesMap![fileId]?.fileContent.file?.fileType;
         if (
           !modelStream.isPublicDomain &&
-          stream &&
+          fileContent &&
           encrypted &&
-          fileType === FileType.Public
+          fileType === FileType.PublicFileType
         ) {
           for (const key in encrypted) {
             (encrypted as any)[key] = false;
           }
         }
-        const streamContent = {
-          ...stream,
+        const _fileContent = {
+          ...fileContent,
           encrypted: JSON.stringify(encrypted),
         };
 
         const updateResult: UpdateFileResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.updateStream,
+          method: SYSTEM_CALL.updateFile,
           params: {
-            streamId,
-            streamContent,
+            fileId,
+            fileName,
+            fileContent: fileContent && _fileContent,
             syncImmediately: true,
           },
         });
 
-        actionUpdateStream({
-          fileId: streamId,
+        actionUpdateFile({
+          fileId: fileId,
           ...updateResult,
         });
 
@@ -86,8 +98,8 @@ export const useUpdateStream = (params?: {
     },
     [
       dataverseConnector,
-      streamsMap,
-      actionUpdateStream,
+      filesMap,
+      actionUpdateFile,
       setStatus,
       setError,
       setResult,
@@ -98,7 +110,7 @@ export const useUpdateStream = (params?: {
   );
 
   return {
-    updatedStreamContent: result,
+    updatedFileContent: result,
     error,
     status,
     isIdle,
@@ -107,6 +119,6 @@ export const useUpdateStream = (params?: {
     isFailed,
     setStatus,
     reset,
-    updateStream,
+    updateFile,
   };
 };

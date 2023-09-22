@@ -13,7 +13,7 @@ export const useUnlockStream = (params?: {
   onSuccess?: (result: UnlockFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFile: actionUpdateStream } = useAction();
+  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -29,23 +29,21 @@ export const useUnlockStream = (params?: {
     reset,
   } = useMutation();
 
-  const unlockStream = useCallback(
-    async (streamId: string) => {
+  const unlockFile = useCallback(
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(streamId);
+          params.onPending(fileId);
         }
 
         const unlockResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.unlock,
-          params: {
-            streamId,
-          },
+          method: SYSTEM_CALL.unlockFile,
+          params: fileId,
         });
 
-        actionUpdateStream({
-          fileId: streamId,
+        actionUpdateFile({
+          fileId: fileId,
           ...unlockResult,
         });
 
@@ -67,7 +65,7 @@ export const useUnlockStream = (params?: {
     },
     [
       dataverseConnector,
-      actionUpdateStream,
+      actionUpdateFile,
       setStatus,
       setError,
       setResult,
@@ -78,7 +76,7 @@ export const useUnlockStream = (params?: {
   );
 
   return {
-    unlockedStreamContent: result,
+    unlockedFileContent: result,
     error,
     status,
     isIdle,
@@ -87,6 +85,6 @@ export const useUnlockStream = (params?: {
     isFailed,
     setStatus,
     reset,
-    unlockStream,
+    unlockFile,
   };
 };
