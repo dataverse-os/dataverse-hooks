@@ -1,4 +1,5 @@
 export * from "./useReadFolders";
+export * from "./useReadBareFileContent";
 export * from "./useCreateFolder";
 export * from "./useChangeFolderBaseInfo";
 export * from "./useDeleteFolder";
