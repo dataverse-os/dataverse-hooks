@@ -67,7 +67,7 @@ export const useCreateProfile = (params?: {
   );
 
   return {
-    profileIds: result,
+    profileId: result,
     error,
     status,
     isIdle,

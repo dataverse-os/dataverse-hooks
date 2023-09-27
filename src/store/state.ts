@@ -1,9 +1,4 @@
-import {
-  ACTION_TYPE_NOT_EXSITS,
-  FOLDERS_MAP_UNDEFINED,
-  FILES_MAP_UNDEFINED,
-  DATA_UNIONS_MAP_UNDEFINED,
-} from "../errors";
+import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
   ActionType,
   CreateFileResult,
@@ -79,7 +74,7 @@ export const reducer = (
       const { fileId, fileContent } = payload;
 
       if (!state.filesMap) {
-        throw FILES_MAP_UNDEFINED;
+        return state;
       }
 
       return {
@@ -114,7 +109,7 @@ export const reducer = (
       const { fileId, datatokenInfo } = payload;
 
       if (!state.filesMap) {
-        throw FILES_MAP_UNDEFINED;
+        throw state;
       }
 
       return {
@@ -139,6 +134,10 @@ export const reducer = (
     case ActionType.UpdateFolders: {
       const folders = payload instanceof Array ? payload : [payload];
 
+      if (!state.foldersMap) {
+        return state;
+      }
+
       return {
         ...state,
         foldersMap: {
@@ -160,7 +159,7 @@ export const reducer = (
         ...state,
       };
       if (!_state.foldersMap) {
-        throw FOLDERS_MAP_UNDEFINED;
+        return _state;
       }
       delete _state.foldersMap[payload];
       return _state;
@@ -169,7 +168,7 @@ export const reducer = (
     case ActionType.UpdateFoldersByFile: {
       const _state = { ...state };
       if (!_state.foldersMap) {
-        throw FOLDERS_MAP_UNDEFINED;
+        return _state;
       }
       Object.keys(_state.foldersMap).forEach(folderId => {
         const folder = _state.foldersMap![folderId];
@@ -207,7 +206,7 @@ export const reducer = (
         ...state,
       };
       if (!_state.dataUnionsMap) {
-        throw DATA_UNIONS_MAP_UNDEFINED;
+        return _state;
       }
       delete _state.dataUnionsMap[payload];
       return _state;
@@ -216,7 +215,7 @@ export const reducer = (
     case ActionType.UpdateDataUnionsByFile: {
       const _state = { ...state };
       if (!_state.dataUnionsMap) {
-        throw DATA_UNIONS_MAP_UNDEFINED;
+        return _state;
       }
       Object.keys(_state.dataUnionsMap).forEach(folderId => {
         const dataUnion = _state.dataUnionsMap![folderId];

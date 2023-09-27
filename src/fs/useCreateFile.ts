@@ -49,9 +49,7 @@ export const useCreateFile = ({
         }
 
         const inputFileContent = {
-          ...(args.fileContent && {
-            encrypted: JSON.stringify(encrypted),
-          }),
+          encrypted,
           ...args.fileContent,
         };
 
@@ -59,7 +57,14 @@ export const useCreateFile = ({
           method: SYSTEM_CALL.createFile,
           params: {
             modelId: args.modelId,
-            fileContent: inputFileContent,
+            fileName: args.fileName,
+            fileContent: {
+              ...inputFileContent,
+              encrypted:
+                typeof inputFileContent.encrypted === "string"
+                  ? inputFileContent.encrypted
+                  : JSON.stringify(inputFileContent.encrypted),
+            },
           },
         });
 

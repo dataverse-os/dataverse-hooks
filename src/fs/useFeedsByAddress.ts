@@ -37,7 +37,7 @@ export const useFeedsByAddress = (params?: {
           params.onPending({ pkh, modelId });
         }
 
-        const streams: LoadFilesByResult = await dataverseConnector.runOS({
+        const files: LoadFilesByResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.loadFilesBy,
           params: {
             modelId,
@@ -45,14 +45,14 @@ export const useFeedsByAddress = (params?: {
           },
         });
 
-        actionLoadFiles(streams);
+        actionLoadFiles(files);
 
         setStatus(MutationStatus.Succeed);
-        setResult(streams);
+        setResult(files);
         if (params?.onSuccess) {
-          params.onSuccess(streams);
+          params.onSuccess(files);
         }
-        return streams;
+        return files;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
