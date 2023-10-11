@@ -7,11 +7,7 @@ import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useCollectDataUnion = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useCollectDataUnion = (params?: {
   onError?: (error: any) => void;
   onPending?: (dataUnionId: string) => void;
   onSuccess?: (result: StructuredFolder) => void;
@@ -37,8 +33,8 @@ export const useCollectDataUnion = ({
     async (dataUnionId: string) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(dataUnionId);
+        if (params?.onPending) {
+          params?.onPending(dataUnionId);
         }
 
         const collectResult = await dataverseConnector.runOS({
@@ -50,15 +46,15 @@ export const useCollectDataUnion = ({
 
         setResult(collectResult);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(collectResult);
+        if (params?.onSuccess) {
+          params?.onSuccess(collectResult);
         }
         return collectResult;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params?.onError(error);
         }
         throw error;
       }
@@ -69,9 +65,9 @@ export const useCollectDataUnion = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 

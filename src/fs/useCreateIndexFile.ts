@@ -11,11 +11,7 @@ import {
 } from "../types";
 import { useMutation } from "../utils";
 
-export const useCreateIndexFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useCreateIndexFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: CreateIndexFileArgs) => void;
   onSuccess?: (result: CreateIndexFileResult) => void;
@@ -41,8 +37,8 @@ export const useCreateIndexFile = ({
     async (args: CreateIndexFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(args);
+        if (params?.onPending) {
+          params?.onPending(args);
         }
 
         const encrypted: { [k: string]: boolean } = {};
@@ -77,15 +73,15 @@ export const useCreateIndexFile = ({
 
         setResult(createdIndexFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(createdIndexFile);
+        if (params?.onSuccess) {
+          params?.onSuccess(createdIndexFile);
         }
         return createdIndexFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params?.onError(error);
         }
         throw error;
       }
@@ -96,9 +92,9 @@ export const useCreateIndexFile = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 

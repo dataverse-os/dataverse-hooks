@@ -7,11 +7,7 @@ import { useAction } from "../store";
 import { CollectFileResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useCollectFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useCollectFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (fileId: string) => void;
   onSuccess?: (result: CollectFileResult) => void;
@@ -37,8 +33,8 @@ export const useCollectFile = ({
     async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(fileId);
+        if (params?.onPending) {
+          params.onPending(fileId);
         }
 
         const collectResult = await dataverseConnector.runOS({
@@ -53,15 +49,15 @@ export const useCollectFile = ({
 
         setResult(collectResult);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(collectResult);
+        if (params?.onSuccess) {
+          params.onSuccess(collectResult);
         }
         return collectResult;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params.onError(error);
         }
         throw error;
       }
@@ -72,9 +68,9 @@ export const useCollectFile = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 

@@ -12,11 +12,7 @@ import {
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useUpdateActionFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useUpdateActionFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: UpdateActionFileArgs) => void;
   onSuccess?: (result: UpdateActionFileResult) => void;
@@ -42,8 +38,8 @@ export const useUpdateActionFile = ({
     async (args: UpdateActionFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(args);
+        if (params?.onPending) {
+          params?.onPending(args);
         }
 
         const { currentFile, currentFolder } = await dataverseConnector.runOS({
@@ -59,15 +55,15 @@ export const useUpdateActionFile = ({
 
         setResult(currentFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(currentFile);
+        if (params?.onSuccess) {
+          params?.onSuccess(currentFile);
         }
         return currentFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params?.onError(error);
         }
         throw error;
       }
@@ -78,9 +74,9 @@ export const useUpdateActionFile = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 

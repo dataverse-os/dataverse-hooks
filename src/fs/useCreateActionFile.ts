@@ -12,11 +12,7 @@ import { CreateActionFileArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useCreateActionFile = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useCreateActionFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: CreateActionFileArgs) => void;
   onSuccess?: (result: MirrorFile) => void;
@@ -42,8 +38,8 @@ export const useCreateActionFile = ({
     async (args: CreateActionFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(args);
+        if (params?.onPending) {
+          params.onPending(args);
         }
 
         const { newFile, currentFolder } = await dataverseConnector.runOS({
@@ -59,15 +55,15 @@ export const useCreateActionFile = ({
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(newFile);
+        if (params?.onSuccess) {
+          params?.onSuccess(newFile);
         }
         return newFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params?.onError(error);
         }
         throw error;
       }
@@ -78,9 +74,9 @@ export const useCreateActionFile = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 

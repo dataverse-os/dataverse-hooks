@@ -6,11 +6,7 @@ import { useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useLoadBareFileContent = ({
-  onError,
-  onPending,
-  onSuccess,
-}: {
+export const useLoadBareFileContent = (params?: {
   onError?: (error: any) => void;
   onPending?: (fileId: string) => void;
   onSuccess?: (result: string) => void;
@@ -35,8 +31,8 @@ export const useLoadBareFileContent = ({
     async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
-        if (onPending) {
-          onPending(fileId);
+        if (params?.onPending) {
+          params?.onPending(fileId);
         }
 
         const fileContent = await dataverseConnector.runOS({
@@ -46,15 +42,15 @@ export const useLoadBareFileContent = ({
 
         setResult(fileContent);
         setStatus(MutationStatus.Succeed);
-        if (onSuccess) {
-          onSuccess(fileContent);
+        if (params?.onSuccess) {
+          params?.onSuccess(fileContent);
         }
         return fileContent;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
-        if (onError) {
-          onError(error);
+        if (params?.onError) {
+          params?.onError(error);
         }
         throw error;
       }
@@ -64,9 +60,9 @@ export const useLoadBareFileContent = ({
       setStatus,
       setError,
       setResult,
-      onPending,
-      onError,
-      onSuccess,
+      params?.onPending,
+      params?.onError,
+      params?.onSuccess,
     ],
   );
 
