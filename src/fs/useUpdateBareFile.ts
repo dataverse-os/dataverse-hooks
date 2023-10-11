@@ -32,7 +32,7 @@ export const useUpdateBareFile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFile>();
 
   /**
    * add mirror to folder by folderId

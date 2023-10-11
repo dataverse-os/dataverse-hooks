@@ -29,7 +29,7 @@ export const useMonetizeFile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MonetizeFileResult>();
 
   const { getProfiles } = useProfiles();
 

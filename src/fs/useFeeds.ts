@@ -27,7 +27,7 @@ export const useFeeds = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<LoadFilesResult>();
 
   const loadFeeds = useCallback(
     async (modelId: string) => {

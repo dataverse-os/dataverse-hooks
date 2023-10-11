@@ -49,7 +49,7 @@ export const useApp = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<ConnectResult>();
 
   useEffect(() => {
     if (autoConnect) {

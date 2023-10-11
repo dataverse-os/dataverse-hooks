@@ -31,7 +31,7 @@ export const useCollectFile = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<CollectFileResult>();
 
   const collectFile = useCallback(
     async (fileId: string) => {

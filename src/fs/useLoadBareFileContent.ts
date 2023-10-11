@@ -6,7 +6,7 @@ import { useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useReadBareFileContent = ({
+export const useLoadBareFileContent = ({
   onError,
   onPending,
   onSuccess,
@@ -29,9 +29,9 @@ export const useReadBareFileContent = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<string>();
 
-  const readBareFileContent = useCallback(
+  const loadBareFileContent = useCallback(
     async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
@@ -40,7 +40,7 @@ export const useReadBareFileContent = ({
         }
 
         const fileContent = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.readBareFileContent,
+          method: SYSTEM_CALL.loadBareFileContent,
           params: fileId,
         });
 
@@ -80,6 +80,6 @@ export const useReadBareFileContent = ({
     isFailed,
     setStatus,
     reset,
-    readBareFileContent,
+    loadBareFileContent,
   };
 };

@@ -22,7 +22,7 @@ export enum FileType {
   Encrypted: CreateEncryptedFileArgs;
   Payable: CreatePayableFileArgs;
 } */
-export type CreateFileArgs = RequestType[SYSTEM_CALL.createFile];
+export type CreateIndexFileArgs = RequestType[SYSTEM_CALL.createIndexFile];
 
 export type ConnectWalletResult = {
   address: string;
@@ -67,7 +67,9 @@ type CreatePayableFileArgs = {
   encrypted: object;
 }; */
 
-export type CreateFileResult = Awaited<ReturnType[SYSTEM_CALL.createFile]>;
+export type CreateIndexFileResult = Awaited<
+  ReturnType[SYSTEM_CALL.createIndexFile]
+>;
 
 export type MonetizeFileArgs = {
   fileId: string;
@@ -113,7 +115,9 @@ export type UpdateFileArgs = {
   encrypted?: object;
 };
 
-export type UpdateFileResult = Awaited<ReturnType[SYSTEM_CALL.updateFile]>;
+export type UpdateIndexFileResult = Awaited<
+  ReturnType[SYSTEM_CALL.updateIndexFile]
+>;
 
 export type CreateActionFileArgs = {
   folderId?: string;
@@ -135,7 +139,7 @@ export type UpdateActionFileResult = MirrorFile;
 
 export type CollectFileResult = Awaited<ReturnType[SYSTEM_CALL.collectFile]>;
 
-export type CreateDataUnionArgs = RequestType[SYSTEM_CALL.createDataUnion];
+export type PublishDataUnionArgs = RequestType[SYSTEM_CALL.publishDataUnion];
 
 export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
 

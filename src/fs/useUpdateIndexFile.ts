@@ -4,13 +4,17 @@ import { SYSTEM_CALL, FileType } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus, UpdateFileArgs, UpdateFileResult } from "../types";
+import {
+  MutationStatus,
+  UpdateFileArgs,
+  UpdateIndexFileResult,
+} from "../types";
 import { useMutation } from "../utils";
 
-export const useUpdateFile = (params?: {
+export const useUpdateIndexFile = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: UpdateFileArgs) => void;
-  onSuccess?: (result: UpdateFileResult) => void;
+  onSuccess?: (result: UpdateIndexFileResult) => void;
 }) => {
   const { dataverseConnector, filesMap } = useStore();
   const {
@@ -31,9 +35,9 @@ export const useUpdateFile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<UpdateIndexFileResult>();
 
-  const updateFile = useCallback(
+  const updateIndexFile = useCallback(
     async ({
       model,
       fileId,
@@ -69,15 +73,16 @@ export const useUpdateFile = (params?: {
           encrypted: JSON.stringify(encrypted),
         };
 
-        const updateResult: UpdateFileResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.updateFile,
-          params: {
-            fileId,
-            fileName,
-            fileContent: fileContent && _fileContent,
-            syncImmediately: true,
-          },
-        });
+        const updateResult: UpdateIndexFileResult =
+          await dataverseConnector.runOS({
+            method: SYSTEM_CALL.updateIndexFile,
+            params: {
+              fileId,
+              fileName,
+              fileContent: fileContent && _fileContent,
+              syncImmediately: true,
+            },
+          });
 
         actionUpdateFile({
           fileId: fileId,
@@ -131,6 +136,6 @@ export const useUpdateFile = (params?: {
     isFailed,
     setStatus,
     reset,
-    updateFile,
+    updateIndexFile,
   };
 };

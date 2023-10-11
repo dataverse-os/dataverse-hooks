@@ -36,7 +36,7 @@ export const useUpdateActionFile = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<UpdateActionFileResult>();
 
   const updateActionFile = useCallback(
     async (args: UpdateActionFileArgs) => {

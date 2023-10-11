@@ -11,13 +11,13 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useReadFolders = (params?: {
+export const useLoadDataUnions = (params?: {
   onError?: (error: any) => void;
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetDataUnions } = useAction();
 
   const {
     result,
@@ -38,29 +38,29 @@ export const useReadFolders = (params?: {
    * folders
    * @returns
    */
-  const readFolders = useCallback(async () => {
+  const loadDataUnions = useCallback(async () => {
     try {
       setStatus(MutationStatus.Pending);
       if (params?.onPending) {
         params.onPending();
       }
 
-      const allFolders = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.readFolders,
+      const dataUnions = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnions,
       });
 
-      actionSetFolders(
-        deepAssignRenameKey(allFolders, [
+      actionSetDataUnions(
+        deepAssignRenameKey(dataUnions, [
           { mirror: "mirrorFile" },
         ]) as StructuredFolderRecord,
       );
 
-      setResult(allFolders);
+      setResult(dataUnions);
       setStatus(MutationStatus.Succeed);
       if (params?.onSuccess) {
-        params.onSuccess(allFolders);
+        params.onSuccess(dataUnions);
       }
-      return allFolders;
+      return dataUnions;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
@@ -71,7 +71,7 @@ export const useReadFolders = (params?: {
     }
   }, [
     dataverseConnector,
-    actionSetFolders,
+    actionSetDataUnions,
     setStatus,
     setError,
     setResult,
@@ -81,7 +81,7 @@ export const useReadFolders = (params?: {
   ]);
 
   return {
-    folders: result,
+    dataUnions: result,
     error,
     status,
     isIdle,
@@ -90,6 +90,6 @@ export const useReadFolders = (params?: {
     isFailed,
     setStatus,
     reset,
-    readFolders,
+    loadDataUnions,
   };
 };

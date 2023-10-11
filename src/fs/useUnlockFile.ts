@@ -27,7 +27,7 @@ export const useUnlockFile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<UnlockFileResult>();
 
   const unlockFile = useCallback(
     async (fileId: string) => {

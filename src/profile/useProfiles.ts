@@ -26,7 +26,7 @@ export const useProfiles = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<string[]>();
 
   const getProfiles = useCallback(
     async (accountAddress?: string) => {

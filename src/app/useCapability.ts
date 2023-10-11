@@ -28,7 +28,7 @@ export const useCapability = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<string>();
 
   const createCapability = useCallback(
     async (appId: string) => {

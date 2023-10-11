@@ -36,7 +36,7 @@ export const useMoveFiles = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFileRecord>();
 
   /**
    * move mirror from sourceFolder to targetFolder by id

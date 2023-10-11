@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
+import {
+  MirrorFile,
+  SYSTEM_CALL,
+  StructuredFolder,
+} from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import {
-  CreateActionFileArgs,
-  CreateActionFileResult,
-  MutationStatus,
-} from "../types";
+import { CreateActionFileArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
@@ -19,7 +19,7 @@ export const useCreateActionFile = ({
 }: {
   onError?: (error: any) => void;
   onPending?: (args: CreateActionFileArgs) => void;
-  onSuccess?: (result: CreateActionFileResult) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionUpdateFolders } = useAction();
@@ -36,7 +36,7 @@ export const useCreateActionFile = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFile>();
 
   const createActionFile = useCallback(
     async (args: CreateActionFileArgs) => {

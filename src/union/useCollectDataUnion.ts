@@ -31,7 +31,7 @@ export const useCollectDataUnion = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   const collectDataUnion = useCallback(
     async (dataUnionId: string) => {

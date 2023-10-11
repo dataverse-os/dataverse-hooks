@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
 import { DATATOKENID_NOT_EXIST } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store";
@@ -26,7 +28,7 @@ export const useDatatokenInfo = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<DatatokenInfo>();
 
   const getDatatokenInfo = useCallback(
     async (fileId: string) => {
@@ -44,8 +46,10 @@ export const useDatatokenInfo = (params?: {
           throw DATATOKENID_NOT_EXIST;
         }
 
-        const datatokenInfo: DatatokenInfo =
-          await dataverseConnector.getDatatokenBaseInfo(datatokenId);
+        const datatokenInfo: DatatokenInfo = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.getDatatokenBaseInfo,
+          params: datatokenId,
+        });
 
         actionUpdateDatatokenInfo({
           streamId: fileId,

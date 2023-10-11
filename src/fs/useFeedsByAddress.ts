@@ -27,7 +27,7 @@ export const useFeedsByAddress = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<LoadFilesByResult>();
 
   const loadFeedsByAddress = useCallback(
     async ({ pkh, modelId }: LoadFilesByArgs) => {

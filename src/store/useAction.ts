@@ -12,13 +12,13 @@ import { DataverseContext } from "./useStore";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
-  CreateFileResult,
+  CreateIndexFileResult,
   DatatokenInfo,
   LoadFilesByResult,
   LoadFilesResult,
   MonetizeFileResult,
   UnlockFileResult,
-  UpdateFileResult,
+  UpdateIndexFileResult,
 } from "../types";
 
 export const useAction = () => {
@@ -50,7 +50,7 @@ export const useAction = () => {
   );
 
   const actionCreateFile = useCallback(
-    (createdFile: CreateFileResult) => {
+    (createdFile: CreateIndexFileResult) => {
       dispatch({
         type: ActionType.CreateFile,
         payload: createdFile,
@@ -64,7 +64,7 @@ export const useAction = () => {
       updatedFile:
         | (MonetizeFileResult & { fileId: string })
         | (UnlockFileResult & { fileId: string })
-        | (UpdateFileResult & { fileId: string }),
+        | (UpdateIndexFileResult & { fileId: string }),
     ) => {
       dispatch({
         type: ActionType.UpdateFile,

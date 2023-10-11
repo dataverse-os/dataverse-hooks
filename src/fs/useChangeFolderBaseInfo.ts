@@ -33,7 +33,7 @@ export const useChangeFolderBaseInfo = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
    * change folder name by streamId

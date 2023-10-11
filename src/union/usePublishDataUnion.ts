@@ -4,13 +4,13 @@ import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { CreateDataUnionArgs, MutationStatus } from "../types";
+import { PublishDataUnionArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useCreateDataUnion = (params?: {
+export const usePublishDataUnion = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: CreateDataUnionArgs) => void;
+  onPending?: (args: PublishDataUnionArgs) => void;
   onSuccess?: (result?: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -28,7 +28,7 @@ export const useCreateDataUnion = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
    * create Folder
@@ -37,8 +37,8 @@ export const useCreateDataUnion = (params?: {
    * @param folderDescription Folder description
    * @param reRender reRender page ?
    */
-  const createDataUnion = useCallback(
-    async (args: CreateDataUnionArgs) => {
+  const publishDataUnion = useCallback(
+    async (args: PublishDataUnionArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
@@ -46,7 +46,7 @@ export const useCreateDataUnion = (params?: {
         }
 
         const { newDataUnion } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createDataUnion,
+          method: SYSTEM_CALL.publishDataUnion,
           params: { ...args },
         });
 
@@ -84,7 +84,7 @@ export const useCreateDataUnion = (params?: {
   );
 
   return {
-    createdDataUnion: result,
+    publishedDataUnion: result,
     error,
     status,
     isIdle,
@@ -93,6 +93,6 @@ export const useCreateDataUnion = (params?: {
     isFailed,
     setStatus,
     reset,
-    createDataUnion,
+    publishDataUnion,
   };
 };

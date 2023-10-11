@@ -35,7 +35,7 @@ export const useRemoveFiles = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFileRecord>();
 
   /**
    * remove mirror by both folderId and mirrorId

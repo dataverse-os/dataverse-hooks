@@ -1,10 +1,6 @@
 import { useCallback } from "react";
 
-import {
-  SYSTEM_CALL,
-  StructuredFolder,
-  FolderType,
-} from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
@@ -15,7 +11,6 @@ import { deepAssignRenameKey } from "../utils/object";
 export const useCreateFolder = (params?: {
   onError?: (error: any) => void;
   onPending?: (args: {
-    folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   }) => void;
@@ -36,7 +31,7 @@ export const useCreateFolder = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
    * create Folder
@@ -47,11 +42,9 @@ export const useCreateFolder = (params?: {
    */
   const createFolder = useCallback(
     async ({
-      folderType,
       folderName,
       folderDescription,
     }: {
-      folderType: FolderType;
       folderName: string;
       folderDescription?: string;
     }) => {
@@ -59,7 +52,6 @@ export const useCreateFolder = (params?: {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending({
-            folderType,
             folderName,
             folderDescription,
             // reRender,
@@ -69,7 +61,6 @@ export const useCreateFolder = (params?: {
         const { newFolder } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createFolder,
           params: {
-            folderType: folderType as any,
             folderName,
             folderDescription,
           },

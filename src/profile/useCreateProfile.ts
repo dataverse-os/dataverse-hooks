@@ -25,7 +25,7 @@ export const useCreateProfile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<string>();
 
   const createProfile = useCallback(
     async (handle: string) => {

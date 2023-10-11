@@ -1,7 +1,7 @@
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
   ActionType,
-  CreateFileResult,
+  CreateIndexFileResult,
   LoadFilesResult,
   StateType,
 } from "../types";
@@ -46,7 +46,8 @@ export const reducer = (
     }
 
     case ActionType.CreateFile: {
-      const { pkh, appId, modelId, fileContent } = payload as CreateFileResult;
+      const { pkh, appId, modelId, fileContent } =
+        payload as CreateIndexFileResult;
 
       return {
         ...state,

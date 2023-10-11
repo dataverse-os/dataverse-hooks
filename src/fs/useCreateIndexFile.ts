@@ -4,17 +4,21 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { CreateFileArgs, CreateFileResult, MutationStatus } from "../types";
+import {
+  CreateIndexFileArgs,
+  CreateIndexFileResult,
+  MutationStatus,
+} from "../types";
 import { useMutation } from "../utils";
 
-export const useCreateFile = ({
+export const useCreateIndexFile = ({
   onError,
   onPending,
   onSuccess,
 }: {
   onError?: (error: any) => void;
-  onPending?: (args: CreateFileArgs) => void;
-  onSuccess?: (result: CreateFileResult) => void;
+  onPending?: (args: CreateIndexFileArgs) => void;
+  onSuccess?: (result: CreateIndexFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionCreateFile } = useAction();
@@ -31,10 +35,10 @@ export const useCreateFile = ({
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<CreateIndexFileResult>();
 
-  const createFile = useCallback(
-    async (args: CreateFileArgs) => {
+  const createIndexFile = useCallback(
+    async (args: CreateIndexFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (onPending) {
@@ -53,29 +57,30 @@ export const useCreateFile = ({
           ...args.fileContent,
         };
 
-        const createdFile: CreateFileResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createFile,
-          params: {
-            modelId: args.modelId,
-            fileName: args.fileName,
-            fileContent: {
-              ...inputFileContent,
-              encrypted:
-                typeof inputFileContent.encrypted === "string"
-                  ? inputFileContent.encrypted
-                  : JSON.stringify(inputFileContent.encrypted),
+        const createdIndexFile: CreateIndexFileResult =
+          await dataverseConnector.runOS({
+            method: SYSTEM_CALL.createIndexFile,
+            params: {
+              modelId: args.modelId,
+              fileName: args.fileName,
+              fileContent: {
+                ...inputFileContent,
+                encrypted:
+                  typeof inputFileContent.encrypted === "string"
+                    ? inputFileContent.encrypted
+                    : JSON.stringify(inputFileContent.encrypted),
+              },
             },
-          },
-        });
+          });
 
-        actionCreateFile(createdFile);
+        actionCreateFile(createdIndexFile);
 
-        setResult(createdFile);
+        setResult(createdIndexFile);
         setStatus(MutationStatus.Succeed);
         if (onSuccess) {
-          onSuccess(createdFile);
+          onSuccess(createdIndexFile);
         }
-        return createdFile;
+        return createdIndexFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -98,7 +103,7 @@ export const useCreateFile = ({
   );
 
   return {
-    createdFile: result,
+    createdIndexFile: result,
     error,
     status,
     isIdle,
@@ -107,6 +112,6 @@ export const useCreateFile = ({
     isFailed,
     setStatus,
     reset,
-    createFile,
+    createIndexFile,
   };
 };
