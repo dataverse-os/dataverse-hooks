@@ -194,6 +194,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateDataUnionsByMonetizeFile = useCallback(
+    (file: MirrorFile) => {
+      dispatch({
+        type: ActionType.UpdateDataUnionsByMonetizeFile,
+        payload: file,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
@@ -211,5 +221,6 @@ export const useAction = () => {
     actionUpdateDataUnion,
     actionDeleteDataUnion,
     actionUpdateDataUnionsByFile,
+    actionUpdateDataUnionsByMonetizeFile,
   };
 };

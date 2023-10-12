@@ -38,28 +38,21 @@ export const useUpdateIndexFile = (params?: {
   } = useMutation<UpdateIndexFileResult>();
 
   const updateIndexFile = useCallback(
-    async ({
-      model,
-      fileId,
-      fileName,
-      fileContent,
-      encrypted,
-    }: UpdateFileArgs) => {
+    async ({ fileId, fileName, fileContent, encrypted }: UpdateFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending({
-            model,
             fileId,
             fileContent,
             encrypted,
           });
         }
-        const modelStream = model.streams[model.streams.length - 1];
+        // const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = filesMap![fileId]?.fileContent.file?.fileType;
+        const fileType = filesMap?.[fileId]?.fileContent.file?.fileType;
         if (
-          !modelStream.isPublicDomain &&
+          // !modelStream.isPublicDomain &&
           fileContent &&
           encrypted &&
           fileType === FileType.PublicFileType

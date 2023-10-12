@@ -26,6 +26,7 @@ export enum ActionType {
   UpdateDataUnion,
   DeleteDataUnion,
   UpdateDataUnionsByFile,
+  UpdateDataUnionsByMonetizeFile,
 }
 
 export type DataverseContextType = {

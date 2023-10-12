@@ -34,60 +34,37 @@ export const useMonetizeFile = (params?: {
   const { getProfiles } = useProfiles();
 
   const monetizeFile = useCallback(
-    async ({
-      fileId,
-      profileId,
-      currency,
-      amount,
-      collectLimit,
-      decryptionConditions,
-      dataUnionId,
-    }: MonetizeFileArgs) => {
+    async (args: MonetizeFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            fileId,
-            profileId,
-            currency,
-            amount,
-            collectLimit,
-            decryptionConditions,
-          });
+          params.onPending(args);
         }
 
-        if (!profileId) {
-          if (profileIds === undefined) {
-            const gettedProfileIds = await getProfiles(address);
-            if (gettedProfileIds.length === 0) {
+        if (args.datatokenVars) {
+          if (!args.datatokenVars.profileId) {
+            if (profileIds === undefined) {
+              const gettedProfileIds = await getProfiles(address);
+              if (gettedProfileIds.length === 0) {
+                throw PROFILES_NOT_EXSIT;
+              }
+              args.datatokenVars.profileId = gettedProfileIds[0];
+            } else if (profileIds.length === 0) {
               throw PROFILES_NOT_EXSIT;
+            } else {
+              args.datatokenVars.profileId = profileIds[0];
             }
-            profileId = gettedProfileIds[0];
-          } else if (profileIds.length === 0) {
-            throw PROFILES_NOT_EXSIT;
-          } else {
-            profileId = profileIds[0];
           }
         }
 
         const monetizeResult: MonetizeFileResult =
           await dataverseConnector.runOS({
             method: SYSTEM_CALL.monetizeFile,
-            params: {
-              fileId,
-              datatokenVars: {
-                profileId,
-                currency,
-                amount,
-                collectLimit,
-              },
-              decryptionConditions,
-              dataUnionId,
-            },
+            params: args,
           });
 
         actionUpdateFile({
-          fileId,
+          fileId: args.fileId,
           ...monetizeResult,
         });
         actionUpdateFoldersByFile({

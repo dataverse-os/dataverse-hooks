@@ -1,7 +1,5 @@
 import {
   Chain,
-  Currency,
-  DecryptionConditions,
   ReturnType,
   SYSTEM_CALL,
   WALLET,
@@ -9,7 +7,6 @@ import {
   Action,
   MirrorFile,
 } from "@dataverse/dataverse-connector";
-import { Model } from "@dataverse/model-parser";
 
 export enum FileType {
   Public = "Public",
@@ -71,15 +68,7 @@ export type CreateIndexFileResult = Awaited<
   ReturnType[SYSTEM_CALL.createIndexFile]
 >;
 
-export type MonetizeFileArgs = {
-  fileId: string;
-  profileId?: string;
-  currency: Currency;
-  amount: number;
-  collectLimit: number;
-  decryptionConditions?: DecryptionConditions;
-  dataUnionId?: string;
-};
+export type MonetizeFileArgs = RequestType[SYSTEM_CALL.monetizeFile];
 
 export type MonetizeFileResult = Awaited<ReturnType[SYSTEM_CALL.monetizeFile]>;
 
@@ -108,7 +97,6 @@ export type DatatokenInfo = Partial<{
 export type UnlockFileResult = Awaited<ReturnType[SYSTEM_CALL.unlockFile]>;
 
 export type UpdateFileArgs = {
-  model: Model;
   fileId: string;
   fileName?: string;
   fileContent?: object;

@@ -156,33 +156,36 @@ export const reducer = (
     }
 
     case ActionType.DeleteFolder: {
-      const _state = {
-        ...state,
-      };
-      if (!_state.foldersMap) {
-        return _state;
+      if (!state.foldersMap) {
+        return state;
       }
-      delete _state.foldersMap[payload];
-      return _state;
+      const foldersMap = { ...state.foldersMap };
+      delete foldersMap[payload];
+      return {
+        ...state,
+        foldersMap,
+      };
     }
 
     case ActionType.UpdateFoldersByFile: {
-      const _state = { ...state };
-      if (!_state.foldersMap) {
-        return _state;
+      if (!state.foldersMap) {
+        return state;
       }
-      Object.keys(_state.foldersMap).forEach(folderId => {
-        const folder = _state.foldersMap![folderId];
+      const foldersMap = { ...state.foldersMap };
+      Object.keys(foldersMap).forEach(folderId => {
+        const folder = foldersMap![folderId];
         Object.keys(folder.mirrorRecord).forEach(mirrorId => {
           const mirror = folder.mirrorRecord[mirrorId];
           if (mirror.mirrorFile.fileId === payload.fileId) {
-            _state.foldersMap![folderId].mirrorRecord[mirrorId].mirrorFile =
-              payload;
+            foldersMap![folderId].mirrorRecord[mirrorId].mirrorFile = payload;
           }
         });
       });
 
-      return _state;
+      return {
+        ...state,
+        foldersMap,
+      };
     }
 
     case ActionType.SetDataUnions: {
@@ -203,34 +206,58 @@ export const reducer = (
     }
 
     case ActionType.DeleteDataUnion: {
-      const _state = {
-        ...state,
-      };
-      if (!_state.dataUnionsMap) {
-        return _state;
+      if (!state.dataUnionsMap) {
+        return state;
       }
-      delete _state.dataUnionsMap[payload];
-      return _state;
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      delete dataUnionsMap[payload];
+      return {
+        ...state,
+        dataUnionsMap,
+      };
     }
 
     case ActionType.UpdateDataUnionsByFile: {
-      const _state = { ...state };
-      if (!_state.dataUnionsMap) {
-        return _state;
+      if (!state.dataUnionsMap) {
+        return state;
       }
-      Object.keys(_state.dataUnionsMap).forEach(folderId => {
-        const dataUnion = _state.dataUnionsMap![folderId];
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      Object.keys(dataUnionsMap).forEach(folderId => {
+        const dataUnion = dataUnionsMap![folderId];
         Object.keys(dataUnion.mirrorRecord).forEach(mirrorId => {
           const mirror = dataUnion.mirrorRecord[mirrorId];
           if (mirror.mirrorFile.fileId === payload.fileId) {
-            _state.dataUnionsMap![folderId].mirrorRecord[mirrorId].mirrorFile =
+            dataUnionsMap![folderId].mirrorRecord[mirrorId].mirrorFile =
               payload;
           }
         });
       });
 
-      return _state;
+      return {
+        ...state,
+        dataUnionsMap,
+      };
     }
+
+    // case ActionType.UpdateDataUnionsByMonetizeFile: {
+    //   if (!state.dataUnionsMap) {
+    //     return state;
+    //   }
+    //   const dataUnionsMap = { ...state.dataUnionsMap };
+    //   const dataUnionIds = (payload as MirrorFile).accessControl
+    //     ?.monetizationProvider?.dataUnionIds;
+    //   if (!dataUnionIds) {
+    //     return state;
+    //   }
+    //   dataUnionIds.forEach(dataUnionId => {
+    //     dataUnionsMap[dataUnionId].mirrorRecord = {
+    //       ...dataUnionsMap[dataUnionId].mirrorRecord,
+    //       [(payload as MirrorFile).fileId]: {
+    //         mirrorFile: payload,
+    //       },
+    //     };
+    //   });
+    // }
 
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
