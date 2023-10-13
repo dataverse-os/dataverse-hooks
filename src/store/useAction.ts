@@ -194,11 +194,21 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionUpdateDataUnionsByMonetizeFile = useCallback(
-    (file: MirrorFile) => {
+  // const actionUpdateDataUnionsByMonetizeFile = useCallback(
+  //   (file: MirrorFile) => {
+  //     dispatch({
+  //       type: ActionType.UpdateDataUnionsByMonetizeFile,
+  //       payload: file,
+  //     });
+  //   },
+  //   [dispatch],
+  // );
+
+  const actionUpdateDataUnionsByDeleteFiles = useCallback(
+    (fileIds: string[]) => {
       dispatch({
-        type: ActionType.UpdateDataUnionsByMonetizeFile,
-        payload: file,
+        type: ActionType.UpdateDataUnionsByDeleteFiles,
+        payload: fileIds,
       });
     },
     [dispatch],
@@ -221,6 +231,7 @@ export const useAction = () => {
     actionUpdateDataUnion,
     actionDeleteDataUnion,
     actionUpdateDataUnionsByFile,
-    actionUpdateDataUnionsByMonetizeFile,
+    actionUpdateDataUnionsByDeleteFiles,
+    // actionUpdateDataUnionsByMonetizeFile,
   };
 };

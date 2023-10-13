@@ -239,6 +239,27 @@ export const reducer = (
       };
     }
 
+    case ActionType.UpdateDataUnionsByDeleteFiles: {
+      if (!state.dataUnionsMap) {
+        return state;
+      }
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      Object.keys(dataUnionsMap).forEach(folderId => {
+        const dataUnion = dataUnionsMap![folderId];
+        Object.keys(dataUnion.mirrorRecord).forEach(mirrorId => {
+          const mirror = dataUnion.mirrorRecord[mirrorId];
+          if ((payload as string[]).includes(mirror.mirrorId)) {
+            delete dataUnionsMap![folderId].mirrorRecord[mirrorId];
+          }
+        });
+      });
+
+      return {
+        ...state,
+        dataUnionsMap,
+      };
+    }
+
     // case ActionType.UpdateDataUnionsByMonetizeFile: {
     //   if (!state.dataUnionsMap) {
     //     return state;

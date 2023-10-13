@@ -15,7 +15,11 @@ export const useMonetizeFile = (params?: {
   onSuccess?: (result: MonetizeFileResult) => void;
 }) => {
   const { dataverseConnector, address, profileIds, filesMap } = useStore();
-  const { actionUpdateFile, actionUpdateFoldersByFile } = useAction();
+  const {
+    actionUpdateFile,
+    actionUpdateFoldersByFile,
+    actionUpdateDataUnionsByFile,
+  } = useAction();
 
   const {
     result,
@@ -71,6 +75,12 @@ export const useMonetizeFile = (params?: {
           ...monetizeResult.fileContent.file,
           content: monetizeResult.fileContent,
         });
+        if (args.dataUnionId) {
+          actionUpdateDataUnionsByFile({
+            ...monetizeResult.fileContent.file,
+            content: monetizeResult.fileContent,
+          });
+        }
 
         setStatus(MutationStatus.Succeed);
         setResult(monetizeResult);
@@ -93,6 +103,8 @@ export const useMonetizeFile = (params?: {
       profileIds,
       dataverseConnector,
       actionUpdateFile,
+      actionUpdateFoldersByFile,
+      actionUpdateDataUnionsByFile,
       setStatus,
       setError,
       setResult,

@@ -10,15 +10,14 @@ import { useStore } from "../store";
 import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
-import { deepAssignRenameKey } from "../utils/object";
 
-export const useChangeFolderBaseInfo = (params?: {
+export const useChangeDataUnionBaseInfo = (params?: {
   onError?: (error: unknown) => void;
-  onPending?: (args: RequestType[SYSTEM_CALL.updateFolderBaseInfo]) => void;
+  onPending?: (args: RequestType[SYSTEM_CALL.updateDataUnionBaseInfo]) => void;
   onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateDataUnion } = useAction();
 
   const {
     result,
@@ -34,31 +33,27 @@ export const useChangeFolderBaseInfo = (params?: {
     reset,
   } = useMutation<StructuredFolder>();
 
-  const changeFolderBaseInfo = useCallback(
-    async (args: RequestType[SYSTEM_CALL.updateFolderBaseInfo]) => {
+  const changeDataUnionBaseInfo = useCallback(
+    async (args: RequestType[SYSTEM_CALL.updateDataUnionBaseInfo]) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending(args);
         }
 
-        const { currentFolder } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.updateFolderBaseInfo,
+        const { currentDataUnion } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateDataUnionBaseInfo,
           params: args,
         });
 
-        actionUpdateFolders(
-          deepAssignRenameKey(currentFolder, [
-            { mirror: "mirrorFile" },
-          ]) as StructuredFolder,
-        );
+        actionUpdateDataUnion(currentDataUnion);
 
-        setResult(currentFolder);
+        setResult(currentDataUnion);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(currentFolder);
+          params.onSuccess(currentDataUnion);
         }
-        return currentFolder;
+        return currentDataUnion;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -70,7 +65,7 @@ export const useChangeFolderBaseInfo = (params?: {
     },
     [
       dataverseConnector,
-      actionUpdateFolders,
+      actionUpdateDataUnion,
       setStatus,
       setError,
       setResult,
@@ -81,7 +76,7 @@ export const useChangeFolderBaseInfo = (params?: {
   );
 
   return {
-    changedFolder: result,
+    changedDataUnion: result,
     error,
     status,
     isIdle,
@@ -90,6 +85,6 @@ export const useChangeFolderBaseInfo = (params?: {
     isFailed,
     setStatus,
     reset,
-    changeFolderBaseInfo,
+    changeDataUnionBaseInfo,
   };
 };

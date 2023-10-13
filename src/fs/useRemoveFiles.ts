@@ -21,7 +21,8 @@ export const useRemoveFiles = (params?: {
   onSuccess?: (result: MirrorFileRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateDataUnionsByDeleteFiles } =
+    useAction();
 
   const {
     result,
@@ -74,6 +75,7 @@ export const useRemoveFiles = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolderRecord,
         );
+        actionUpdateDataUnionsByDeleteFiles(Object.keys(removedFiles || {}));
 
         setResult(removedFiles);
         setStatus(MutationStatus.Succeed);
@@ -93,6 +95,7 @@ export const useRemoveFiles = (params?: {
     [
       dataverseConnector,
       actionUpdateFolders,
+      actionUpdateDataUnionsByDeleteFiles,
       setStatus,
       setError,
       setResult,

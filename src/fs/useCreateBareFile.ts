@@ -51,7 +51,7 @@ export const useCreateBareFile = (params?: {
 
         const { currentFolder, newFile } = await dataverseConnector.runOS({
           method: SYSTEM_CALL.createBareFile,
-          params: { ...args },
+          params: args,
         });
 
         actionUpdateFolders(

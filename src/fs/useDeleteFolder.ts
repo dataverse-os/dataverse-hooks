@@ -17,7 +17,8 @@ export const useDeleteFolder = (params?: {
   onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionDeleteFolder } = useAction();
+  const { actionDeleteFolder, actionUpdateDataUnionsByDeleteFiles } =
+    useAction();
 
   const {
     result,
@@ -64,6 +65,9 @@ export const useDeleteFolder = (params?: {
         });
 
         actionDeleteFolder(currentFolder.folderId);
+        actionUpdateDataUnionsByDeleteFiles(
+          Object.keys(currentFolder.mirrorRecord),
+        );
 
         setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
@@ -83,6 +87,7 @@ export const useDeleteFolder = (params?: {
     [
       dataverseConnector,
       actionDeleteFolder,
+      actionUpdateDataUnionsByDeleteFiles,
       setStatus,
       setError,
       setResult,
