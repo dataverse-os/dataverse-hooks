@@ -52,7 +52,7 @@ export const useDatatokenInfo = (params?: {
         });
 
         actionUpdateDatatokenInfo({
-          streamId: fileId,
+          fileId,
           datatokenInfo,
         });
 

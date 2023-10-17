@@ -145,7 +145,7 @@ export const useAction = () => {
   );
 
   const actionUpdateDatatokenInfo = useCallback(
-    (payload: { streamId: string; datatokenInfo: DatatokenInfo }) => {
+    (payload: { fileId: string; datatokenInfo: DatatokenInfo }) => {
       dispatch({
         type: ActionType.UpdateDatatokenInfo,
         payload,
