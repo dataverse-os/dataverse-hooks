@@ -31,6 +31,10 @@ export enum ActionType {
   // UpdateDataUnionsByMonetizeFile,
 }
 
+export type RequiredByKeys<T, K extends keyof T> = {
+  [P in K]-?: T[P];
+} & Pick<T, Exclude<keyof T, K>>;
+
 export type DataverseContextType = {
   dataverseConnector: DataverseConnector;
   state: {
@@ -55,7 +59,10 @@ export type DataverseContextType = {
     >;
     foldersMap?: StructuredFolderRecord;
     dataUnionsMap?: StructuredFolderRecord;
-    actionsMap?: Record<string, MirrorFile[]>;
+    actionsMap?: Record<
+      string,
+      RequiredByKeys<MirrorFile, "action" | "relationId">[]
+    >;
   };
   dispatch: React.Dispatch<any>;
 };

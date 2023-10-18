@@ -8,6 +8,7 @@ import {
   ActionType,
   CreateIndexFileResult,
   LoadFilesResult,
+  RequiredByKeys,
   StateType,
 } from "../types";
 
@@ -268,7 +269,10 @@ export const reducer = (
 
     case ActionType.SetActionsMap: {
       const folders: StructuredFolderRecord = payload;
-      const actionsMap: Record<string, MirrorFile[]> = {};
+      const actionsMap: Record<
+        string,
+        RequiredByKeys<MirrorFile, "action" | "relationId">[]
+      > = {};
 
       Object.keys(folders).forEach(folderId => {
         const folder = folders[folderId];
@@ -277,7 +281,11 @@ export const reducer = (
           if (mirror.mirrorFile.action && mirror.mirrorFile.relationId) {
             actionsMap[mirror.mirrorFile.relationId] =
               actionsMap[mirror.mirrorFile.relationId] || [];
-            actionsMap[mirror.mirrorFile.relationId].push(mirror.mirrorFile);
+            actionsMap[mirror.mirrorFile.relationId].push({
+              ...mirror.mirrorFile,
+              action: mirror.mirrorFile.action,
+              relationId: mirror.mirrorFile.relationId,
+            });
           }
         });
       });
