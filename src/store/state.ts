@@ -1,3 +1,8 @@
+import {
+  MirrorFile,
+  StructuredFolderRecord,
+} from "@dataverse/dataverse-connector";
+
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
   ActionType,
@@ -15,6 +20,7 @@ export const initialState: StateType = {
   filesMap: undefined,
   foldersMap: undefined,
   dataUnionsMap: undefined,
+  actionsMap: undefined,
 };
 
 export const reducer = (
@@ -257,6 +263,28 @@ export const reducer = (
       return {
         ...state,
         dataUnionsMap,
+      };
+    }
+
+    case ActionType.SetActionsMap: {
+      const folders: StructuredFolderRecord = payload;
+      const actionsMap: Record<string, MirrorFile[]> = {};
+
+      Object.keys(folders).forEach(folderId => {
+        const folder = folders[folderId];
+        Object.keys(folder.mirrorRecord).forEach(mirrorId => {
+          const mirror = folder.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.action && mirror.mirrorFile.relationId) {
+            actionsMap[mirror.mirrorFile.relationId] =
+              actionsMap[mirror.mirrorFile.relationId] || [];
+            actionsMap[mirror.mirrorFile.relationId].push(mirror.mirrorFile);
+          }
+        });
+      });
+
+      return {
+        ...state,
+        actionsMap,
       };
     }
 

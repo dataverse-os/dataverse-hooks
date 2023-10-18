@@ -27,6 +27,7 @@ export enum ActionType {
   DeleteDataUnion,
   UpdateDataUnionsByFile,
   UpdateDataUnionsByDeleteFiles,
+  SetActionsMap,
   // UpdateDataUnionsByMonetizeFile,
 }
 
@@ -54,6 +55,7 @@ export type DataverseContextType = {
     >;
     foldersMap?: StructuredFolderRecord;
     dataUnionsMap?: StructuredFolderRecord;
+    actionsMap?: Record<string, MirrorFile[]>;
   };
   dispatch: React.Dispatch<any>;
 };

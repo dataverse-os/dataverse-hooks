@@ -214,6 +214,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionSetActionsMap = useCallback(
+    (folders: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetActionsMap,
+        payload: folders,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
@@ -232,6 +242,7 @@ export const useAction = () => {
     actionDeleteDataUnion,
     actionUpdateDataUnionsByFile,
     actionUpdateDataUnionsByDeleteFiles,
+    actionSetActionsMap,
     // actionUpdateDataUnionsByMonetizeFile,
   };
 };
