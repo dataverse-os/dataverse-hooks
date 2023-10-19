@@ -13,7 +13,11 @@ export const useUnlockFile = (params?: {
   onSuccess?: (result: UnlockFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFile, actionUpdateFoldersByFile } = useAction();
+  const {
+    actionUpdateFile,
+    actionUpdateFoldersByFile,
+    actionUpdateDataUnionsByFile,
+  } = useAction();
 
   const {
     result,
@@ -50,6 +54,10 @@ export const useUnlockFile = (params?: {
           ...unlockResult.fileContent.file,
           content: unlockResult.fileContent,
         });
+        actionUpdateDataUnionsByFile({
+          ...unlockResult.fileContent.file,
+          content: unlockResult.fileContent,
+        });
 
         setStatus(MutationStatus.Succeed);
         setResult(unlockResult);
@@ -70,6 +78,8 @@ export const useUnlockFile = (params?: {
     [
       dataverseConnector,
       actionUpdateFile,
+      actionUpdateFoldersByFile,
+      actionUpdateDataUnionsByFile,
       setStatus,
       setError,
       setResult,
