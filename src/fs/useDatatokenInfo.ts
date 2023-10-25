@@ -46,8 +46,8 @@ export const useDatatokenInfo = (params?: {
           throw DATATOKENID_NOT_EXIST;
         }
 
-        const datatokenInfo: DatatokenInfo = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.getDatatokenBaseInfo,
+        const datatokenInfo = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadDatatokenDetail,
           params: datatokenId,
         });
 

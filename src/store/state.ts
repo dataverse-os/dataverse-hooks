@@ -296,26 +296,6 @@ export const reducer = (
       };
     }
 
-    // case ActionType.UpdateDataUnionsByMonetizeFile: {
-    //   if (!state.dataUnionsMap) {
-    //     return state;
-    //   }
-    //   const dataUnionsMap = { ...state.dataUnionsMap };
-    //   const dataUnionIds = (payload as MirrorFile).accessControl
-    //     ?.monetizationProvider?.dataUnionIds;
-    //   if (!dataUnionIds) {
-    //     return state;
-    //   }
-    //   dataUnionIds.forEach(dataUnionId => {
-    //     dataUnionsMap[dataUnionId].mirrorRecord = {
-    //       ...dataUnionsMap[dataUnionId].mirrorRecord,
-    //       [(payload as MirrorFile).fileId]: {
-    //         mirrorFile: payload,
-    //       },
-    //     };
-    //   });
-    // }
-
     default: {
       throw ACTION_TYPE_NOT_EXSITS;
     }

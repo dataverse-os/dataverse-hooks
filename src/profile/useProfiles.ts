@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 
+import { ChainId } from "@dataverse/dataverse-connector";
+
 import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store";
@@ -8,7 +10,7 @@ import { useMutation } from "../utils";
 
 export const useProfiles = (params?: {
   onError?: (error: any) => void;
-  onPending?: (address: string) => void;
+  onPending?: (args: { chainId: ChainId; accountAddress: string }) => void;
   onSuccess?: (result: string[]) => void;
 }) => {
   const { address, dataverseConnector } = useStore();
@@ -29,19 +31,22 @@ export const useProfiles = (params?: {
   } = useMutation<string[]>();
 
   const getProfiles = useCallback(
-    async (accountAddress?: string) => {
+    async (args: { chainId: ChainId; accountAddress: string }) => {
       try {
-        const targetAddress = address || accountAddress;
+        const targetAddress = address || args.accountAddress;
         if (!targetAddress) {
           throw ADDRESS_UNDEFINED;
         }
 
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(targetAddress);
+          params.onPending(args);
         }
         const profileIds = (
-          await dataverseConnector.getProfiles(targetAddress)
+          await dataverseConnector.getProfiles({
+            chainId: args.chainId,
+            address: targetAddress,
+          })
         ).map(value => value.id);
 
         actionLoadProfileIds(profileIds);

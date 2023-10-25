@@ -194,16 +194,6 @@ export const useAction = () => {
     [dispatch],
   );
 
-  // const actionUpdateDataUnionsByMonetizeFile = useCallback(
-  //   (file: MirrorFile) => {
-  //     dispatch({
-  //       type: ActionType.UpdateDataUnionsByMonetizeFile,
-  //       payload: file,
-  //     });
-  //   },
-  //   [dispatch],
-  // );
-
   const actionUpdateDataUnionsByDeleteFiles = useCallback(
     (fileIds: string[]) => {
       dispatch({
@@ -243,6 +233,5 @@ export const useAction = () => {
     actionUpdateDataUnionsByFile,
     actionUpdateDataUnionsByDeleteFiles,
     actionSetActionsMap,
-    // actionUpdateDataUnionsByMonetizeFile,
   };
 };

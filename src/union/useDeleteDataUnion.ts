@@ -27,7 +27,7 @@ export const useDeleteDataUnion = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
    * delete folder by streamId

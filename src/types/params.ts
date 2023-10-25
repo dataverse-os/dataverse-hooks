@@ -85,9 +85,8 @@ export type DatatokenInfo = Partial<{
       currency: string;
       currency_addr: string;
     };
-    sold_num: number;
+    sold_num: string;
     total: string;
-    who_can_free_collect: string[];
   };
   content_uri: string;
   owner: string;

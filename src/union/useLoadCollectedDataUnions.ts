@@ -6,18 +6,15 @@ import {
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
-import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
-import { deepAssignRenameKey } from "../utils/object";
 
-export const useLoadDataUnions = (params?: {
+export const useLoadCollectedDataUnions = (params?: {
   onError?: (error: any) => void;
   onPending?: () => void;
   onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetDataUnions } = useAction();
 
   const {
     result,
@@ -31,14 +28,9 @@ export const useLoadDataUnions = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolderRecord>();
 
-  /**
-   * read all folders when have no param otherwise will read all pubilc
-   * folders
-   * @returns
-   */
-  const loadDataUnions = useCallback(async () => {
+  const loadCollectedDataUnions = useCallback(async () => {
     try {
       setStatus(MutationStatus.Pending);
       if (params?.onPending) {
@@ -46,14 +38,8 @@ export const useLoadDataUnions = (params?: {
       }
 
       const dataUnions = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnions,
+        method: SYSTEM_CALL.loadCollectedDataUnions,
       });
-
-      actionSetDataUnions(
-        deepAssignRenameKey(dataUnions, [
-          { mirror: "mirrorFile" },
-        ]) as StructuredFolderRecord,
-      );
 
       setResult(dataUnions);
       setStatus(MutationStatus.Succeed);
@@ -71,7 +57,6 @@ export const useLoadDataUnions = (params?: {
     }
   }, [
     dataverseConnector,
-    actionSetDataUnions,
     setStatus,
     setError,
     setResult,
@@ -81,7 +66,7 @@ export const useLoadDataUnions = (params?: {
   ]);
 
   return {
-    dataUnions: result,
+    collectedDataUnions: result,
     error,
     status,
     isIdle,
@@ -90,6 +75,6 @@ export const useLoadDataUnions = (params?: {
     isFailed,
     setStatus,
     reset,
-    loadDataUnions,
+    loadCollectedDataUnions,
   };
 };
