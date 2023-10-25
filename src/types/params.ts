@@ -7,6 +7,7 @@ import {
   Action,
   MirrorFile,
 } from "@dataverse/dataverse-connector";
+import { SubscribeDataUnionOutput } from "@dataverse/dataverse-contracts-sdk/data-union";
 
 export enum FileType {
   Public = "Public",
@@ -14,11 +15,6 @@ export enum FileType {
   Payable = "Payable",
 }
 
-/* export interface CreateFileArgs {
-  Public: CreatePublicFileArgs;
-  Encrypted: CreateEncryptedFileArgs;
-  Payable: CreatePayableFileArgs;
-} */
 export type CreateIndexFileArgs = RequestType[SYSTEM_CALL.createIndexFile];
 
 export type ConnectWalletResult = {
@@ -42,27 +38,6 @@ export type LoadFilesByArgs = {
 };
 
 export type LoadFilesByResult = LoadFilesResult;
-
-/* type CreatePublicFileArgs = {
-  modelId: string;
-  stream?: object;
-};
-
-type CreateEncryptedFileArgs = {
-  modelId: string;
-  stream: object;
-  encrypted: object;
-};
-
-type CreatePayableFileArgs = {
-  modelId: string;
-  profileId?: string;
-  stream: object;
-  currency: Currency;
-  amount: number;
-  collectLimit: number;
-  encrypted: object;
-}; */
 
 export type CreateIndexFileResult = Awaited<
   ReturnType[SYSTEM_CALL.createIndexFile]
@@ -133,3 +108,17 @@ export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
 export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile];
 
 export type UpdateBareFileArgs = RequestType[SYSTEM_CALL.updateBareFile];
+
+export type SubscribeDataUnionArgs =
+  RequestType[SYSTEM_CALL.subscribeDataUnion];
+
+export type SubscribeDataUnionResult = Omit<
+  SubscribeDataUnionOutput,
+  "dataUnionId" | "collectTokenId" | "startAt" | "endAt"
+> & {
+  dataUnionId: string;
+  collectTokenId: string;
+  subscribeModule: string;
+  startAt: number;
+  endAt: number;
+};

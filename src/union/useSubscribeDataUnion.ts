@@ -1,19 +1,21 @@
 import { useCallback } from "react";
 
-import { ChainId } from "@dataverse/dataverse-contracts-sdk/data-token";
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
-import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import {
+  MutationStatus,
+  SubscribeDataUnionArgs,
+  SubscribeDataUnionResult,
+} from "../types";
 import { useMutation } from "../utils";
 
-export const useCreateProfile = (params?: {
+export const useSubscribeDataUnion = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: { chainId: ChainId; handle: string }) => void;
-  onSuccess?: (result: string) => void;
+  onPending?: (args: SubscribeDataUnionArgs) => void;
+  onSuccess?: (result: SubscribeDataUnionResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionCreateProfile } = useAction();
 
   const {
     result,
@@ -27,38 +29,39 @@ export const useCreateProfile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation<string>();
+  } = useMutation<SubscribeDataUnionResult>();
 
-  const createProfile = useCallback(
-    async (args: { chainId: ChainId; handle: string }) => {
+  const subscribeDataUnion = useCallback(
+    async (args: SubscribeDataUnionArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(args);
+          params?.onPending(args);
         }
-        const profileId = await dataverseConnector.createProfile(args);
 
-        actionCreateProfile(profileId);
+        const subscribeResult: SubscribeDataUnionResult =
+          await dataverseConnector.runOS({
+            method: SYSTEM_CALL.subscribeDataUnion,
+            params: args,
+          });
 
-        setResult(profileId);
+        setResult(subscribeResult);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(profileId);
+          params?.onSuccess(subscribeResult);
         }
-
-        return profileId;
+        return subscribeResult;
       } catch (error) {
-        setStatus(MutationStatus.Failed);
         setError(error);
+        setStatus(MutationStatus.Failed);
         if (params?.onError) {
-          params.onError(error);
+          params?.onError(error);
         }
         throw error;
       }
     },
     [
       dataverseConnector,
-      actionCreateProfile,
       setStatus,
       setError,
       setResult,
@@ -69,7 +72,7 @@ export const useCreateProfile = (params?: {
   );
 
   return {
-    profileId: result,
+    subscribeResult: result,
     error,
     status,
     isIdle,
@@ -78,6 +81,6 @@ export const useCreateProfile = (params?: {
     isFailed,
     setStatus,
     reset,
-    createProfile,
+    subscribeDataUnion,
   };
 };

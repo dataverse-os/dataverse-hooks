@@ -57,6 +57,16 @@ export const useQueryDataUnion = () => {
     [dataverseConnector],
   );
 
+  const loadDataUnionSubscriptionListByCollector = useCallback(
+    async (params: RequestType["loadDataUnionSubscriptionListByCollector"]) => {
+      return await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+        params,
+      });
+    },
+    [dataverseConnector],
+  );
+
   const isDataUnionCollectedBy = useCallback(
     async (params: RequestType["isDataUnionCollectedBy"]) => {
       return await dataverseConnector.runOS({
@@ -83,6 +93,7 @@ export const useQueryDataUnion = () => {
     loadDataUnionDetail,
     loadDataUnionCollectors,
     loadDataUnionSubscribers,
+    loadDataUnionSubscriptionListByCollector,
     isDataUnionCollectedBy,
     isDataUnionSubscribedBy,
   };
