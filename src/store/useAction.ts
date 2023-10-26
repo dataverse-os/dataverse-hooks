@@ -3,6 +3,7 @@ import { useCallback, useContext } from "react";
 import {
   Chain,
   MirrorFile,
+  MirrorFileRecord,
   StructuredFolder,
   StructuredFolderRecord,
   WALLET,
@@ -78,6 +79,16 @@ export const useAction = () => {
     (loadedFiles: LoadFilesResult | LoadFilesByResult) => {
       dispatch({
         type: ActionType.LoadFiles,
+        payload: loadedFiles,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionLoadCollectedDatatokenFiles = useCallback(
+    (loadedFiles: MirrorFileRecord) => {
+      dispatch({
+        type: ActionType.LoadCollectedDatatokenFiles,
         payload: loadedFiles,
       });
     },
@@ -204,6 +215,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionSetCollectedDataUnions = useCallback(
+    (dataUnions: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetCollectedDataUnions,
+        payload: dataUnions,
+      });
+    },
+    [dispatch],
+  );
+
   const actionSetActionsMap = useCallback(
     (folders: StructuredFolderRecord) => {
       dispatch({
@@ -220,6 +241,7 @@ export const useAction = () => {
     actionCreateFile,
     actionUpdateFile,
     actionLoadFiles,
+    actionLoadCollectedDatatokenFiles,
     actionSetFolders,
     actionUpdateFolders,
     actionDeleteFolder,
@@ -232,6 +254,7 @@ export const useAction = () => {
     actionDeleteDataUnion,
     actionUpdateDataUnionsByFile,
     actionUpdateDataUnionsByDeleteFiles,
+    actionSetCollectedDataUnions,
     actionSetActionsMap,
   };
 };

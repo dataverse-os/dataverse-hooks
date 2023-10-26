@@ -19,8 +19,10 @@ export const initialState: StateType = {
   pkh: undefined,
   profileIds: undefined,
   filesMap: undefined,
+  collectedDatatokenFilesMap: undefined,
   foldersMap: undefined,
   dataUnionsMap: undefined,
+  collectedUnionsMap: undefined,
   actionsMap: undefined,
 };
 
@@ -75,6 +77,13 @@ export const reducer = (
       return {
         ...state,
         filesMap: _payload,
+      };
+    }
+
+    case ActionType.LoadCollectedDatatokenFiles: {
+      return {
+        ...state,
+        collectedDatatokenFilesMap: payload,
       };
     }
 
@@ -293,6 +302,13 @@ export const reducer = (
       return {
         ...state,
         actionsMap,
+      };
+    }
+
+    case ActionType.SetCollectedDataUnions: {
+      return {
+        ...state,
+        collectedUnionsMap: payload,
       };
     }
 

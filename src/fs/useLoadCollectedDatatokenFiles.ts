@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { MirrorFileRecord, SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
-import { useStore } from "../store";
+import { useAction, useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
@@ -12,6 +12,7 @@ export const useLoadCollectedDatatokenFiles = (params?: {
   onSuccess?: (result?: MirrorFileRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
+  const { actionLoadCollectedDatatokenFiles } = useAction();
 
   const {
     result,
@@ -38,6 +39,8 @@ export const useLoadCollectedDatatokenFiles = (params?: {
         method: SYSTEM_CALL.loadCollectedDatatokenFiles,
       });
 
+      actionLoadCollectedDatatokenFiles(files);
+
       setResult(files);
       setStatus(MutationStatus.Succeed);
       if (params?.onSuccess) {
@@ -54,6 +57,7 @@ export const useLoadCollectedDatatokenFiles = (params?: {
     }
   }, [
     dataverseConnector,
+    actionLoadCollectedDatatokenFiles,
     setStatus,
     setError,
     setResult,

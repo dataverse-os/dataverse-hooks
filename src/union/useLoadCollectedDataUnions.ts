@@ -5,7 +5,7 @@ import {
   StructuredFolderRecord,
 } from "@dataverse/dataverse-connector";
 
-import { useStore } from "../store";
+import { useAction, useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
@@ -15,6 +15,7 @@ export const useLoadCollectedDataUnions = (params?: {
   onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
+  const { actionSetCollectedDataUnions } = useAction();
 
   const {
     result,
@@ -41,6 +42,8 @@ export const useLoadCollectedDataUnions = (params?: {
         method: SYSTEM_CALL.loadCollectedDataUnions,
       });
 
+      actionSetCollectedDataUnions(dataUnions);
+
       setResult(dataUnions);
       setStatus(MutationStatus.Succeed);
       if (params?.onSuccess) {
@@ -57,6 +60,7 @@ export const useLoadCollectedDataUnions = (params?: {
     }
   }, [
     dataverseConnector,
+    actionSetCollectedDataUnions,
     setStatus,
     setError,
     setResult,

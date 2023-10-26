@@ -5,7 +5,10 @@ import {
   StructuredFolderRecord,
   MirrorFile,
 } from "@dataverse/dataverse-connector";
-import { FileContent } from "@dataverse/dataverse-connector/dist/esm/types/fs";
+import {
+  FileContent,
+  MirrorFileRecord,
+} from "@dataverse/dataverse-connector/dist/esm/types/fs";
 
 import { DatatokenInfo } from "./params";
 
@@ -14,6 +17,7 @@ export enum ActionType {
   CreateCapability,
   CreateFile,
   LoadFiles,
+  LoadCollectedDatatokenFiles,
   UpdateFile,
   SetFolders,
   UpdateFolders,
@@ -27,8 +31,8 @@ export enum ActionType {
   DeleteDataUnion,
   UpdateDataUnionsByFile,
   UpdateDataUnionsByDeleteFiles,
+  SetCollectedDataUnions,
   SetActionsMap,
-  // UpdateDataUnionsByMonetizeFile,
 }
 
 export type RequiredByKeys<T, K extends keyof T> = {
@@ -57,8 +61,10 @@ export type DataverseContextType = {
           | FileContent;
       } & { datatokenInfo?: DatatokenInfo }
     >;
+    collectedDatatokenFilesMap?: MirrorFileRecord;
     foldersMap?: StructuredFolderRecord;
     dataUnionsMap?: StructuredFolderRecord;
+    collectedUnionsMap?: StructuredFolderRecord;
     actionsMap?: Record<
       string,
       RequiredByKeys<MirrorFile, "action" | "relationId">[]
