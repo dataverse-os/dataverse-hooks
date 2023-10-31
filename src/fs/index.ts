@@ -15,6 +15,7 @@ export * from "./useUpdateActionFile";
 export * from "./useUpdateBareFile";
 export * from "./useMonetizeFile";
 export * from "./useDatatokenInfo";
+export * from "./useDatatokenDetails";
 export * from "./useUnlockFile";
 export * from "./useCollectFile";
 export * from "./useMoveFiles";

@@ -165,6 +165,16 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionUpdateDatatokenInfos = useCallback(
+    (payload: { fileIds: string[]; datatokenInfos: DatatokenInfo[] }) => {
+      dispatch({
+        type: ActionType.UpdateDatatokenInfos,
+        payload,
+      });
+    },
+    [dispatch],
+  );
+
   const actionSetDataUnions = useCallback(
     (dataUnions: StructuredFolderRecord) => {
       dispatch({
@@ -249,6 +259,7 @@ export const useAction = () => {
     actionLoadProfileIds,
     actionCreateProfile,
     actionUpdateDatatokenInfo,
+    actionUpdateDatatokenInfos,
     actionSetDataUnions,
     actionUpdateDataUnion,
     actionDeleteDataUnion,

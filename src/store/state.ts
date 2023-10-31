@@ -141,6 +141,27 @@ export const reducer = (
       };
     }
 
+    case ActionType.UpdateDatatokenInfos: {
+      const { fileIds, datatokenInfos } = payload;
+
+      if (!state.filesMap) {
+        throw state;
+      }
+
+      const filesMap = { ...state.filesMap };
+      fileIds.forEach((fileId: string, index: number) => {
+        filesMap[fileId] = {
+          ...filesMap[fileId],
+          datatokenInfo: datatokenInfos[index],
+        };
+      });
+
+      return {
+        ...state,
+        filesMap,
+      };
+    }
+
     case ActionType.SetFolders: {
       return {
         ...state,

@@ -26,6 +26,7 @@ export enum ActionType {
   LoadProfileIds,
   CreateProfileId,
   UpdateDatatokenInfo,
+  UpdateDatatokenInfos,
   SetDataUnions,
   UpdateDataUnion,
   DeleteDataUnion,
