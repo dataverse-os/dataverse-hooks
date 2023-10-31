@@ -8,9 +8,9 @@ export const useQueryDatatoken = () => {
   const { dataverseConnector } = useStore();
 
   const loadDatatokensByCreator = useCallback(
-    async (params: RequestType["loadDatatokensByCreator"]) => {
+    async (params: RequestType["loadDatatokensCreatedBy"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDatatokensByCreator,
+        method: SYSTEM_CALL.loadDatatokensCreatedBy,
         params,
       });
     },
@@ -18,9 +18,9 @@ export const useQueryDatatoken = () => {
   );
 
   const loadDatatokensByCollector = useCallback(
-    async (params: RequestType["loadDatatokensByCollector"]) => {
+    async (params: RequestType["loadDatatokensCollectedBy"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDatatokensByCollector,
+        method: SYSTEM_CALL.loadDatatokensCollectedBy,
         params,
       });
     },
@@ -28,9 +28,9 @@ export const useQueryDatatoken = () => {
   );
 
   const loadDatatokenDetail = useCallback(
-    async (params: RequestType["loadDatatokenDetail"]) => {
+    async (params: RequestType["loadDatatoken"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDatatokenDetail,
+        method: SYSTEM_CALL.loadDatatoken,
         params,
       });
     },

@@ -8,9 +8,9 @@ export const useQueryDataUnion = () => {
   const { dataverseConnector } = useStore();
 
   const loadDataUnionsByPublisher = useCallback(
-    async (params: RequestType["loadDataUnionsByPublisher"]) => {
+    async (params: RequestType["loadDataUnionsPublishedBy"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionsByPublisher,
+        method: SYSTEM_CALL.loadDataUnionsPublishedBy,
         params,
       });
     },
@@ -18,9 +18,9 @@ export const useQueryDataUnion = () => {
   );
 
   const loadDataUnionsByCollector = useCallback(
-    async (params: RequestType["loadDataUnionsByCollector"]) => {
+    async (params: RequestType["loadDataUnionsCollectedBy"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionsByCollector,
+        method: SYSTEM_CALL.loadDataUnionsCollectedBy,
         params,
       });
     },
@@ -28,9 +28,9 @@ export const useQueryDataUnion = () => {
   );
 
   const loadDataUnionDetail = useCallback(
-    async (params: RequestType["loadDataUnionDetail"]) => {
+    async (params: RequestType["loadDataUnion"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionDetail,
+        method: SYSTEM_CALL.loadDataUnion,
         params,
       });
     },
@@ -58,9 +58,9 @@ export const useQueryDataUnion = () => {
   );
 
   const loadDataUnionSubscriptionListByCollector = useCallback(
-    async (params: RequestType["loadDataUnionSubscriptionListByCollector"]) => {
+    async (params: RequestType["loadDataUnionSubscriptionsBy"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+        method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
         params,
       });
     },

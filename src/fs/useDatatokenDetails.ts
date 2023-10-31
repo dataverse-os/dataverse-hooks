@@ -51,7 +51,7 @@ export const useDatatokenDetails = (params?: {
         });
 
         const datatokenInfos = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadDatatokenDetailsBy,
+          method: SYSTEM_CALL.loadDatatokens,
           params: datatokenIds,
         });
 
