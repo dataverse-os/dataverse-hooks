@@ -8,13 +8,13 @@ import { useAction } from "../store";
 import { DatatokenInfo, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useDatatokenDetails = (params?: {
+export const useLoadDatatoken = (params?: {
   onError?: (error: any) => void;
-  onPending?: (fileIds: string[]) => void;
-  onSuccess?: (result: DatatokenInfo[]) => void;
+  onPending?: (fileId: string) => void;
+  onSuccess?: (result: DatatokenInfo) => void;
 }) => {
   const { dataverseConnector, filesMap } = useStore();
-  const { actionUpdateDatatokenInfos } = useAction();
+  const { actionUpdateDatatokenInfo } = useAction();
 
   const {
     result,
@@ -28,44 +28,40 @@ export const useDatatokenDetails = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation<DatatokenInfo[]>();
+  } = useMutation<DatatokenInfo>();
 
-  const getDatatokenDetails = useCallback(
-    async (fileIds: string[]) => {
+  const loadDatatoken = useCallback(
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(fileIds);
+          params.onPending(fileId);
         }
 
-        const datatokenIds = fileIds.map(fileId => {
-          const datatokenId =
-            filesMap![fileId].fileContent.file.accessControl
-              ?.monetizationProvider?.datatokenId;
+        const datatokenId =
+          filesMap![fileId].fileContent.file.accessControl?.monetizationProvider
+            ?.datatokenId;
 
-          if (!datatokenId) {
-            throw DATATOKENID_NOT_EXIST;
-          }
+        if (!datatokenId) {
+          throw DATATOKENID_NOT_EXIST;
+        }
 
-          return datatokenId;
+        const datatokenInfo = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadDatatoken,
+          params: datatokenId,
         });
 
-        const datatokenInfos = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadDatatokens,
-          params: datatokenIds,
-        });
-
-        actionUpdateDatatokenInfos({
-          fileIds,
-          datatokenInfos,
+        actionUpdateDatatokenInfo({
+          fileId,
+          datatokenInfo,
         });
 
         setStatus(MutationStatus.Succeed);
-        setResult(datatokenInfos);
+        setResult(datatokenInfo);
         if (params?.onSuccess) {
-          params.onSuccess(datatokenInfos);
+          params.onSuccess(datatokenInfo);
         }
-        return datatokenInfos;
+        return datatokenInfo;
       } catch (error) {
         setStatus(MutationStatus.Failed);
         setError(error);
@@ -78,7 +74,7 @@ export const useDatatokenDetails = (params?: {
     [
       dataverseConnector,
       filesMap,
-      actionUpdateDatatokenInfos,
+      actionUpdateDatatokenInfo,
       setStatus,
       setError,
       setResult,
@@ -98,6 +94,6 @@ export const useDatatokenDetails = (params?: {
     isFailed,
     setStatus,
     reset,
-    getDatatokenDetails,
+    loadDatatoken,
   };
 };

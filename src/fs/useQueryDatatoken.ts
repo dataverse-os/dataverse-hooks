@@ -27,16 +27,6 @@ export const useQueryDatatoken = () => {
     [dataverseConnector],
   );
 
-  const loadDatatokenDetail = useCallback(
-    async (params: RequestType["loadDatatoken"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDatatoken,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
-
   const loadDatatokenCollectors = useCallback(
     async (params: RequestType["loadDatatokenCollectors"]) => {
       return await dataverseConnector.runOS({
@@ -60,7 +50,6 @@ export const useQueryDatatoken = () => {
   return {
     loadDatatokensByCreator,
     loadDatatokensByCollector,
-    loadDatatokenDetail,
     loadDatatokenCollectors,
     isDatatokenCollectedBy,
   };
