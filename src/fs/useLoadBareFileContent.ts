@@ -3,18 +3,15 @@ import { useCallback } from "react";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
-import { useAction } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useCapability = (params?: {
+export const useLoadBareFileContent = (params?: {
   onError?: (error: any) => void;
-  onPending?: (appId: string) => void;
+  onPending?: (fileId: string) => void;
   onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
-
-  const { actionCreateCapability } = useAction();
 
   const {
     result,
@@ -30,27 +27,25 @@ export const useCapability = (params?: {
     reset,
   } = useMutation<string>();
 
-  const createCapability = useCallback(
-    async (appId: string) => {
+  const loadBareFileContent = useCallback(
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending(appId);
+          params?.onPending(fileId);
         }
-        const currentPkh = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createCapability,
-          params: {
-            appId,
-          },
+
+        const fileContent = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadBareFileContent,
+          params: fileId,
         });
 
-        actionCreateCapability(currentPkh);
+        setResult(fileContent);
         setStatus(MutationStatus.Succeed);
-        setResult(currentPkh);
         if (params?.onSuccess) {
-          params?.onSuccess(currentPkh);
+          params?.onSuccess(fileContent);
         }
-        return currentPkh;
+        return fileContent;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -62,7 +57,6 @@ export const useCapability = (params?: {
     },
     [
       dataverseConnector,
-      actionCreateCapability,
       setStatus,
       setError,
       setResult,
@@ -73,7 +67,7 @@ export const useCapability = (params?: {
   );
 
   return {
-    pkh: result,
+    fileContent: result,
     error,
     status,
     isIdle,
@@ -82,6 +76,6 @@ export const useCapability = (params?: {
     isFailed,
     setStatus,
     reset,
-    createCapability,
+    loadBareFileContent,
   };
 };

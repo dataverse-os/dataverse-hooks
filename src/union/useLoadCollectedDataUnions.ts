@@ -1,20 +1,21 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL, StructuredFolders } from "@dataverse/dataverse-connector";
+import {
+  SYSTEM_CALL,
+  StructuredFolderRecord,
+} from "@dataverse/dataverse-connector";
 
-import { useStore } from "../store";
-import { useAction } from "../store";
+import { useAction, useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
-import { deepAssignRenameKey } from "../utils/object";
 
-export const useReadAllFolders = (params?: {
+export const useLoadCollectedDataUnions = (params?: {
   onError?: (error: any) => void;
   onPending?: () => void;
-  onSuccess?: (result?: StructuredFolders) => void;
+  onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders } = useAction();
+  const { actionSetCollectedDataUnions } = useAction();
 
   const {
     result,
@@ -28,36 +29,27 @@ export const useReadAllFolders = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolderRecord>();
 
-  /**
-   * read all folders when have no param otherwise will read all pubilc
-   * folders
-   * @returns
-   */
-  const readAllFolders = useCallback(async () => {
+  const loadCollectedDataUnions = useCallback(async () => {
     try {
       setStatus(MutationStatus.Pending);
       if (params?.onPending) {
         params.onPending();
       }
 
-      const allFolders = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.readFolders,
+      const dataUnions = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadCollectedDataUnions,
       });
 
-      actionSetFolders(
-        deepAssignRenameKey(allFolders, [
-          { mirror: "mirrorFile" },
-        ]) as StructuredFolders,
-      );
+      actionSetCollectedDataUnions(dataUnions);
 
-      setResult(allFolders);
+      setResult(dataUnions);
       setStatus(MutationStatus.Succeed);
       if (params?.onSuccess) {
-        params.onSuccess(allFolders);
+        params.onSuccess(dataUnions);
       }
-      return allFolders;
+      return dataUnions;
     } catch (error) {
       setError(error);
       setStatus(MutationStatus.Failed);
@@ -68,7 +60,7 @@ export const useReadAllFolders = (params?: {
     }
   }, [
     dataverseConnector,
-    actionSetFolders,
+    actionSetCollectedDataUnions,
     setStatus,
     setError,
     setResult,
@@ -78,7 +70,7 @@ export const useReadAllFolders = (params?: {
   ]);
 
   return {
-    allFolders: result,
+    collectedDataUnions: result,
     error,
     status,
     isIdle,
@@ -87,6 +79,6 @@ export const useReadAllFolders = (params?: {
     isFailed,
     setStatus,
     reset,
-    readAllFolders,
+    loadCollectedDataUnions,
   };
 };

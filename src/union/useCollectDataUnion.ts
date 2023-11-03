@@ -1,23 +1,19 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import {
-  LoadStreamsByArgs,
-  LoadStreamsByResult,
-  MutationStatus,
-} from "../types";
+import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useFeedsByAddress = (params?: {
+export const useCollectDataUnion = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: LoadStreamsByArgs) => void;
-  onSuccess?: (result: LoadStreamsByResult) => void;
+  onPending?: (dataUnionId: string) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadStreams } = useAction();
+  const { actionUpdateDataUnion } = useAction();
 
   const {
     result,
@@ -31,44 +27,41 @@ export const useFeedsByAddress = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
-  const loadFeedsByAddress = useCallback(
-    async ({ pkh, modelId }: LoadStreamsByArgs) => {
+  const collectDataUnion = useCallback(
+    async (dataUnionId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({ pkh, modelId });
+          params?.onPending(dataUnionId);
         }
 
-        const streams: LoadStreamsByResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
-          params: {
-            modelId,
-            pkh,
-          },
+        const collectResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.collectDataUnion,
+          params: dataUnionId,
         });
 
-        actionLoadStreams(streams);
+        actionUpdateDataUnion(collectResult);
 
+        setResult(collectResult);
         setStatus(MutationStatus.Succeed);
-        setResult(streams);
         if (params?.onSuccess) {
-          params.onSuccess(streams);
+          params?.onSuccess(collectResult);
         }
-        return streams;
+        return collectResult;
       } catch (error) {
-        setStatus(MutationStatus.Failed);
         setError(error);
+        setStatus(MutationStatus.Failed);
         if (params?.onError) {
-          params.onError(error);
+          params?.onError(error);
         }
         throw error;
       }
     },
     [
       dataverseConnector,
-      actionLoadStreams,
+      actionUpdateDataUnion,
       setStatus,
       setError,
       setResult,
@@ -79,7 +72,7 @@ export const useFeedsByAddress = (params?: {
   );
 
   return {
-    feeds: result,
+    collectedDataUnion: result,
     error,
     status,
     isIdle,
@@ -88,6 +81,6 @@ export const useFeedsByAddress = (params?: {
     isFailed,
     setStatus,
     reset,
-    loadFeedsByAddress,
+    collectDataUnion,
   };
 };

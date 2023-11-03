@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 
 import {
-  FileInfo,
   MirrorFile,
   SYSTEM_CALL,
   StructuredFolder,
@@ -9,21 +8,17 @@ import {
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { CreateBareFileArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useUpdateFileBaseInfo = (params?: {
+export const useCreateBareFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    indexFileId: string;
-    fileInfo: FileInfo;
-    syncImmediately?: boolean;
-  }) => void;
+  onPending?: (args: CreateBareFileArgs) => void;
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateDataUnionsByFile } = useAction();
 
   const {
     result,
@@ -37,46 +32,26 @@ export const useUpdateFileBaseInfo = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFile>();
 
   /**
-   * update mirror by both folderId and mirrorId
-   * @param model
-   * @param mirrorId mirror id
-   * @param newName new mirror content
-   * @param newNote new mirror note
-   * @param newTags new mirror tags
+   * add mirror to folder by folderId
+   * @param folderId folder id
+   * @param newMirrorsInfo
    * @param reRender reRender page ?
-   * @param sync sync ?
+   * @param syncImmediately sync ?
    */
-  const updateFileBaseInfo = useCallback(
-    async ({
-      indexFileId,
-      fileInfo,
-      syncImmediately = false,
-    }: {
-      indexFileId: string;
-      fileInfo: FileInfo;
-      reRender?: boolean;
-      syncImmediately?: boolean;
-    }) => {
+  const createBareFile = useCallback(
+    async (args: CreateBareFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            indexFileId,
-            fileInfo,
-            syncImmediately,
-          });
+          params.onPending(args);
         }
 
-        const { currentFolder, currentFile } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.updateFileBaseInfo,
-          params: {
-            indexFileId,
-            fileInfo,
-            syncImmediately,
-          },
+        const { currentFolder, newFile } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createBareFile,
+          params: args,
         });
 
         actionUpdateFolders(
@@ -84,13 +59,16 @@ export const useUpdateFileBaseInfo = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
+        if (args.dataUnionId) {
+          actionUpdateDataUnionsByFile(newFile);
+        }
 
-        setResult(currentFile);
+        setResult(newFile);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(currentFile);
+          params.onSuccess(newFile);
         }
-        return currentFile;
+        return newFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -103,6 +81,7 @@ export const useUpdateFileBaseInfo = (params?: {
     [
       dataverseConnector,
       actionUpdateFolders,
+      actionUpdateDataUnionsByFile,
       setStatus,
       setError,
       setResult,
@@ -113,7 +92,7 @@ export const useUpdateFileBaseInfo = (params?: {
   );
 
   return {
-    updatedFile: result,
+    createdBareFile: result,
     error,
     status,
     isIdle,
@@ -122,6 +101,6 @@ export const useUpdateFileBaseInfo = (params?: {
     isFailed,
     setStatus,
     reset,
-    updateFileBaseInfo,
+    createBareFile,
   };
 };

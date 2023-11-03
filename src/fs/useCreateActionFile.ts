@@ -1,25 +1,21 @@
 import { useCallback } from "react";
 
 import {
+  MirrorFile,
   SYSTEM_CALL,
   StructuredFolder,
-  FolderType,
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { CreateActionFileArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useCreateFolder = (params?: {
+export const useCreateActionFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
-  }) => void;
-  onSuccess?: (result?: StructuredFolder) => void;
+  onPending?: (args: CreateActionFileArgs) => void;
+  onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionUpdateFolders } = useAction();
@@ -36,62 +32,38 @@ export const useCreateFolder = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFile>();
 
-  /**
-   * create Folder
-   * @param folderType Folder type
-   * @param folderName Folder name
-   * @param folderDescription Folder description
-   * @param reRender reRender page ?
-   */
-  const createFolder = useCallback(
-    async ({
-      folderType,
-      folderName,
-      folderDescription,
-    }: {
-      folderType: FolderType;
-      folderName: string;
-      folderDescription?: string;
-    }) => {
+  const createActionFile = useCallback(
+    async (args: CreateActionFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            folderType,
-            folderName,
-            folderDescription,
-            // reRender,
-          });
+          params.onPending(args);
         }
 
-        const { newFolder } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createFolder,
-          params: {
-            folderType: folderType as any,
-            folderName,
-            folderDescription,
-          },
+        const { newFile, currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createActionFile,
+          params: { ...args },
         });
 
         actionUpdateFolders(
-          deepAssignRenameKey(newFolder, [
+          deepAssignRenameKey(currentFolder, [
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
 
-        setResult(newFolder);
+        setResult(newFile);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(newFolder);
+          params?.onSuccess(newFile);
         }
-        return newFolder;
+        return newFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
         if (params?.onError) {
-          params.onError(error);
+          params?.onError(error);
         }
         throw error;
       }
@@ -109,7 +81,7 @@ export const useCreateFolder = (params?: {
   );
 
   return {
-    createdFolder: result,
+    createdActionFile: result,
     error,
     status,
     isIdle,
@@ -118,6 +90,6 @@ export const useCreateFolder = (params?: {
     isFailed,
     setStatus,
     reset,
-    createFolder,
+    createActionFile,
   };
 };

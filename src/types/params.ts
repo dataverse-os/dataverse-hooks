@@ -1,25 +1,21 @@
 import {
   Chain,
-  Currency,
-  DecryptionConditions,
   ReturnType,
-  StreamRecord,
   SYSTEM_CALL,
   WALLET,
+  RequestType,
+  Action,
+  MirrorFile,
 } from "@dataverse/dataverse-connector";
-import { Model } from "@dataverse/model-parser";
+import { SubscribeDataUnionOutput } from "@dataverse/dataverse-contracts-sdk/data-union";
 
-export enum StreamType {
+export enum FileType {
   Public = "Public",
   Encrypted = "Encrypted",
   Payable = "Payable",
 }
 
-export interface CreateStreamArgs {
-  Public: CreatePublicStreamArgs;
-  Encrypted: CreateEncryptedStreamArgs;
-  Payable: CreatePayableStreamArgs;
-}
+export type CreateIndexFileArgs = RequestType[SYSTEM_CALL.createIndexFile];
 
 export type ConnectWalletResult = {
   address: string;
@@ -34,51 +30,22 @@ export type ConnectResult = {
   pkh: string;
 };
 
-export type LoadStreamsResult = Record<string, StreamRecord>;
+export type LoadFilesResult = Awaited<ReturnType[SYSTEM_CALL.loadFilesBy]>;
 
-export type LoadStreamsByArgs = {
+export type LoadFilesByArgs = {
   pkh: string;
   modelId: string;
 };
 
-export type LoadStreamsByResult = LoadStreamsResult;
+export type LoadFilesByResult = LoadFilesResult;
 
-type CreatePublicStreamArgs = {
-  modelId: string;
-  stream?: object;
-};
-
-type CreateEncryptedStreamArgs = {
-  modelId: string;
-  stream: object;
-  encrypted: object;
-};
-
-type CreatePayableStreamArgs = {
-  modelId: string;
-  profileId?: string;
-  stream: object;
-  currency: Currency;
-  amount: number;
-  collectLimit: number;
-  encrypted: object;
-};
-
-export type CreateStreamResult = StreamRecord & { streamId: string };
-
-export type MonetizeStreamArgs = {
-  streamId: string;
-  streamContent?: any;
-  profileId?: string;
-  currency: Currency;
-  amount: number;
-  collectLimit: number;
-  decryptionConditions?: DecryptionConditions;
-};
-
-export type MonetizeStreamResult = Awaited<
-  ReturnType[SYSTEM_CALL.monetizeFile]
+export type CreateIndexFileResult = Awaited<
+  ReturnType[SYSTEM_CALL.createIndexFile]
 >;
+
+export type MonetizeFileArgs = RequestType[SYSTEM_CALL.monetizeFile];
+
+export type MonetizeFileResult = Awaited<ReturnType[SYSTEM_CALL.monetizeFile]>;
 
 export type DatatokenInfo = Partial<{
   address: string;
@@ -93,22 +60,65 @@ export type DatatokenInfo = Partial<{
       currency: string;
       currency_addr: string;
     };
-    sold_num: number;
+    sold_num: string;
     total: string;
-    who_can_free_collect: string[];
   };
   content_uri: string;
   owner: string;
   source: string;
 }>;
 
-export type UnlockStreamResult = Awaited<ReturnType[SYSTEM_CALL.unlock]>;
+export type UnlockFileResult = Awaited<ReturnType[SYSTEM_CALL.unlockFile]>;
 
-export type UpdateStreamArgs = {
-  model: Model;
-  streamId: string;
-  stream: object;
+export type UpdateFileArgs = {
+  fileId: string;
+  fileName?: string;
+  fileContent?: object;
   encrypted?: object;
 };
 
-export type UpdateStreamResult = Awaited<ReturnType[SYSTEM_CALL.updateStream]>;
+export type UpdateIndexFileResult = Awaited<
+  ReturnType[SYSTEM_CALL.updateIndexFile]
+>;
+
+export type CreateActionFileArgs = {
+  folderId?: string;
+  action: Action;
+  relationId: string;
+  fileName?: string;
+};
+
+export type CreateActionFileResult = MirrorFile;
+
+export type UpdateActionFileArgs = {
+  fileId: string;
+  fileName?: string | undefined;
+  isRelationIdEncrypted?: boolean | undefined;
+  isCommentEncrypted?: boolean | undefined;
+};
+
+export type UpdateActionFileResult = MirrorFile;
+
+export type CollectFileResult = Awaited<ReturnType[SYSTEM_CALL.collectFile]>;
+
+export type PublishDataUnionArgs = RequestType[SYSTEM_CALL.publishDataUnion];
+
+export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
+
+export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile];
+
+export type UpdateBareFileArgs = RequestType[SYSTEM_CALL.updateBareFile];
+
+export type SubscribeDataUnionArgs =
+  RequestType[SYSTEM_CALL.subscribeDataUnion];
+
+export type SubscribeDataUnionResult = Omit<
+  SubscribeDataUnionOutput,
+  "dataUnionId" | "collectTokenId" | "startAt" | "endAt"
+> & {
+  dataUnionId: string;
+  collectTokenId: string;
+  subscribeModule: string;
+  startAt: number;
+  endAt: number;
+};

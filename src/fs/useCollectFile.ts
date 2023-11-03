@@ -4,16 +4,16 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { LoadStreamsResult, MutationStatus } from "../types";
+import { CollectFileResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useFeeds = (params?: {
+export const useCollectFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (modelId: string) => void;
-  onSuccess?: (result: LoadStreamsResult) => void;
+  onPending?: (fileId: string) => void;
+  onSuccess?: (result: CollectFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadStreams } = useAction();
+  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -27,34 +27,35 @@ export const useFeeds = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<CollectFileResult>();
 
-  const loadFeeds = useCallback(
-    async (modelId: string) => {
+  const collectFile = useCallback(
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(modelId);
+          params.onPending(fileId);
         }
 
-        const streams: LoadStreamsResult = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.loadStreamsBy,
-          params: {
-            modelId,
-          },
+        const collectResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.collectFile,
+          params: fileId,
         });
 
-        actionLoadStreams(streams);
+        actionUpdateFile({
+          fileId: fileId,
+          ...collectResult,
+        });
 
+        setResult(collectResult);
         setStatus(MutationStatus.Succeed);
-        setResult(streams);
         if (params?.onSuccess) {
-          params.onSuccess(streams);
+          params.onSuccess(collectResult);
         }
-        return streams;
+        return collectResult;
       } catch (error) {
-        setStatus(MutationStatus.Failed);
         setError(error);
+        setStatus(MutationStatus.Failed);
         if (params?.onError) {
           params.onError(error);
         }
@@ -63,7 +64,7 @@ export const useFeeds = (params?: {
     },
     [
       dataverseConnector,
-      actionLoadStreams,
+      actionUpdateFile,
       setStatus,
       setError,
       setResult,
@@ -74,7 +75,7 @@ export const useFeeds = (params?: {
   );
 
   return {
-    feeds: result,
+    collectedFileContent: result,
     error,
     status,
     isIdle,
@@ -83,6 +84,6 @@ export const useFeeds = (params?: {
     isFailed,
     setStatus,
     reset,
-    loadFeeds,
+    collectFile,
   };
 };

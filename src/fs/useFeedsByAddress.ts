@@ -4,17 +4,16 @@ import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { LoadFilesByArgs, LoadFilesByResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useCapability = (params?: {
+export const useFeedsByAddress = (params?: {
   onError?: (error: any) => void;
-  onPending?: (appId: string) => void;
-  onSuccess?: (result: string) => void;
+  onPending?: (args: LoadFilesByArgs) => void;
+  onSuccess?: (result: LoadFilesByResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-
-  const { actionCreateCapability } = useAction();
+  const { actionLoadFiles } = useAction();
 
   const {
     result,
@@ -28,41 +27,44 @@ export const useCapability = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation<string>();
+  } = useMutation<LoadFilesByResult>();
 
-  const createCapability = useCallback(
-    async (appId: string) => {
+  const loadFeedsByAddress = useCallback(
+    async ({ pkh, modelId }: LoadFilesByArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending(appId);
+          params.onPending({ pkh, modelId });
         }
-        const currentPkh = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createCapability,
+
+        const files: LoadFilesByResult = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadFilesBy,
           params: {
-            appId,
+            modelId,
+            pkh,
           },
         });
 
-        actionCreateCapability(currentPkh);
+        actionLoadFiles(files);
+
         setStatus(MutationStatus.Succeed);
-        setResult(currentPkh);
+        setResult(files);
         if (params?.onSuccess) {
-          params?.onSuccess(currentPkh);
+          params.onSuccess(files);
         }
-        return currentPkh;
+        return files;
       } catch (error) {
-        setError(error);
         setStatus(MutationStatus.Failed);
+        setError(error);
         if (params?.onError) {
-          params?.onError(error);
+          params.onError(error);
         }
         throw error;
       }
     },
     [
       dataverseConnector,
-      actionCreateCapability,
+      actionLoadFiles,
       setStatus,
       setError,
       setResult,
@@ -73,7 +75,7 @@ export const useCapability = (params?: {
   );
 
   return {
-    pkh: result,
+    feeds: result,
     error,
     status,
     isIdle,
@@ -82,6 +84,6 @@ export const useCapability = (params?: {
     isFailed,
     setStatus,
     reset,
-    createCapability,
+    loadFeedsByAddress,
   };
 };

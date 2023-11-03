@@ -1,17 +1,19 @@
 import { useCallback } from "react";
 
+import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+
 import { DATATOKENID_NOT_EXIST } from "../errors";
 import { useStore } from "../store";
 import { useAction } from "../store";
 import { DatatokenInfo, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useDatatokenInfo = (params?: {
+export const useLoadDatatoken = (params?: {
   onError?: (error: any) => void;
-  onPending?: (streamId: string) => void;
+  onPending?: (fileId: string) => void;
   onSuccess?: (result: DatatokenInfo) => void;
 }) => {
-  const { dataverseConnector, streamsMap } = useStore();
+  const { dataverseConnector, filesMap } = useStore();
   const { actionUpdateDatatokenInfo } = useAction();
 
   const {
@@ -26,28 +28,31 @@ export const useDatatokenInfo = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<DatatokenInfo>();
 
-  const getDatatokenInfo = useCallback(
-    async (streamId: string) => {
+  const loadDatatoken = useCallback(
+    async (fileId: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(streamId);
+          params.onPending(fileId);
         }
 
         const datatokenId =
-          streamsMap![streamId].streamContent.file.datatokenId;
+          filesMap![fileId].fileContent.file.accessControl?.monetizationProvider
+            ?.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;
         }
 
-        const datatokenInfo: DatatokenInfo =
-          await dataverseConnector.getDatatokenBaseInfo(datatokenId);
+        const datatokenInfo = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.loadDatatoken,
+          params: datatokenId,
+        });
 
         actionUpdateDatatokenInfo({
-          streamId,
+          fileId,
           datatokenInfo,
         });
 
@@ -68,7 +73,7 @@ export const useDatatokenInfo = (params?: {
     },
     [
       dataverseConnector,
-      streamsMap,
+      filesMap,
       actionUpdateDatatokenInfo,
       setStatus,
       setError,
@@ -89,6 +94,6 @@ export const useDatatokenInfo = (params?: {
     isFailed,
     setStatus,
     reset,
-    getDatatokenInfo,
+    loadDatatoken,
   };
 };

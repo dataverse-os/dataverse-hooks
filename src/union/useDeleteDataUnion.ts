@@ -4,20 +4,16 @@ import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { DeleteDataUnionArgs, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
-export const useDeleteFolder = (params?: {
+export const useDeleteDataUnion = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    folderId: string;
-    reRender?: boolean;
-    syncImmediately?: boolean;
-  }) => void;
+  onPending?: (args: DeleteDataUnionArgs) => void;
   onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionDeleteFolder } = useAction();
+  const { actionDeleteDataUnion } = useAction();
 
   const {
     result,
@@ -31,46 +27,34 @@ export const useDeleteFolder = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
    * delete folder by streamId
    * @param folderId
    * @param reRender reRender page
    */
-  const deleteFolder = useCallback(
-    async ({
-      folderId,
-      syncImmediately,
-    }: {
-      folderId: string;
-      syncImmediately?: boolean;
-    }) => {
+  const deleteDataUnion = useCallback(
+    async (args: DeleteDataUnionArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            folderId,
-            syncImmediately,
-          });
+          params.onPending(args);
         }
 
-        const { currentFolder } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.deleteFolder,
-          params: {
-            folderId,
-            syncImmediately,
-          },
+        const { currentDataUnion } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteDataUnion,
+          params: { ...args },
         });
 
-        actionDeleteFolder(currentFolder.folderId);
+        actionDeleteDataUnion(currentDataUnion.folderId);
 
-        setResult(currentFolder);
+        setResult(currentDataUnion);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(currentFolder);
+          params.onSuccess(currentDataUnion);
         }
-        return currentFolder;
+        return currentDataUnion;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -82,7 +66,7 @@ export const useDeleteFolder = (params?: {
     },
     [
       dataverseConnector,
-      actionDeleteFolder,
+      actionDeleteDataUnion,
       setStatus,
       setError,
       setResult,
@@ -93,7 +77,7 @@ export const useDeleteFolder = (params?: {
   );
 
   return {
-    deletedFolder: result,
+    deletedDataUnion: result,
     error,
     status,
     isIdle,
@@ -102,6 +86,6 @@ export const useDeleteFolder = (params?: {
     isFailed,
     setStatus,
     reset,
-    deleteFolder,
+    deleteDataUnion,
   };
 };

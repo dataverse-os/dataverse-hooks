@@ -3,29 +3,22 @@ import { useCallback } from "react";
 import {
   MirrorFile,
   SYSTEM_CALL,
-  StorageProvider,
   StructuredFolder,
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import { MutationStatus, UpdateBareFileArgs } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useUploadFile = (params?: {
+export const useUpdateBareFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (args: {
-    folderId?: string;
-    fileBase64: string;
-    fileName: string;
-    encrypted: boolean;
-    storageProvider: StorageProvider;
-  }) => void;
+  onPending?: (args: UpdateBareFileArgs) => void;
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateDataUnionsByFile } = useAction();
 
   const {
     result,
@@ -39,7 +32,7 @@ export const useUploadFile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<MirrorFile>();
 
   /**
    * add mirror to folder by folderId
@@ -48,41 +41,17 @@ export const useUploadFile = (params?: {
    * @param reRender reRender page ?
    * @param syncImmediately sync ?
    */
-  const uploadFile = useCallback(
-    async ({
-      folderId,
-      fileBase64,
-      fileName,
-      encrypted,
-      storageProvider,
-    }: {
-      folderId?: string;
-      fileBase64: string;
-      fileName: string;
-      encrypted: boolean;
-      storageProvider: StorageProvider;
-    }) => {
+  const updateBareFile = useCallback(
+    async (args: UpdateBareFileArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            folderId,
-            fileBase64,
-            fileName,
-            encrypted,
-            storageProvider,
-          });
+          params.onPending(args);
         }
 
-        const { currentFolder, newFile } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.uploadFile,
-          params: {
-            folderId,
-            fileBase64,
-            fileName,
-            encrypted,
-            storageProvider,
-          },
+        const { currentFolder, currentFile } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateBareFile,
+          params: { ...args },
         });
 
         actionUpdateFolders(
@@ -90,13 +59,14 @@ export const useUploadFile = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
+        actionUpdateDataUnionsByFile(currentFile);
 
-        setResult(newFile);
+        setResult(currentFile);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(newFile);
+          params.onSuccess(currentFile);
         }
-        return newFile;
+        return currentFile;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -119,7 +89,7 @@ export const useUploadFile = (params?: {
   );
 
   return {
-    uploadedFile: result,
+    updatedBareFile: result,
     error,
     status,
     isIdle,
@@ -128,6 +98,6 @@ export const useUploadFile = (params?: {
     isFailed,
     setStatus,
     reset,
-    uploadFile,
+    updateBareFile,
   };
 };

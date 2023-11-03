@@ -3,8 +3,9 @@ import { useCallback, useContext } from "react";
 import {
   Chain,
   MirrorFile,
+  MirrorFileRecord,
   StructuredFolder,
-  StructuredFolders,
+  StructuredFolderRecord,
   WALLET,
 } from "@dataverse/dataverse-connector";
 
@@ -12,13 +13,13 @@ import { DataverseContext } from "./useStore";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
-  CreateStreamResult,
+  CreateIndexFileResult,
   DatatokenInfo,
-  LoadStreamsByResult,
-  LoadStreamsResult,
-  MonetizeStreamResult,
-  UnlockStreamResult,
-  UpdateStreamResult,
+  LoadFilesByResult,
+  LoadFilesResult,
+  MonetizeFileResult,
+  UnlockFileResult,
+  UpdateIndexFileResult,
 } from "../types";
 
 export const useAction = () => {
@@ -49,43 +50,53 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionCreateStream = useCallback(
-    (createdStream: CreateStreamResult) => {
+  const actionCreateFile = useCallback(
+    (createdFile: CreateIndexFileResult) => {
       dispatch({
-        type: ActionType.CreateStream,
-        payload: createdStream,
+        type: ActionType.CreateFile,
+        payload: createdFile,
       });
     },
     [dispatch],
   );
 
-  const actionUpdateStream = useCallback(
+  const actionUpdateFile = useCallback(
     (
-      updatedStream:
-        | (MonetizeStreamResult & { streamId: string })
-        | (UnlockStreamResult & { streamId: string })
-        | (UpdateStreamResult & { streamId: string }),
+      updatedFile:
+        | (MonetizeFileResult & { fileId: string })
+        | (UnlockFileResult & { fileId: string })
+        | (UpdateIndexFileResult & { fileId: string }),
     ) => {
       dispatch({
-        type: ActionType.UpdateStream,
-        payload: updatedStream,
+        type: ActionType.UpdateFile,
+        payload: updatedFile,
       });
     },
     [dispatch],
   );
 
-  const actionLoadStreams = useCallback(
-    (loadedStreams: LoadStreamsResult | LoadStreamsByResult) => {
+  const actionLoadFiles = useCallback(
+    (loadedFiles: LoadFilesResult | LoadFilesByResult) => {
       dispatch({
-        type: ActionType.LoadStreams,
-        payload: loadedStreams,
+        type: ActionType.LoadFiles,
+        payload: loadedFiles,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionLoadCollectedDatatokenFiles = useCallback(
+    (loadedFiles: MirrorFileRecord) => {
+      dispatch({
+        type: ActionType.LoadCollectedDatatokenFiles,
+        payload: loadedFiles,
       });
     },
     [dispatch],
   );
 
   const actionSetFolders = useCallback(
-    (folders: StructuredFolders) => {
+    (folders: StructuredFolderRecord) => {
       dispatch({
         type: ActionType.SetFolders,
         payload: folders,
@@ -105,7 +116,7 @@ export const useAction = () => {
   );
 
   const actionUpdateFolders = useCallback(
-    (newFolders: StructuredFolder | StructuredFolders) => {
+    (newFolders: StructuredFolder | StructuredFolderRecord) => {
       dispatch({
         type: ActionType.UpdateFolders,
         payload: newFolders,
@@ -145,21 +156,102 @@ export const useAction = () => {
   );
 
   const actionUpdateDatatokenInfo = useCallback(
-    (payload: { streamId: string; datatokenInfo: DatatokenInfo }) => {
+    (payload: { fileId: string; datatokenInfo: DatatokenInfo }) => {
       dispatch({
         type: ActionType.UpdateDatatokenInfo,
         payload,
       });
     },
-    [],
+    [dispatch],
+  );
+
+  const actionUpdateDatatokenInfos = useCallback(
+    (payload: { fileIds: string[]; datatokenInfos: DatatokenInfo[] }) => {
+      dispatch({
+        type: ActionType.UpdateDatatokenInfos,
+        payload,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetDataUnions = useCallback(
+    (dataUnions: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetDataUnions,
+        payload: dataUnions,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateDataUnion = useCallback(
+    (dataUnion: StructuredFolder) => {
+      dispatch({
+        type: ActionType.UpdateDataUnion,
+        payload: dataUnion,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionDeleteDataUnion = useCallback(
+    (dataUnionId: string) => {
+      dispatch({
+        type: ActionType.DeleteDataUnion,
+        payload: dataUnionId,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateDataUnionsByFile = useCallback(
+    (file: MirrorFile) => {
+      dispatch({
+        type: ActionType.UpdateDataUnionsByFile,
+        payload: file,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateDataUnionsByDeleteFiles = useCallback(
+    (fileIds: string[]) => {
+      dispatch({
+        type: ActionType.UpdateDataUnionsByDeleteFiles,
+        payload: fileIds,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetCollectedDataUnions = useCallback(
+    (dataUnions: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetCollectedDataUnions,
+        payload: dataUnions,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionSetActionsMap = useCallback(
+    (folders: StructuredFolderRecord) => {
+      dispatch({
+        type: ActionType.SetActionsMap,
+        payload: folders,
+      });
+    },
+    [dispatch],
   );
 
   return {
     actionConnectWallet,
     actionCreateCapability,
-    actionCreateStream,
-    actionUpdateStream,
-    actionLoadStreams,
+    actionCreateFile,
+    actionUpdateFile,
+    actionLoadFiles,
+    actionLoadCollectedDatatokenFiles,
     actionSetFolders,
     actionUpdateFolders,
     actionDeleteFolder,
@@ -167,5 +259,13 @@ export const useAction = () => {
     actionLoadProfileIds,
     actionCreateProfile,
     actionUpdateDatatokenInfo,
+    actionUpdateDatatokenInfos,
+    actionSetDataUnions,
+    actionUpdateDataUnion,
+    actionDeleteDataUnion,
+    actionUpdateDataUnionsByFile,
+    actionUpdateDataUnionsByDeleteFiles,
+    actionSetCollectedDataUnions,
+    actionSetActionsMap,
   };
 };

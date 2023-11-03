@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 
 import { MutationStatus } from "../types";
 
-export const useMutation = () => {
-  const [result, setResult] = useState<unknown>();
+export function useMutation<T = unknown>() {
+  const [result, setResult] = useState<T>();
   const [error, setError] = useState<unknown>();
   const [status, setStatus] = useState<MutationStatus>(MutationStatus.Idle);
   const isIdle = useMemo(() => {
@@ -38,4 +38,4 @@ export const useMutation = () => {
     isFailed,
     reset,
   };
-};
+}

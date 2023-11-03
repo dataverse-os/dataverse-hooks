@@ -3,18 +3,19 @@ import { useCallback } from "react";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
-import { useAction } from "../store";
-import { MutationStatus } from "../types";
+import {
+  MutationStatus,
+  SubscribeDataUnionArgs,
+  SubscribeDataUnionResult,
+} from "../types";
 import { useMutation } from "../utils";
 
-export const useCapability = (params?: {
+export const useSubscribeDataUnion = (params?: {
   onError?: (error: any) => void;
-  onPending?: (appId: string) => void;
-  onSuccess?: (result: string) => void;
+  onPending?: (args: SubscribeDataUnionArgs) => void;
+  onSuccess?: (result: SubscribeDataUnionResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-
-  const { actionCreateCapability } = useAction();
 
   const {
     result,
@@ -28,29 +29,28 @@ export const useCapability = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation<string>();
+  } = useMutation<SubscribeDataUnionResult>();
 
-  const createCapability = useCallback(
-    async (appId: string) => {
+  const subscribeDataUnion = useCallback(
+    async (args: SubscribeDataUnionArgs) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params?.onPending(appId);
+          params?.onPending(args);
         }
-        const currentPkh = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.createCapability,
-          params: {
-            appId,
-          },
-        });
 
-        actionCreateCapability(currentPkh);
+        const subscribeResult: SubscribeDataUnionResult =
+          await dataverseConnector.runOS({
+            method: SYSTEM_CALL.subscribeDataUnion,
+            params: args,
+          });
+
+        setResult(subscribeResult);
         setStatus(MutationStatus.Succeed);
-        setResult(currentPkh);
         if (params?.onSuccess) {
-          params?.onSuccess(currentPkh);
+          params?.onSuccess(subscribeResult);
         }
-        return currentPkh;
+        return subscribeResult;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -62,7 +62,6 @@ export const useCapability = (params?: {
     },
     [
       dataverseConnector,
-      actionCreateCapability,
       setStatus,
       setError,
       setResult,
@@ -73,7 +72,7 @@ export const useCapability = (params?: {
   );
 
   return {
-    pkh: result,
+    subscribeResult: result,
     error,
     status,
     isIdle,
@@ -82,6 +81,6 @@ export const useCapability = (params?: {
     isFailed,
     setStatus,
     reset,
-    createCapability,
+    subscribeDataUnion,
   };
 };

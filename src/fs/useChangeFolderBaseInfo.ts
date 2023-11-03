@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 
 import {
-  MirrorFiles,
+  RequestType,
   SYSTEM_CALL,
-  StructuredFolders,
+  StructuredFolder,
 } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
@@ -12,13 +12,10 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useRemoveFiles = (params?: {
-  onError?: (error: any) => void;
-  onPending?: (args: {
-    indexFileIds: string[];
-    syncImmediately?: boolean;
-  }) => void;
-  onSuccess?: (result: MirrorFiles) => void;
+export const useChangeFolderBaseInfo = (params?: {
+  onError?: (error: unknown) => void;
+  onPending?: (args: RequestType[SYSTEM_CALL.updateFolderBaseInfo]) => void;
+  onSuccess?: (result: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionUpdateFolders } = useAction();
@@ -35,52 +32,33 @@ export const useRemoveFiles = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
-  /**
-   * remove mirror by both folderId and mirrorId
-   * @param mirrorIds mirrors id
-   * @param reRender reRender page ?
-   * @param syncImmediately sync ?
-   */
-  const removeFiles = useCallback(
-    async ({
-      indexFileIds,
-      syncImmediately = false,
-    }: {
-      indexFileIds: string[];
-      reRender?: boolean;
-      syncImmediately?: boolean;
-    }) => {
+  const changeFolderBaseInfo = useCallback(
+    async (args: RequestType[SYSTEM_CALL.updateFolderBaseInfo]) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({
-            indexFileIds,
-            syncImmediately,
-          });
+          params.onPending(args);
         }
 
-        const { sourceFolders, removedFiles } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.removeFiles,
-          params: {
-            indexFileIds,
-            syncImmediately,
-          },
+        const { currentFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.updateFolderBaseInfo,
+          params: args,
         });
 
         actionUpdateFolders(
-          deepAssignRenameKey(Object.values(sourceFolders || {}), [
+          deepAssignRenameKey(currentFolder, [
             { mirror: "mirrorFile" },
-          ]) as StructuredFolders,
+          ]) as StructuredFolder,
         );
 
-        setResult(removedFiles);
+        setResult(currentFolder);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(removedFiles);
+          params.onSuccess(currentFolder);
         }
-        return removedFiles;
+        return currentFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -103,7 +81,7 @@ export const useRemoveFiles = (params?: {
   );
 
   return {
-    removedFiles: result,
+    changedFolder: result,
     error,
     status,
     isIdle,
@@ -112,6 +90,6 @@ export const useRemoveFiles = (params?: {
     isFailed,
     setStatus,
     reset,
-    removeFiles,
+    changeFolderBaseInfo,
   };
 };

@@ -36,7 +36,7 @@ export const useWallet = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<ConnectWalletResult>();
 
   const connectWallet = useCallback(
     async ({

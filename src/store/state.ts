@@ -1,11 +1,16 @@
-import { Mirrors } from "@dataverse/dataverse-connector";
-
 import {
-  ACTION_TYPE_NOT_EXSITS,
-  FOLDERS_MAP_UNDEFINED,
-  STREAMS_MAP_UNDEFINED,
-} from "../errors";
-import { ActionType, StateType } from "../types";
+  MirrorFile,
+  StructuredFolderRecord,
+} from "@dataverse/dataverse-connector";
+
+import { ACTION_TYPE_NOT_EXSITS } from "../errors";
+import {
+  ActionType,
+  CreateIndexFileResult,
+  LoadFilesResult,
+  RequiredByKeys,
+  StateType,
+} from "../types";
 
 export const initialState: StateType = {
   address: undefined,
@@ -13,8 +18,12 @@ export const initialState: StateType = {
   chain: undefined,
   pkh: undefined,
   profileIds: undefined,
-  streamsMap: undefined,
+  filesMap: undefined,
+  collectedDatatokenFilesMap: undefined,
   foldersMap: undefined,
+  dataUnionsMap: undefined,
+  collectedUnionsMap: undefined,
+  actionsMap: undefined,
 };
 
 export const reducer = (
@@ -45,44 +54,53 @@ export const reducer = (
       };
     }
 
-    case ActionType.CreateStream: {
-      const { streamId, pkh, appId, modelId, streamContent } = payload;
+    case ActionType.CreateFile: {
+      const { pkh, appId, modelId, fileContent } =
+        payload as CreateIndexFileResult;
 
       return {
         ...state,
-        streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
+        filesMap: {
+          ...state.filesMap,
+          [fileContent.file.fileId]: {
             pkh,
             appId,
             modelId,
-            streamContent,
+            fileContent,
           },
         },
       };
     }
 
-    case ActionType.LoadStreams: {
+    case ActionType.LoadFiles: {
+      const _payload = payload as LoadFilesResult;
       return {
         ...state,
-        streamsMap: payload,
+        filesMap: _payload,
       };
     }
 
-    case ActionType.UpdateStream: {
-      const { streamId, streamContent } = payload;
+    case ActionType.LoadCollectedDatatokenFiles: {
+      return {
+        ...state,
+        collectedDatatokenFilesMap: payload,
+      };
+    }
 
-      if (!state.streamsMap) {
-        throw STREAMS_MAP_UNDEFINED;
+    case ActionType.UpdateFile: {
+      const { fileId, fileContent } = payload;
+
+      if (!state.filesMap) {
+        return state;
       }
 
       return {
         ...state,
-        streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
-            ...state.streamsMap[streamId],
-            streamContent,
+        filesMap: {
+          ...state.filesMap,
+          [fileId]: {
+            ...state.filesMap[fileId],
+            fileContent,
           },
         },
       };
@@ -105,21 +123,42 @@ export const reducer = (
     }
 
     case ActionType.UpdateDatatokenInfo: {
-      const { streamId, datatokenInfo } = payload;
+      const { fileId, datatokenInfo } = payload;
 
-      if (!state.streamsMap) {
-        throw STREAMS_MAP_UNDEFINED;
+      if (!state.filesMap) {
+        throw state;
       }
 
       return {
         ...state,
-        streamsMap: {
-          ...state.streamsMap,
-          [streamId]: {
-            ...state.streamsMap[streamId],
+        filesMap: {
+          ...state.filesMap,
+          [fileId]: {
+            ...state.filesMap[fileId],
             datatokenInfo,
           },
         },
+      };
+    }
+
+    case ActionType.UpdateDatatokenInfos: {
+      const { fileIds, datatokenInfos } = payload;
+
+      if (!state.filesMap) {
+        throw state;
+      }
+
+      const filesMap = { ...state.filesMap };
+      fileIds.forEach((fileId: string, index: number) => {
+        filesMap[fileId] = {
+          ...filesMap[fileId],
+          datatokenInfo: datatokenInfos[index],
+        };
+      });
+
+      return {
+        ...state,
+        filesMap,
       };
     }
 
@@ -132,6 +171,10 @@ export const reducer = (
 
     case ActionType.UpdateFolders: {
       const folders = payload instanceof Array ? payload : [payload];
+
+      if (!state.foldersMap) {
+        return state;
+      }
 
       return {
         ...state,
@@ -150,36 +193,144 @@ export const reducer = (
     }
 
     case ActionType.DeleteFolder: {
-      const _state = {
-        ...state,
-      };
-      if (!_state.foldersMap) {
-        throw FOLDERS_MAP_UNDEFINED;
+      if (!state.foldersMap) {
+        return state;
       }
-      delete _state.foldersMap[payload];
-      return _state;
+      const foldersMap = { ...state.foldersMap };
+      delete foldersMap[payload];
+      return {
+        ...state,
+        foldersMap,
+      };
     }
 
     case ActionType.UpdateFoldersByFile: {
-      const _state = { ...state };
-      if (!_state.foldersMap) {
-        throw FOLDERS_MAP_UNDEFINED;
+      if (!state.foldersMap) {
+        return state;
       }
-      Object.keys(_state.foldersMap).forEach(folderId => {
-        const folder = _state.foldersMap![folderId];
-        if (typeof folder.mirrors !== "string") {
-          Object.keys(folder.mirrors).forEach(mirrorId => {
-            const mirror = (folder.mirrors as Mirrors)[mirrorId];
-            if (mirror.mirrorFile.indexFileId === payload.indexFileId) {
-              (_state.foldersMap![folderId].mirrors as Mirrors)[
-                mirrorId
-              ].mirrorFile = payload;
-            }
-          });
-        }
+      const foldersMap = { ...state.foldersMap };
+      Object.keys(foldersMap).forEach(folderId => {
+        const folder = foldersMap![folderId];
+        Object.keys(folder.mirrorRecord).forEach(mirrorId => {
+          const mirror = folder.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.fileId === payload.fileId) {
+            foldersMap![folderId].mirrorRecord[mirrorId].mirrorFile = payload;
+          }
+        });
       });
 
-      return _state;
+      return {
+        ...state,
+        foldersMap,
+      };
+    }
+
+    case ActionType.SetDataUnions: {
+      return {
+        ...state,
+        dataUnionsMap: payload,
+      };
+    }
+
+    case ActionType.UpdateDataUnion: {
+      return {
+        ...state,
+        dataUnionsMap: {
+          ...state.dataUnionsMap,
+          [payload.folderId]: payload,
+        },
+      };
+    }
+
+    case ActionType.DeleteDataUnion: {
+      if (!state.dataUnionsMap) {
+        return state;
+      }
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      delete dataUnionsMap[payload];
+      return {
+        ...state,
+        dataUnionsMap,
+      };
+    }
+
+    case ActionType.UpdateDataUnionsByFile: {
+      if (!state.dataUnionsMap) {
+        return state;
+      }
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      Object.keys(dataUnionsMap).forEach(folderId => {
+        const dataUnion = dataUnionsMap![folderId];
+        Object.keys(dataUnion.mirrorRecord).forEach(mirrorId => {
+          const mirror = dataUnion.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.fileId === payload.fileId) {
+            dataUnionsMap![folderId].mirrorRecord[mirrorId].mirrorFile =
+              payload;
+          }
+        });
+      });
+
+      return {
+        ...state,
+        dataUnionsMap,
+      };
+    }
+
+    case ActionType.UpdateDataUnionsByDeleteFiles: {
+      if (!state.dataUnionsMap) {
+        return state;
+      }
+      const dataUnionsMap = { ...state.dataUnionsMap };
+      Object.keys(dataUnionsMap).forEach(folderId => {
+        const dataUnion = dataUnionsMap![folderId];
+        Object.keys(dataUnion.mirrorRecord).forEach(mirrorId => {
+          const mirror = dataUnion.mirrorRecord[mirrorId];
+          if ((payload as string[]).includes(mirror.mirrorId)) {
+            delete dataUnionsMap![folderId].mirrorRecord[mirrorId];
+          }
+        });
+      });
+
+      return {
+        ...state,
+        dataUnionsMap,
+      };
+    }
+
+    case ActionType.SetActionsMap: {
+      const folders: StructuredFolderRecord = payload;
+      const actionsMap: Record<
+        string,
+        RequiredByKeys<MirrorFile, "action" | "relationId">[]
+      > = {};
+
+      Object.keys(folders).forEach(folderId => {
+        const folder = folders[folderId];
+        Object.keys(folder.mirrorRecord).forEach(mirrorId => {
+          const mirror = folder.mirrorRecord[mirrorId];
+          if (mirror.mirrorFile.action && mirror.mirrorFile.relationId) {
+            actionsMap[mirror.mirrorFile.relationId] =
+              actionsMap[mirror.mirrorFile.relationId] || [];
+            actionsMap[mirror.mirrorFile.relationId].push({
+              ...mirror.mirrorFile,
+              action: mirror.mirrorFile.action,
+              relationId: mirror.mirrorFile.relationId,
+            });
+          }
+        });
+      });
+
+      return {
+        ...state,
+        actionsMap,
+      };
+    }
+
+    case ActionType.SetCollectedDataUnions: {
+      return {
+        ...state,
+        collectedUnionsMap: payload,
+      };
     }
 
     default: {

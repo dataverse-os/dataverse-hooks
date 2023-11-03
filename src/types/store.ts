@@ -1,19 +1,24 @@
 import {
   Chain,
   DataverseConnector,
-  StreamRecord,
   WALLET,
-  StructuredFolders,
+  StructuredFolderRecord,
+  MirrorFile,
 } from "@dataverse/dataverse-connector";
+import {
+  FileContent,
+  MirrorFileRecord,
+} from "@dataverse/dataverse-connector/dist/esm/types/fs";
 
 import { DatatokenInfo } from "./params";
 
 export enum ActionType {
   ConnectWallet,
   CreateCapability,
-  CreateStream,
-  LoadStreams,
-  UpdateStream,
+  CreateFile,
+  LoadFiles,
+  LoadCollectedDatatokenFiles,
+  UpdateFile,
   SetFolders,
   UpdateFolders,
   DeleteFolder,
@@ -21,7 +26,19 @@ export enum ActionType {
   LoadProfileIds,
   CreateProfileId,
   UpdateDatatokenInfo,
+  UpdateDatatokenInfos,
+  SetDataUnions,
+  UpdateDataUnion,
+  DeleteDataUnion,
+  UpdateDataUnionsByFile,
+  UpdateDataUnionsByDeleteFiles,
+  SetCollectedDataUnions,
+  SetActionsMap,
 }
+
+export type RequiredByKeys<T, K extends keyof T> = {
+  [P in K]-?: T[P];
+} & Pick<T, Exclude<keyof T, K>>;
 
 export type DataverseContextType = {
   dataverseConnector: DataverseConnector;
@@ -31,11 +48,28 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     profileIds?: string[];
-    streamsMap?: Record<
+    filesMap?: Record<
       string,
-      StreamRecord & { datatokenInfo?: DatatokenInfo }
+      {
+        appId: string;
+        modelId: string;
+        pkh: string;
+        fileContent:
+          | {
+              file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
+              content?: FileContent;
+            }
+          | FileContent;
+      } & { datatokenInfo?: DatatokenInfo }
     >;
-    foldersMap?: StructuredFolders;
+    collectedDatatokenFilesMap?: MirrorFileRecord;
+    foldersMap?: StructuredFolderRecord;
+    dataUnionsMap?: StructuredFolderRecord;
+    collectedUnionsMap?: StructuredFolderRecord;
+    actionsMap?: Record<
+      string,
+      RequiredByKeys<MirrorFile, "action" | "relationId">[]
+    >;
   };
   dispatch: React.Dispatch<any>;
 };

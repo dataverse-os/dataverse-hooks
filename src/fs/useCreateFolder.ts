@@ -8,15 +8,13 @@ import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
-export const useChangeFolderBaseInfo = (params?: {
-  onError?: (error: unknown) => void;
+export const useCreateFolder = (params?: {
+  onError?: (error: any) => void;
   onPending?: (args: {
-    folderId: string;
-    newFolderName: string;
-    newFolderDescription?: string;
-    syncImmediately?: boolean;
+    folderName: string;
+    folderDescription?: string;
   }) => void;
-  onSuccess?: (result: StructuredFolder) => void;
+  onSuccess?: (result?: StructuredFolder) => void;
 }) => {
   const { dataverseConnector } = useStore();
   const { actionUpdateFolders } = useAction();
@@ -33,61 +31,53 @@ export const useChangeFolderBaseInfo = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<StructuredFolder>();
 
   /**
-   * change folder name by streamId
-   * @param folderId
-   * @param newFolderName Folder name
-   * @param newFolderDescription Folder description
-   * @param reRender reRender page
-   * @param syncImmediately sync
+   * create Folder
+   * @param folderType Folder type
+   * @param folderName Folder name
+   * @param folderDescription Folder description
+   * @param reRender reRender page ?
    */
-  const changeFolderBaseInfo = useCallback(
+  const createFolder = useCallback(
     async ({
-      folderId,
-      newFolderName,
-      newFolderDescription,
-      syncImmediately,
+      folderName,
+      folderDescription,
     }: {
-      folderId: string;
-      newFolderName: string;
-      newFolderDescription?: string;
-      syncImmediately?: boolean;
+      folderName: string;
+      folderDescription?: string;
     }) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
           params.onPending({
-            folderId,
-            newFolderName,
-            newFolderDescription,
-            syncImmediately,
+            folderName,
+            folderDescription,
+            // reRender,
           });
         }
 
-        const { currentFolder } = await dataverseConnector.runOS({
-          method: SYSTEM_CALL.updateFolderBaseInfo,
+        const { newFolder } = await dataverseConnector.runOS({
+          method: SYSTEM_CALL.createFolder,
           params: {
-            folderId,
-            newFolderName,
-            newFolderDescription,
-            syncImmediately,
+            folderName,
+            folderDescription,
           },
         });
 
         actionUpdateFolders(
-          deepAssignRenameKey(currentFolder, [
+          deepAssignRenameKey(newFolder, [
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
 
-        setResult(currentFolder);
+        setResult(newFolder);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
-          params.onSuccess(currentFolder);
+          params.onSuccess(newFolder);
         }
-        return currentFolder;
+        return newFolder;
       } catch (error) {
         setError(error);
         setStatus(MutationStatus.Failed);
@@ -110,7 +100,7 @@ export const useChangeFolderBaseInfo = (params?: {
   );
 
   return {
-    changedFolder: result,
+    createdFolder: result,
     error,
     status,
     isIdle,
@@ -119,6 +109,6 @@ export const useChangeFolderBaseInfo = (params?: {
     isFailed,
     setStatus,
     reset,
-    changeFolderBaseInfo,
+    createFolder,
   };
 };

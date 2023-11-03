@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 
+import { ChainId } from "@dataverse/dataverse-contracts-sdk/data-token";
+
 import { useStore } from "../store";
 import { useAction } from "../store";
 import { MutationStatus } from "../types";
@@ -7,7 +9,7 @@ import { useMutation } from "../utils";
 
 export const useCreateProfile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (handle: string) => void;
+  onPending?: (args: { chainId: ChainId; handle: string }) => void;
   onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -25,16 +27,16 @@ export const useCreateProfile = (params?: {
     isSucceed,
     isFailed,
     reset,
-  } = useMutation();
+  } = useMutation<string>();
 
   const createProfile = useCallback(
-    async (handle: string) => {
+    async (args: { chainId: ChainId; handle: string }) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(handle);
+          params.onPending(args);
         }
-        const profileId = await dataverseConnector.createProfile(handle);
+        const profileId = await dataverseConnector.createProfile(args);
 
         actionCreateProfile(profileId);
 
@@ -67,7 +69,7 @@ export const useCreateProfile = (params?: {
   );
 
   return {
-    profileIds: result,
+    profileId: result,
     error,
     status,
     isIdle,
