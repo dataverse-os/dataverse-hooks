@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { WALLET } from "@dataverse/dataverse-connector";
+import { AuthType, WALLET } from "@dataverse/dataverse-connector";
 import { useAccount, useConnect } from "wagmi";
 
 import { useStore } from "../store";
@@ -39,7 +39,15 @@ export const useWallet = (params?: {
   } = useMutation<ConnectWalletResult>();
 
   const connectWallet = useCallback(
-    async ({ wallet, provider }: { wallet?: WALLET; provider?: any }) => {
+    async ({
+      wallet,
+      preferredAuthType,
+      provider,
+    }: {
+      wallet?: WALLET;
+      preferredAuthType?: AuthType;
+      provider?: any;
+    }) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
@@ -47,6 +55,7 @@ export const useWallet = (params?: {
         }
         const connectResult = await dataverseConnector.connectWallet({
           wallet,
+          preferredAuthType,
           provider,
         });
 

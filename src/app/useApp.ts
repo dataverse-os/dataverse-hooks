@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 
-import { SYSTEM_CALL, WALLET } from "@dataverse/dataverse-connector";
+import { AuthType, SYSTEM_CALL, WALLET } from "@dataverse/dataverse-connector";
 import { useAccount, useConnect } from "wagmi";
 
 import { useCapability } from "./useCapability";
@@ -92,7 +92,11 @@ export const useApp = ({
   ]);
 
   const connectApp = useCallback(
-    async (args?: { wallet?: WALLET; provider?: any }) => {
+    async (args?: {
+      wallet?: WALLET;
+      preferredAuthType?: AuthType;
+      provider?: any;
+    }) => {
       try {
         setStatus(MutationStatus.Pending);
         if (onPending) {
@@ -100,6 +104,7 @@ export const useApp = ({
         }
         const connectWalletResult = await connectWallet({
           wallet: args?.wallet,
+          preferredAuthType: args?.preferredAuthType,
           provider: args?.provider,
         });
         const pkh = await createCapability(appId);
