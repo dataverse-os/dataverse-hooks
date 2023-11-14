@@ -31,11 +31,6 @@ export const useLoadFileActions = (params?: {
     reset,
   } = useMutation<RequiredByKeys<MirrorFile, "action" | "relationId">[]>();
 
-  /**
-   * read all folders when have no param otherwise will read all pubilc
-   * folders
-   * @returns
-   */
   const loadFileActions = useCallback(
     async (fileId: string) => {
       try {
