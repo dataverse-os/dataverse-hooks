@@ -74,7 +74,7 @@ export const useApp = ({
             wallet: connectResult.wallet,
           });
           const currentPkh = dataverseConnector.getCurrentPkh();
-          actionCreateCapability(currentPkh);
+          actionCreateCapability({ pkh: currentPkh, appId });
         }
 
         if (!isWagmiConnected) {

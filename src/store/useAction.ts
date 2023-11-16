@@ -41,10 +41,10 @@ export const useAction = () => {
   );
 
   const actionCreateCapability = useCallback(
-    (currentPkh: string) => {
+    (res: { pkh: string; appId: string }) => {
       dispatch({
         type: ActionType.CreateCapability,
-        payload: currentPkh,
+        payload: res,
       });
     },
     [dispatch],
@@ -235,11 +235,11 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionSetActionsMap = useCallback(
-    (folders: StructuredFolderRecord) => {
+  const actionUpdateActionsMap = useCallback(
+    (filesMap: MirrorFileRecord) => {
       dispatch({
-        type: ActionType.SetActionsMap,
-        payload: folders,
+        type: ActionType.UpdateActionsMap,
+        payload: filesMap,
       });
     },
     [dispatch],
@@ -266,6 +266,6 @@ export const useAction = () => {
     actionUpdateDataUnionsByFile,
     actionUpdateDataUnionsByDeleteFiles,
     actionSetCollectedDataUnions,
-    actionSetActionsMap,
+    actionUpdateActionsMap,
   };
 };

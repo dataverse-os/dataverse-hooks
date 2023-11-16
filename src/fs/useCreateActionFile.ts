@@ -18,7 +18,7 @@ export const useCreateActionFile = (params?: {
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateActionsMap } = useAction();
 
   const {
     result,
@@ -52,6 +52,7 @@ export const useCreateActionFile = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
+        actionUpdateActionsMap({ [newFile.fileId]: newFile });
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
@@ -71,6 +72,7 @@ export const useCreateActionFile = (params?: {
     [
       dataverseConnector,
       actionUpdateFolders,
+      actionUpdateActionsMap,
       setStatus,
       setError,
       setResult,

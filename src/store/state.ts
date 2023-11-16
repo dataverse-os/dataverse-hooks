@@ -1,7 +1,4 @@
-import {
-  MirrorFile,
-  StructuredFolderRecord,
-} from "@dataverse/dataverse-connector";
+import { MirrorFile, MirrorFileRecord } from "@dataverse/dataverse-connector";
 
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
@@ -13,6 +10,7 @@ import {
 } from "../types";
 
 export const initialState: StateType = {
+  appId: undefined,
   address: undefined,
   wallet: undefined,
   chain: undefined,
@@ -50,7 +48,8 @@ export const reducer = (
     case ActionType.CreateCapability: {
       return {
         ...state,
-        pkh: payload,
+        pkh: payload.pkh,
+        appId: payload.appId,
       };
     }
 
@@ -297,27 +296,23 @@ export const reducer = (
       };
     }
 
-    case ActionType.SetActionsMap: {
-      const folders: StructuredFolderRecord = payload;
+    case ActionType.UpdateActionsMap: {
+      const filesMap: MirrorFileRecord = payload;
       const actionsMap: Record<
         string,
         RequiredByKeys<MirrorFile, "action" | "relationId">[]
       > = {};
 
-      Object.keys(folders).forEach(folderId => {
-        const folder = folders[folderId];
-        Object.keys(folder.mirrorRecord).forEach(mirrorId => {
-          const mirror = folder.mirrorRecord[mirrorId];
-          if (mirror.mirrorFile.action && mirror.mirrorFile.relationId) {
-            actionsMap[mirror.mirrorFile.relationId] =
-              actionsMap[mirror.mirrorFile.relationId] || [];
-            actionsMap[mirror.mirrorFile.relationId].push({
-              ...mirror.mirrorFile,
-              action: mirror.mirrorFile.action,
-              relationId: mirror.mirrorFile.relationId,
-            });
-          }
-        });
+      Object.keys(filesMap).forEach(mirrorId => {
+        const file = filesMap[mirrorId];
+        if (file.action && file.relationId) {
+          actionsMap[file.relationId] = actionsMap[file.relationId] || [];
+          actionsMap[file.relationId].push({
+            ...file,
+            action: file.action,
+            relationId: file.relationId,
+          });
+        }
       });
 
       return {

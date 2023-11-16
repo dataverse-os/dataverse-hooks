@@ -17,7 +17,8 @@ export const useLoadFolders = (params?: {
   onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionSetActionsMap } = useAction();
+  const { actionSetFolders, actionUpdateActionsMap: actionSetActionsMap } =
+    useAction();
 
   const {
     result,
