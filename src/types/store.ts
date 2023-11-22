@@ -33,7 +33,7 @@ export enum ActionType {
   UpdateDataUnionsByFile,
   UpdateDataUnionsByDeleteFiles,
   SetCollectedDataUnions,
-  SetActionsMap,
+  UpdateActionsMap,
 }
 
 export type RequiredByKeys<T, K extends keyof T> = {
@@ -43,6 +43,7 @@ export type RequiredByKeys<T, K extends keyof T> = {
 export type DataverseContextType = {
   dataverseConnector: DataverseConnector;
   state: {
+    appId?: string;
     address?: string;
     chain?: Chain;
     wallet?: WALLET;

@@ -17,7 +17,7 @@ export const useLoadFolders = (params?: {
   onSuccess?: (result?: StructuredFolderRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionSetFolders, actionSetActionsMap } = useAction();
+  const { actionSetFolders } = useAction();
 
   const {
     result,
@@ -54,7 +54,6 @@ export const useLoadFolders = (params?: {
           { mirror: "mirrorFile" },
         ]) as StructuredFolderRecord,
       );
-      actionSetActionsMap(allFolders);
 
       setResult(allFolders);
       setStatus(MutationStatus.Succeed);

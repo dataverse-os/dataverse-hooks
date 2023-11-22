@@ -44,7 +44,7 @@ export const useCapability = (params?: {
           },
         });
 
-        actionCreateCapability(currentPkh);
+        actionCreateCapability({ pkh: currentPkh, appId });
         setStatus(MutationStatus.Succeed);
         setResult(currentPkh);
         if (params?.onSuccess) {
