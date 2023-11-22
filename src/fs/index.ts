@@ -21,3 +21,4 @@ export * from "./useCollectFile";
 export * from "./useMoveFiles";
 export * from "./useRemoveFiles";
 export * from "./useQueryDatatoken";
+export * from "./useLoadFileActions";
