@@ -8,7 +8,7 @@ import {
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { CreateActionFileArgs, MutationStatus } from "../types";
+import { CreateActionFileArgs, MutationStatus, RequiredByKeys } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
 
@@ -18,7 +18,7 @@ export const useCreateActionFile = (params?: {
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders, actionUpdateActionsMap } = useAction();
+  const { actionUpdateFolders, actionUpdateAction } = useAction();
 
   const {
     result,
@@ -52,7 +52,9 @@ export const useCreateActionFile = (params?: {
             { mirror: "mirrorFile" },
           ]) as StructuredFolder,
         );
-        actionUpdateActionsMap({ [newFile.fileId]: newFile });
+        actionUpdateAction(
+          newFile as RequiredByKeys<MirrorFile, "action" | "relationId">,
+        );
 
         setResult(newFile);
         setStatus(MutationStatus.Succeed);
@@ -72,7 +74,7 @@ export const useCreateActionFile = (params?: {
     [
       dataverseConnector,
       actionUpdateFolders,
-      actionUpdateActionsMap,
+      actionUpdateAction,
       setStatus,
       setError,
       setResult,

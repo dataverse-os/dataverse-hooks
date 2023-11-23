@@ -2,7 +2,7 @@ export * from "./useLoadFolders";
 export * from "./useLoadBareFileContent";
 export * from "./useLoadCreatedDatatokenFiles";
 export * from "./useLoadCollectedDatatokenFiles";
-export * from "./useLoadFileActions";
+export * from "./useLoadActionFiles";
 export * from "./useCreateFolder";
 export * from "./useChangeFolderBaseInfo";
 export * from "./useDeleteFolder";

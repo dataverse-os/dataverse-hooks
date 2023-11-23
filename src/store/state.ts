@@ -1,4 +1,4 @@
-import { MirrorFile, MirrorFileRecord } from "@dataverse/dataverse-connector";
+import { MirrorFile } from "@dataverse/dataverse-connector";
 
 import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
@@ -296,24 +296,45 @@ export const reducer = (
       };
     }
 
-    case ActionType.UpdateActionsMap: {
-      const filesMap: MirrorFileRecord = payload;
+    case ActionType.LoadActions: {
+      const actionFilesMap: Record<
+        string,
+        RequiredByKeys<MirrorFile, "action" | "relationId">
+      > = payload;
       const actionsMap: Record<
         string,
-        RequiredByKeys<MirrorFile, "action" | "relationId">[]
+        Record<string, RequiredByKeys<MirrorFile, "action" | "relationId">>
       > = {};
 
-      Object.keys(filesMap).forEach(mirrorId => {
-        const file = filesMap[mirrorId];
+      Object.keys(actionFilesMap).forEach(fileId => {
+        const file = actionFilesMap[fileId];
         if (file.action && file.relationId) {
-          actionsMap[file.relationId] = actionsMap[file.relationId] || [];
-          actionsMap[file.relationId].push({
-            ...file,
-            action: file.action,
-            relationId: file.relationId,
-          });
+          actionsMap[file.relationId] = actionsMap[file.relationId] || {};
+          actionsMap[file.relationId][fileId] = file;
         }
       });
+
+      return {
+        ...state,
+        actionsMap,
+      };
+    }
+
+    case ActionType.UpdateAction: {
+      const actionFile: RequiredByKeys<MirrorFile, "action" | "relationId"> =
+        payload;
+
+      if (!state.actionsMap) {
+        state.actionsMap = {};
+      }
+
+      const actionsMap = { ...state.actionsMap };
+      if (actionFile.action && actionFile.relationId) {
+        actionsMap[actionFile.relationId] = {
+          ...actionsMap[actionFile.relationId],
+          [actionFile.fileId]: actionFile,
+        };
+      }
 
       return {
         ...state,
