@@ -18,6 +18,7 @@ import {
   LoadFilesByResult,
   LoadFilesResult,
   MonetizeFileResult,
+  RequiredByKeys,
   UnlockFileResult,
   UpdateIndexFileResult,
 } from "../types";
@@ -235,11 +236,26 @@ export const useAction = () => {
     [dispatch],
   );
 
-  const actionUpdateActionsMap = useCallback(
-    (filesMap: MirrorFileRecord) => {
+  const actionLoadActions = useCallback(
+    (
+      actionFiles: Record<
+        string,
+        RequiredByKeys<MirrorFile, "action" | "relationId">
+      >,
+    ) => {
       dispatch({
-        type: ActionType.UpdateActionsMap,
-        payload: filesMap,
+        type: ActionType.LoadActions,
+        payload: actionFiles,
+      });
+    },
+    [dispatch],
+  );
+
+  const actionUpdateAction = useCallback(
+    (actionFile: RequiredByKeys<MirrorFile, "action" | "relationId">) => {
+      dispatch({
+        type: ActionType.UpdateAction,
+        payload: actionFile,
       });
     },
     [dispatch],
@@ -266,6 +282,7 @@ export const useAction = () => {
     actionUpdateDataUnionsByFile,
     actionUpdateDataUnionsByDeleteFiles,
     actionSetCollectedDataUnions,
-    actionUpdateActionsMap,
+    actionLoadActions,
+    actionUpdateAction,
   };
 };

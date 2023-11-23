@@ -33,7 +33,8 @@ export enum ActionType {
   UpdateDataUnionsByFile,
   UpdateDataUnionsByDeleteFiles,
   SetCollectedDataUnions,
-  UpdateActionsMap,
+  LoadActions,
+  UpdateAction,
 }
 
 export type RequiredByKeys<T, K extends keyof T> = {
@@ -69,7 +70,7 @@ export type DataverseContextType = {
     collectedUnionsMap?: StructuredFolderRecord;
     actionsMap?: Record<
       string,
-      RequiredByKeys<MirrorFile, "action" | "relationId">[]
+      Record<string, RequiredByKeys<MirrorFile, "action" | "relationId">>
     >;
   };
   dispatch: React.Dispatch<any>;
