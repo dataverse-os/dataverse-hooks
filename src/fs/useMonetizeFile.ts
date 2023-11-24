@@ -82,8 +82,9 @@ export const useMonetizeFile = (params?: {
           });
 
         actionUpdateFile({
-          fileId: args.fileId,
           ...monetizeResult,
+          ...monetizeResult.fileContent.file,
+          content: monetizeResult.fileContent.content,
         });
         actionUpdateFoldersByFile({
           ...monetizeResult.fileContent.file,

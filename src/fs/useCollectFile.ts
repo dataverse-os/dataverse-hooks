@@ -43,8 +43,9 @@ export const useCollectFile = (params?: {
         });
 
         actionUpdateFile({
-          fileId: fileId,
           ...collectResult,
+          ...collectResult.fileContent.file,
+          content: collectResult.fileContent.content,
         });
 
         setResult(collectResult);
