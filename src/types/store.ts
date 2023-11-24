@@ -16,9 +16,10 @@ export enum ActionType {
   ConnectWallet,
   CreateCapability,
   CreateFile,
+  UpdateFile,
+  DeleteFiles,
   LoadFiles,
   LoadCollectedDatatokenFiles,
-  UpdateFile,
   SetFolders,
   UpdateFolders,
   DeleteFolder,
@@ -35,11 +36,22 @@ export enum ActionType {
   SetCollectedDataUnions,
   LoadActions,
   UpdateAction,
+  DeleteActions,
 }
 
 export type RequiredByKeys<T, K extends keyof T> = {
   [P in K]-?: T[P];
 } & Pick<T, Exclude<keyof T, K>>;
+
+export type FileResult = {
+  appId: string;
+  modelId: string;
+  pkh: string;
+  fileContent: {
+    file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
+    content?: string | FileContent;
+  } & FileContent;
+};
 
 export type DataverseContextType = {
   dataverseConnector: DataverseConnector;
@@ -50,20 +62,12 @@ export type DataverseContextType = {
     wallet?: WALLET;
     pkh?: string;
     profileIds?: string[];
-    filesMap?: Record<
-      string,
-      {
-        appId: string;
-        modelId: string;
-        pkh: string;
-        fileContent:
-          | {
-              file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
-              content?: FileContent;
-            }
-          | FileContent;
-      } & { datatokenInfo?: DatatokenInfo }
-    >;
+    filesMap?: {
+      [modelId: string]: {
+        [fileId: string]: MirrorFile &
+          Partial<FileResult> & { datatokenInfo?: DatatokenInfo };
+      };
+    };
     collectedDatatokenFilesMap?: MirrorFileRecord;
     foldersMap?: StructuredFolderRecord;
     dataUnionsMap?: StructuredFolderRecord;

@@ -19,7 +19,6 @@ export const useLoadActionFiles = (params?: {
   ) => void;
 }) => {
   const {
-    appId: appIdCache,
     dataverseConnector,
     foldersMap,
     actionsMap: actionsMapCache,
@@ -87,7 +86,6 @@ export const useLoadActionFiles = (params?: {
     [
       dataverseConnector,
       foldersMap,
-      appIdCache,
       actionsMapCache,
       actionLoadActions,
       setStatus,

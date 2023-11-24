@@ -45,7 +45,7 @@ export const useFeedsByAddress = (params?: {
           },
         });
 
-        actionLoadFiles(files);
+        actionLoadFiles(files, modelId);
 
         setStatus(MutationStatus.Succeed);
         setResult(files);

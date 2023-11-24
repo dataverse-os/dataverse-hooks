@@ -13,14 +13,11 @@ import { DataverseContext } from "./useStore";
 import { DATAVERSE_CONTEXT_PROVIDER_ERROR } from "../errors";
 import {
   ActionType,
-  CreateIndexFileResult,
   DatatokenInfo,
+  FileResult,
   LoadFilesByResult,
   LoadFilesResult,
-  MonetizeFileResult,
   RequiredByKeys,
-  UnlockFileResult,
-  UpdateIndexFileResult,
 } from "../types";
 
 export const useAction = () => {
@@ -52,22 +49,17 @@ export const useAction = () => {
   );
 
   const actionCreateFile = useCallback(
-    (createdFile: CreateIndexFileResult) => {
+    (createdFile: MirrorFile & Partial<FileResult>, modelId: string) => {
       dispatch({
         type: ActionType.CreateFile,
-        payload: createdFile,
+        payload: { createdFile, modelId },
       });
     },
     [dispatch],
   );
 
   const actionUpdateFile = useCallback(
-    (
-      updatedFile:
-        | (MonetizeFileResult & { fileId: string })
-        | (UnlockFileResult & { fileId: string })
-        | (UpdateIndexFileResult & { fileId: string }),
-    ) => {
+    (updatedFile: MirrorFile & Partial<FileResult>) => {
       dispatch({
         type: ActionType.UpdateFile,
         payload: updatedFile,
@@ -76,11 +68,21 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionDeleteFiles = useCallback(
+    (fileIds: string[]) => {
+      dispatch({
+        type: ActionType.DeleteFiles,
+        payload: fileIds,
+      });
+    },
+    [dispatch],
+  );
+
   const actionLoadFiles = useCallback(
-    (loadedFiles: LoadFilesResult | LoadFilesByResult) => {
+    (loadedFiles: LoadFilesResult | LoadFilesByResult, modelId: string) => {
       dispatch({
         type: ActionType.LoadFiles,
-        payload: loadedFiles,
+        payload: { loadedFiles, modelId },
       });
     },
     [dispatch],
@@ -261,11 +263,22 @@ export const useAction = () => {
     [dispatch],
   );
 
+  const actionDeleteActions = useCallback(
+    (actionFileIds: string[]) => {
+      dispatch({
+        type: ActionType.DeleteActions,
+        payload: actionFileIds,
+      });
+    },
+    [dispatch],
+  );
+
   return {
     actionConnectWallet,
     actionCreateCapability,
     actionCreateFile,
     actionUpdateFile,
+    actionDeleteFiles,
     actionLoadFiles,
     actionLoadCollectedDatatokenFiles,
     actionSetFolders,
@@ -284,5 +297,6 @@ export const useAction = () => {
     actionSetCollectedDataUnions,
     actionLoadActions,
     actionUpdateAction,
+    actionDeleteActions,
   };
 };

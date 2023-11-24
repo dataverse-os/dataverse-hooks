@@ -47,8 +47,9 @@ export const useUnlockFile = (params?: {
         });
 
         actionUpdateFile({
-          fileId: fileId,
           ...unlockResult,
+          ...unlockResult.fileContent.file,
+          content: unlockResult.fileContent,
         });
         actionUpdateFoldersByFile({
           ...unlockResult.fileContent.file,

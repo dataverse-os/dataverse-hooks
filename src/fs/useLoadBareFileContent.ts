@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
-import { useStore } from "../store";
+import { useAction, useStore } from "../store";
 import { MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
@@ -12,6 +12,7 @@ export const useLoadBareFileContent = (params?: {
   onSuccess?: (result: string) => void;
 }) => {
   const { dataverseConnector } = useStore();
+  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -40,6 +41,11 @@ export const useLoadBareFileContent = (params?: {
           params: fileId,
         });
 
+        actionUpdateFile({
+          fileId,
+          content: fileContent,
+        });
+
         setResult(fileContent);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
@@ -57,6 +63,7 @@ export const useLoadBareFileContent = (params?: {
     },
     [
       dataverseConnector,
+      actionUpdateFile,
       setStatus,
       setError,
       setResult,

@@ -82,6 +82,7 @@ export type UpdateIndexFileResult = Awaited<
 >;
 
 export type CreateActionFileArgs = {
+  modelId: string;
   folderId?: string;
   action: Action;
   relationId: string;
@@ -105,7 +106,9 @@ export type PublishDataUnionArgs = RequestType[SYSTEM_CALL.publishDataUnion];
 
 export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
 
-export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile];
+export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile] & {
+  modelId: string;
+};
 
 export type UpdateBareFileArgs = RequestType[SYSTEM_CALL.updateBareFile];
 

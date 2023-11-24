@@ -21,8 +21,12 @@ export const useRemoveFiles = (params?: {
   onSuccess?: (result: MirrorFileRecord) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders, actionUpdateDataUnionsByDeleteFiles } =
-    useAction();
+  const {
+    actionDeleteFiles,
+    actionDeleteActions,
+    actionUpdateFolders,
+    actionUpdateDataUnionsByDeleteFiles,
+  } = useAction();
 
   const {
     result,
@@ -70,6 +74,8 @@ export const useRemoveFiles = (params?: {
           },
         });
 
+        actionDeleteFiles(Object.keys(removedFiles));
+        actionDeleteActions(Object.keys(removedFiles));
         actionUpdateFolders(
           deepAssignRenameKey(Object.values(sourceFolders || {}), [
             { mirror: "mirrorFile" },
@@ -94,6 +100,7 @@ export const useRemoveFiles = (params?: {
     },
     [
       dataverseConnector,
+      actionDeleteFiles,
       actionUpdateFolders,
       actionUpdateDataUnionsByDeleteFiles,
       setStatus,
