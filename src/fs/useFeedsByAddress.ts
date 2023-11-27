@@ -1,19 +1,30 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import {
+  MirrorFile,
+  ModelName,
+  SYSTEM_CALL,
+} from "@dataverse/dataverse-connector";
+import { Model } from "@dataverse/model-parser";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { LoadFilesByArgs, LoadFilesByResult, MutationStatus } from "../types";
+import {
+  LoadFilesByArgs,
+  LoadFilesByResult,
+  MutationStatus,
+  RequiredByKeys,
+} from "../types";
 import { useMutation } from "../utils";
 
-export const useFeedsByAddress = (params?: {
+export const useFeedsByAddress = (params: {
+  model: Model;
   onError?: (error: any) => void;
   onPending?: (args: LoadFilesByArgs) => void;
   onSuccess?: (result: LoadFilesByResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionLoadFiles } = useAction();
+  const { actionLoadFiles, actionLoadActions } = useAction();
 
   const {
     result,
@@ -30,12 +41,15 @@ export const useFeedsByAddress = (params?: {
   } = useMutation<LoadFilesByResult>();
 
   const loadFeedsByAddress = useCallback(
-    async ({ pkh, modelId }: LoadFilesByArgs) => {
+    async (pkh: string) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending({ pkh, modelId });
+          params.onPending({ pkh, model: params.model });
         }
+
+        const modelId =
+          params.model.streams[params.model.streams.length - 1].modelId;
 
         const files: LoadFilesByResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.loadFilesBy,
@@ -45,7 +59,21 @@ export const useFeedsByAddress = (params?: {
           },
         });
 
-        actionLoadFiles(files, modelId);
+        if (params.model.modelName !== ModelName.indexFile) {
+          if (params.model.modelName === ModelName.actionFile) {
+            const filesMap = Object.fromEntries<
+              RequiredByKeys<MirrorFile, "action" | "relationId">
+            >(
+              Object.values(files).map(file => ({
+                ...file.fileContent.file,
+                content: file.fileContent.content,
+              })),
+            );
+            actionLoadActions(filesMap);
+          } else {
+            actionLoadFiles(files, modelId);
+          }
+        }
 
         setStatus(MutationStatus.Succeed);
         setResult(files);
@@ -65,12 +93,14 @@ export const useFeedsByAddress = (params?: {
     [
       dataverseConnector,
       actionLoadFiles,
+      actionLoadActions,
       setStatus,
       setError,
       setResult,
-      params?.onPending,
-      params?.onError,
-      params?.onSuccess,
+      params.model,
+      params.onPending,
+      params.onError,
+      params.onSuccess,
     ],
   );
 

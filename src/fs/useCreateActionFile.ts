@@ -18,8 +18,7 @@ export const useCreateActionFile = (params?: {
   onSuccess?: (result: MirrorFile) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders, actionUpdateAction, actionCreateFile } =
-    useAction();
+  const { actionUpdateFolders, actionUpdateAction } = useAction();
 
   const {
     result,
@@ -48,7 +47,6 @@ export const useCreateActionFile = (params?: {
           params: { ...args },
         });
 
-        actionCreateFile(newFile, args.modelId);
         actionUpdateFolders(
           deepAssignRenameKey(currentFolder, [
             { mirror: "mirrorFile" },
@@ -75,7 +73,6 @@ export const useCreateActionFile = (params?: {
     },
     [
       dataverseConnector,
-      actionCreateFile,
       actionUpdateFolders,
       actionUpdateAction,
       setStatus,

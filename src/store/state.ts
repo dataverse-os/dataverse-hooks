@@ -379,6 +379,7 @@ export const reducer = (
 
       return {
         ...state,
+        actionFilesMap,
         actionsMap,
       };
     }
@@ -401,6 +402,10 @@ export const reducer = (
 
       return {
         ...state,
+        actionFilesMap: {
+          ...state.actionFilesMap,
+          [actionFile.fileId]: actionFile,
+        },
         actionsMap,
       };
     }
@@ -412,19 +417,26 @@ export const reducer = (
         return state;
       }
 
-      const actionsMap = { ...state.actionsMap };
-      Object.keys(actionsMap).forEach(relationId => {
-        const actionFiles = actionsMap[relationId];
+      const _actionsMap = { ...state.actionsMap };
+      Object.keys(_actionsMap).forEach(relationId => {
+        const actionFiles = _actionsMap[relationId];
         actionFileIds.forEach(fileId => {
           if (actionFiles[fileId]) {
-            delete actionsMap[relationId][fileId];
+            delete _actionsMap[relationId][fileId];
           }
         });
+      });
+      const _actionFilesMap = { ...state.actionFilesMap };
+      Object.keys(_actionFilesMap).forEach(fileId => {
+        if (actionFileIds.includes(fileId)) {
+          delete _actionFilesMap[fileId];
+        }
       });
 
       return {
         ...state,
-        actionsMap,
+        actionFilesMap: _actionFilesMap,
+        actionsMap: _actionsMap,
       };
     }
 

@@ -68,14 +68,22 @@ export type DataverseContextType = {
           Partial<FileResult> & { datatokenInfo?: DatatokenInfo };
       };
     };
+    actionFilesMap?: Record<
+      string,
+      RequiredByKeys<MirrorFile, "action" | "relationId">
+    >;
     collectedDatatokenFilesMap?: MirrorFileRecord;
     foldersMap?: StructuredFolderRecord;
     dataUnionsMap?: StructuredFolderRecord;
     collectedUnionsMap?: StructuredFolderRecord;
-    actionsMap?: Record<
-      string,
-      Record<string, RequiredByKeys<MirrorFile, "action" | "relationId">>
-    >;
+    actionsMap?: {
+      [relationId: string]: {
+        [actionFileId: string]: RequiredByKeys<
+          MirrorFile,
+          "action" | "relationId"
+        >;
+      };
+    };
   };
   dispatch: React.Dispatch<any>;
 };

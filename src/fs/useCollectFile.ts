@@ -3,7 +3,6 @@ import { useCallback } from "react";
 import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
-import { useAction } from "../store";
 import { CollectFileResult, MutationStatus } from "../types";
 import { useMutation } from "../utils";
 
@@ -13,7 +12,6 @@ export const useCollectFile = (params?: {
   onSuccess?: (result: CollectFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFile } = useAction();
 
   const {
     result,
@@ -42,12 +40,6 @@ export const useCollectFile = (params?: {
           params: fileId,
         });
 
-        actionUpdateFile({
-          ...collectResult,
-          ...collectResult.fileContent.file,
-          content: collectResult.fileContent.content,
-        });
-
         setResult(collectResult);
         setStatus(MutationStatus.Succeed);
         if (params?.onSuccess) {
@@ -65,7 +57,6 @@ export const useCollectFile = (params?: {
     },
     [
       dataverseConnector,
-      actionUpdateFile,
       setStatus,
       setError,
       setResult,

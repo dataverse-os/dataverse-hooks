@@ -58,7 +58,6 @@ export const useCreateBareFile = (params?: {
           params: args,
         });
 
-        actionCreateFile(newFile, args.modelId);
         actionUpdateFolders(
           deepAssignRenameKey(currentFolder, [
             { mirror: "mirrorFile" },

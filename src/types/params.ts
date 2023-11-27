@@ -8,6 +8,7 @@ import {
   MirrorFile,
 } from "@dataverse/dataverse-connector";
 import { SubscribeDataUnionOutput } from "@dataverse/dataverse-contracts-sdk/data-union";
+import { Model } from "@dataverse/model-parser";
 
 export enum FileType {
   Public = "Public",
@@ -34,7 +35,7 @@ export type LoadFilesResult = Awaited<ReturnType[SYSTEM_CALL.loadFilesBy]>;
 
 export type LoadFilesByArgs = {
   pkh: string;
-  modelId: string;
+  model: Model;
 };
 
 export type LoadFilesByResult = LoadFilesResult;
@@ -82,7 +83,6 @@ export type UpdateIndexFileResult = Awaited<
 >;
 
 export type CreateActionFileArgs = {
-  modelId: string;
   folderId?: string;
   action: Action;
   relationId: string;
@@ -106,9 +106,7 @@ export type PublishDataUnionArgs = RequestType[SYSTEM_CALL.publishDataUnion];
 
 export type DeleteDataUnionArgs = RequestType[SYSTEM_CALL.deleteDataUnion];
 
-export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile] & {
-  modelId: string;
-};
+export type CreateBareFileArgs = RequestType[SYSTEM_CALL.createBareFile];
 
 export type UpdateBareFileArgs = RequestType[SYSTEM_CALL.updateBareFile];
 

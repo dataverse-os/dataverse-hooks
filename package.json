@@ -22,7 +22,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@dataverse/dataverse-connector": "^1.0.30",
+    "@dataverse/dataverse-connector": "^1.0.31",
     "@dataverse/dataverse-contracts-sdk": "^1.0.17-alpha.13",
     "@dataverse/model-parser": "^1.0.2",
     "@dataverse/wallet-adapter": "^1.0.3",
