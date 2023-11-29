@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import {
   DatatokenType,
   DatatokenVars,
+  MirrorFile,
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
 import { DataTokenParams } from "@dataverse/dataverse-contracts-sdk/dist/cjs/data-token/types";
@@ -11,7 +12,12 @@ import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MonetizeFileArgs, MonetizeFileResult, MutationStatus } from "../types";
+import {
+  MonetizeFileArgs,
+  MonetizeFileResult,
+  MutationStatus,
+  RequiredByKeys,
+} from "../types";
 import { useMutation } from "../utils";
 
 export const useMonetizeFile = (params?: {
@@ -19,9 +25,11 @@ export const useMonetizeFile = (params?: {
   onPending?: (args: MonetizeFileArgs) => void;
   onSuccess?: (result: MonetizeFileResult) => void;
 }) => {
-  const { dataverseConnector, address, profileIds, filesMap } = useStore();
+  const { dataverseConnector, address, profileIds, actionFilesMap } =
+    useStore();
   const {
     actionUpdateFile,
+    actionUpdateAction,
     actionUpdateFoldersByFile,
     actionUpdateDataUnionsByFile,
   } = useAction();
@@ -81,9 +89,21 @@ export const useMonetizeFile = (params?: {
             params: args,
           });
 
+        if (
+          actionFilesMap &&
+          actionFilesMap[monetizeResult.fileContent.file.fileId]
+        ) {
+          actionUpdateAction({
+            ...monetizeResult.fileContent,
+            ...monetizeResult.fileContent.file,
+            content: monetizeResult.fileContent.content,
+          } as RequiredByKeys<MirrorFile, "action" | "relationId">);
+        }
+
         actionUpdateFile({
-          fileId: args.fileId,
           ...monetizeResult,
+          ...monetizeResult.fileContent.file,
+          content: monetizeResult.fileContent.content,
         });
         actionUpdateFoldersByFile({
           ...monetizeResult.fileContent.file,
@@ -113,9 +133,9 @@ export const useMonetizeFile = (params?: {
     },
     [
       address,
-      filesMap,
       profileIds,
       dataverseConnector,
+      actionFilesMap,
       actionUpdateFile,
       actionUpdateFoldersByFile,
       actionUpdateDataUnionsByFile,

@@ -69,7 +69,14 @@ export const useCreateIndexFile = (params?: {
             },
           });
 
-        actionCreateFile(createdIndexFile);
+        actionCreateFile(
+          {
+            ...createdIndexFile,
+            ...createdIndexFile.fileContent.file,
+            content: createdIndexFile.fileContent.content,
+          },
+          args.modelId,
+        );
 
         setResult(createdIndexFile);
         setStatus(MutationStatus.Succeed);

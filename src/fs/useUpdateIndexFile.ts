@@ -50,7 +50,9 @@ export const useUpdateIndexFile = (params?: {
         }
         // const modelStream = model.streams[model.streams.length - 1];
 
-        const fileType = filesMap?.[fileId]?.fileContent.file?.fileType;
+        const fileType = Object.values(filesMap || {}).find(files =>
+          Object.values(files).find(file => file.fileId === fileId),
+        )?.[fileId].fileType;
         if (
           // !modelStream.isPublicDomain &&
           fileContent &&
@@ -78,8 +80,9 @@ export const useUpdateIndexFile = (params?: {
           });
 
         actionUpdateFile({
-          fileId: fileId,
           ...updateResult,
+          ...updateResult.fileContent.file,
+          content: updateResult.fileContent.content,
         });
         actionUpdateFoldersByFile({
           ...updateResult.fileContent.file,

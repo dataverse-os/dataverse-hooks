@@ -1,6 +1,10 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL, StructuredFolder } from "@dataverse/dataverse-connector";
+import {
+  MirrorFile,
+  SYSTEM_CALL,
+  StructuredFolder,
+} from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
@@ -8,6 +12,7 @@ import {
   UpdateActionFileArgs,
   UpdateActionFileResult,
   MutationStatus,
+  RequiredByKeys,
 } from "../types";
 import { useMutation } from "../utils";
 import { deepAssignRenameKey } from "../utils/object";
@@ -18,7 +23,8 @@ export const useUpdateActionFile = (params?: {
   onSuccess?: (result: UpdateActionFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
-  const { actionUpdateFolders } = useAction();
+  const { actionUpdateFolders, actionUpdateFile, actionUpdateAction } =
+    useAction();
 
   const {
     result,
@@ -47,6 +53,10 @@ export const useUpdateActionFile = (params?: {
           params: { ...args },
         });
 
+        actionUpdateFile(currentFile);
+        actionUpdateAction(
+          currentFile as RequiredByKeys<MirrorFile, "action" | "relationId">,
+        );
         actionUpdateFolders(
           deepAssignRenameKey(currentFolder, [
             { mirror: "mirrorFile" },
@@ -70,6 +80,8 @@ export const useUpdateActionFile = (params?: {
     },
     [
       dataverseConnector,
+      actionUpdateFile,
+      actionUpdateAction,
       actionUpdateFolders,
       setStatus,
       setError,

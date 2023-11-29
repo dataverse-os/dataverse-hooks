@@ -4,6 +4,8 @@ import { ACTION_TYPE_NOT_EXSITS } from "../errors";
 import {
   ActionType,
   CreateIndexFileResult,
+  FileResult,
+  LoadFilesByResult,
   LoadFilesResult,
   RequiredByKeys,
   StateType,
@@ -54,28 +56,98 @@ export const reducer = (
     }
 
     case ActionType.CreateFile: {
-      const { pkh, appId, modelId, fileContent } =
-        payload as CreateIndexFileResult;
+      const { createdFile, modelId } = payload as {
+        createdFile: MirrorFile & Partial<FileResult>;
+        modelId: string;
+      };
 
       return {
         ...state,
         filesMap: {
           ...state.filesMap,
-          [fileContent.file.fileId]: {
-            pkh,
-            appId,
-            modelId,
-            fileContent,
+          [modelId]: {
+            ...state.filesMap?.[modelId],
+            [createdFile.fileId]: {
+              ...createdFile,
+            },
           },
         },
       };
     }
 
-    case ActionType.LoadFiles: {
-      const _payload = payload as LoadFilesResult;
+    case ActionType.UpdateFile: {
+      const updatedFile = payload as MirrorFile & Partial<FileResult>;
+      const fileId = updatedFile.fileId;
+
+      if (!state.filesMap) {
+        return state;
+      }
+
+      const _filesMap = { ...state.filesMap };
+      Object.keys(_filesMap).forEach(modelId => {
+        const files = _filesMap[modelId];
+        if (files[fileId]) {
+          _filesMap[modelId][fileId] = {
+            ...files[fileId],
+            ...updatedFile,
+          };
+        }
+      });
+
       return {
         ...state,
-        filesMap: _payload,
+        filesMap: _filesMap,
+      };
+    }
+
+    case ActionType.DeleteFiles: {
+      const fileIds = payload as string[];
+
+      if (!state.filesMap) {
+        return state;
+      }
+
+      const _filesMap = { ...state.filesMap };
+      Object.keys(_filesMap).forEach(modelId => {
+        const files = _filesMap[modelId];
+        fileIds.forEach(fileId => {
+          if (files[fileId]) {
+            delete _filesMap[modelId][fileId];
+          }
+        });
+      });
+
+      return {
+        ...state,
+        filesMap: _filesMap,
+      };
+    }
+
+    case ActionType.LoadFiles: {
+      const { loadedFiles, modelId } = payload as {
+        loadedFiles: LoadFilesResult | LoadFilesByResult;
+        modelId: string;
+      };
+
+      const files: {
+        [fileId: string]: MirrorFile & Partial<CreateIndexFileResult>;
+      } = {};
+      Object.entries(loadedFiles).forEach(([fileId, file]) => {
+        files[fileId] = {
+          ...file,
+          ...file.fileContent.file,
+          content: file.fileContent.content,
+        };
+      });
+
+      return {
+        ...state,
+        filesMap: {
+          ...state.filesMap,
+          [modelId]: {
+            ...files,
+          },
+        },
       };
     }
 
@@ -83,25 +155,6 @@ export const reducer = (
       return {
         ...state,
         collectedDatatokenFilesMap: payload,
-      };
-    }
-
-    case ActionType.UpdateFile: {
-      const { fileId, fileContent } = payload;
-
-      if (!state.filesMap) {
-        return state;
-      }
-
-      return {
-        ...state,
-        filesMap: {
-          ...state.filesMap,
-          [fileId]: {
-            ...state.filesMap[fileId],
-            fileContent,
-          },
-        },
       };
     }
 
@@ -128,15 +181,20 @@ export const reducer = (
         throw state;
       }
 
+      const _filesMap = { ...state.filesMap };
+      Object.keys(_filesMap).forEach(modelId => {
+        const files = _filesMap[modelId];
+        if (files[fileId]) {
+          _filesMap[modelId][fileId] = {
+            ...files[fileId],
+            datatokenInfo,
+          };
+        }
+      });
+
       return {
         ...state,
-        filesMap: {
-          ...state.filesMap,
-          [fileId]: {
-            ...state.filesMap[fileId],
-            datatokenInfo,
-          },
-        },
+        filesMap: _filesMap,
       };
     }
 
@@ -147,17 +205,22 @@ export const reducer = (
         throw state;
       }
 
-      const filesMap = { ...state.filesMap };
+      const _filesMap = { ...state.filesMap };
       fileIds.forEach((fileId: string, index: number) => {
-        filesMap[fileId] = {
-          ...filesMap[fileId],
-          datatokenInfo: datatokenInfos[index],
-        };
+        Object.keys(_filesMap).forEach(modelId => {
+          const files = _filesMap[modelId];
+          if (files[fileId]) {
+            _filesMap[modelId][fileId] = {
+              ...files[fileId],
+              datatokenInfo: datatokenInfos[index],
+            };
+          }
+        });
       });
 
       return {
         ...state,
-        filesMap,
+        filesMap: _filesMap,
       };
     }
 
@@ -316,6 +379,7 @@ export const reducer = (
 
       return {
         ...state,
+        actionFilesMap,
         actionsMap,
       };
     }
@@ -338,7 +402,41 @@ export const reducer = (
 
       return {
         ...state,
+        actionFilesMap: {
+          ...state.actionFilesMap,
+          [actionFile.fileId]: actionFile,
+        },
         actionsMap,
+      };
+    }
+
+    case ActionType.DeleteActions: {
+      const actionFileIds = payload as string[];
+
+      if (!state.actionsMap) {
+        return state;
+      }
+
+      const _actionsMap = { ...state.actionsMap };
+      Object.keys(_actionsMap).forEach(relationId => {
+        const actionFiles = _actionsMap[relationId];
+        actionFileIds.forEach(fileId => {
+          if (actionFiles[fileId]) {
+            delete _actionsMap[relationId][fileId];
+          }
+        });
+      });
+      const _actionFilesMap = { ...state.actionFilesMap };
+      Object.keys(_actionFilesMap).forEach(fileId => {
+        if (actionFileIds.includes(fileId)) {
+          delete _actionFilesMap[fileId];
+        }
+      });
+
+      return {
+        ...state,
+        actionFilesMap: _actionFilesMap,
+        actionsMap: _actionsMap,
       };
     }
 

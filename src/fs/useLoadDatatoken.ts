@@ -38,9 +38,9 @@ export const useLoadDatatoken = (params?: {
           params.onPending(fileId);
         }
 
-        const datatokenId =
-          filesMap![fileId].fileContent.file.accessControl?.monetizationProvider
-            ?.datatokenId;
+        const datatokenId = Object.values(filesMap || {}).find(files =>
+          Object.values(files).find(file => file.fileId === fileId),
+        )?.[fileId].accessControl?.monetizationProvider?.datatokenId;
 
         if (!datatokenId) {
           throw DATATOKENID_NOT_EXIST;

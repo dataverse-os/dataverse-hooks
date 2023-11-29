@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import { MirrorFile, SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { useAction } from "../store";
-import { MutationStatus, UnlockFileResult } from "../types";
+import { MutationStatus, RequiredByKeys, UnlockFileResult } from "../types";
 import { useMutation } from "../utils";
 
 export const useUnlockFile = (params?: {
@@ -12,9 +12,10 @@ export const useUnlockFile = (params?: {
   onPending?: (streamId: string) => void;
   onSuccess?: (result: UnlockFileResult) => void;
 }) => {
-  const { dataverseConnector } = useStore();
+  const { dataverseConnector, actionFilesMap } = useStore();
   const {
     actionUpdateFile,
+    actionUpdateAction,
     actionUpdateFoldersByFile,
     actionUpdateDataUnionsByFile,
   } = useAction();
@@ -46,9 +47,21 @@ export const useUnlockFile = (params?: {
           params: fileId,
         });
 
+        if (
+          actionFilesMap &&
+          actionFilesMap[unlockResult.fileContent.file.fileId]
+        ) {
+          actionUpdateAction({
+            ...unlockResult.fileContent,
+            ...unlockResult.fileContent.file,
+            content: unlockResult.fileContent.content,
+          } as RequiredByKeys<MirrorFile, "action" | "relationId">);
+        }
+
         actionUpdateFile({
-          fileId: fileId,
           ...unlockResult,
+          ...unlockResult.fileContent.file,
+          content: unlockResult.fileContent.content,
         });
         actionUpdateFoldersByFile({
           ...unlockResult.fileContent.file,
@@ -77,6 +90,7 @@ export const useUnlockFile = (params?: {
     },
     [
       dataverseConnector,
+      actionFilesMap,
       actionUpdateFile,
       actionUpdateFoldersByFile,
       actionUpdateDataUnionsByFile,
