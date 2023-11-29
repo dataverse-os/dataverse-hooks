@@ -71,10 +71,15 @@ export const useLoadActionFiles = (params: {
       const filesMap = Object.fromEntries<
         RequiredByKeys<MirrorFile, "action" | "relationId">
       >(
-        Object.values(actionFiles).map(file => ({
-          ...file.fileContent.file,
-          content: file.fileContent.content,
-        })),
+        Object.entries(actionFiles).map(([fileId, file]) => [
+          fileId,
+          {
+            fileId,
+            controller: file.pkh,
+            ...file.fileContent.file,
+            content: file.fileContent.content,
+          },
+        ]),
       );
 
       actionLoadActions(filesMap);

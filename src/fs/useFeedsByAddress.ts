@@ -64,10 +64,15 @@ export const useFeedsByAddress = (params: {
             const filesMap = Object.fromEntries<
               RequiredByKeys<MirrorFile, "action" | "relationId">
             >(
-              Object.values(files).map(file => ({
-                ...file.fileContent.file,
-                content: file.fileContent.content,
-              })),
+              Object.entries(files).map(([fileId, file]) => [
+                fileId,
+                {
+                  fileId,
+                  controller: file.pkh,
+                  ...file.fileContent.file,
+                  content: file.fileContent.content,
+                },
+              ]),
             );
             actionLoadActions(filesMap);
           } else {
