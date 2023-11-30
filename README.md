@@ -61,3 +61,7 @@ const { createdStream: publicPost, createStream: createPublicStream } = useCreat
 
 You can find more dataverse-hooks usage in
 [dapp-examples](https://github.com/dataverse-os/dapp-examples).
+
+## Documentation
+
+View [hooks API Doc](https://github.com/dataverse-os/dataverse-hooks/index.html).
