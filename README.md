@@ -64,4 +64,4 @@ You can find more dataverse-hooks usage in
 
 ## Documentation
 
-View [hooks API Doc](https://github.com/dataverse-os/dataverse-hooks/index.html).
+View [hooks API Doc](https://dataverse-os.github.io/dataverse-hooks/index.html).
