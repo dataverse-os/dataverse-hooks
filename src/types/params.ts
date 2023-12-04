@@ -1,3 +1,4 @@
+import { SubscribeDataUnionOutput } from "@dataverse/contracts-sdk/data-union";
 import {
   Chain,
   ReturnType,
@@ -7,7 +8,6 @@ import {
   Action,
   MirrorFile,
 } from "@dataverse/dataverse-connector";
-import { SubscribeDataUnionOutput } from "@dataverse/dataverse-contracts-sdk/data-union";
 import { Model } from "@dataverse/model-parser";
 
 export enum FileType {

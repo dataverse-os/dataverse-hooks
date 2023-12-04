@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
+import { DataTokenParams } from "@dataverse/contracts-sdk/dist/cjs/data-token/types";
 import {
   DatatokenType,
   DatatokenVars,
   MirrorFile,
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
-import { DataTokenParams } from "@dataverse/dataverse-contracts-sdk/dist/cjs/data-token/types";
 
 import { PROFILES_NOT_EXSIT } from "../errors";
 import { useProfiles } from "../profile";
@@ -63,7 +63,7 @@ export const useMonetizeFile = (params?: {
           args.datatokenVars.type === DatatokenType.Lens
         ) {
           const datatokenVars = args.datatokenVars as DatatokenVars &
-            DataTokenParams["Lens"];
+            DataTokenParams[DatatokenType.Lens];
           if (!datatokenVars.profileId) {
             if (profileIds === undefined) {
               const gettedProfileIds = await getProfiles({

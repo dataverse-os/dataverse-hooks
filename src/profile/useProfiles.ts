@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { ChainId } from "@dataverse/dataverse-contracts-sdk/data-token";
+import { ChainId } from "@dataverse/contracts-sdk/data-token";
 
 import { ADDRESS_UNDEFINED } from "../errors";
 import { useStore } from "../store";
