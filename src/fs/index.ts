@@ -15,7 +15,6 @@ export * from "./useUpdateIndexFile";
 export * from "./useUpdateActionFile";
 export * from "./useUpdateBareFile";
 export * from "./useMonetizeFile";
-export * from "./useLoadDatatoken";
 export * from "./useLoadDatatokens";
 export * from "./useUnlockFile";
 export * from "./useCollectFile";

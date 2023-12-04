@@ -7,25 +7,25 @@ import { useStore } from "../store";
 export const useQueryDataUnion = () => {
   const { dataverseConnector } = useStore();
 
-  const loadDataUnionsByPublisher = useCallback(
-    async (params: RequestType["loadDataUnionsPublishedBy"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionsPublishedBy,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
+  // const loadDataUnionsByPublisher = useCallback(
+  //   async (params: RequestType["loadDataUnionsPublishedBy"]) => {
+  //     return await dataverseConnector.runOS({
+  //       method: SYSTEM_CALL.loadDataUnionsPublishedBy,
+  //       params,
+  //     });
+  //   },
+  //   [dataverseConnector],
+  // );
 
-  const loadDataUnionsByCollector = useCallback(
-    async (params: RequestType["loadDataUnionsCollectedBy"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionsCollectedBy,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
+  // const loadDataUnionsByCollector = useCallback(
+  //   async (params: RequestType["loadDataUnionsCollectedBy"]) => {
+  //     return await dataverseConnector.runOS({
+  //       method: SYSTEM_CALL.loadDataUnionsCollectedBy,
+  //       params,
+  //     });
+  //   },
+  //   [dataverseConnector],
+  // );
 
   const loadDataUnionDetail = useCallback(
     async (params: RequestType["loadDataUnion"]) => {
@@ -37,35 +37,35 @@ export const useQueryDataUnion = () => {
     [dataverseConnector],
   );
 
-  const loadDataUnionCollectors = useCallback(
-    async (params: RequestType["loadDataUnionCollectors"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionCollectors,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
+  // const loadDataUnionCollectors = useCallback(
+  //   async (params: RequestType["loadDataUnionCollectors"]) => {
+  //     return await dataverseConnector.runOS({
+  //       method: SYSTEM_CALL.loadDataUnionCollectors,
+  //       params,
+  //     });
+  //   },
+  //   [dataverseConnector],
+  // );
 
-  const loadDataUnionSubscribers = useCallback(
-    async (params: RequestType["loadDataUnionSubscribers"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionSubscribers,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
+  // const loadDataUnionSubscribers = useCallback(
+  //   async (params: RequestType["loadDataUnionSubscribers"]) => {
+  //     return await dataverseConnector.runOS({
+  //       method: SYSTEM_CALL.loadDataUnionSubscribers,
+  //       params,
+  //     });
+  //   },
+  //   [dataverseConnector],
+  // );
 
-  const loadDataUnionSubscriptionListByCollector = useCallback(
-    async (params: RequestType["loadDataUnionSubscriptionsBy"]) => {
-      return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
-        params,
-      });
-    },
-    [dataverseConnector],
-  );
+  // const loadDataUnionSubscriptionListByCollector = useCallback(
+  //   async (params: RequestType["loadDataUnionSubscriptionsBy"]) => {
+  //     return await dataverseConnector.runOS({
+  //       method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
+  //       params,
+  //     });
+  //   },
+  //   [dataverseConnector],
+  // );
 
   const isDataUnionCollectedBy = useCallback(
     async (params: RequestType["isDataUnionCollectedBy"]) => {
@@ -88,12 +88,12 @@ export const useQueryDataUnion = () => {
   );
 
   return {
-    loadDataUnionsByPublisher,
-    loadDataUnionsByCollector,
+    // loadDataUnionsByPublisher,
+    // loadDataUnionsByCollector,
     loadDataUnionDetail,
-    loadDataUnionCollectors,
-    loadDataUnionSubscribers,
-    loadDataUnionSubscriptionListByCollector,
+    // loadDataUnionCollectors,
+    // loadDataUnionSubscribers,
+    // loadDataUnionSubscriptionListByCollector,
     isDataUnionCollectedBy,
     isDataUnionSubscribedBy,
   };
