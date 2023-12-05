@@ -107,12 +107,12 @@ export const useMonetizeFile = (params?: {
         });
         actionUpdateFoldersByFile({
           ...monetizeResult.fileContent.file,
-          content: monetizeResult.fileContent,
+          content: monetizeResult.fileContent.content,
         });
         if (args.dataUnionId) {
           actionUpdateDataUnionsByFile({
             ...monetizeResult.fileContent.file,
-            content: monetizeResult.fileContent,
+            content: monetizeResult.fileContent.content,
           });
         }
 
