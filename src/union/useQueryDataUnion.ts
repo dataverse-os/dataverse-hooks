@@ -27,10 +27,10 @@ export const useQueryDataUnion = () => {
   //   [dataverseConnector],
   // );
 
-  const loadDataUnionDetail = useCallback(
-    async (params: RequestType["loadDataUnion"]) => {
+  const loadDataUnions = useCallback(
+    async (params: RequestType["loadDataUnions"]) => {
       return await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnion,
+        method: SYSTEM_CALL.loadDataUnions,
         params,
       });
     },
@@ -90,7 +90,7 @@ export const useQueryDataUnion = () => {
   return {
     // loadDataUnionsByPublisher,
     // loadDataUnionsByCollector,
-    loadDataUnionDetail,
+    loadDataUnions,
     // loadDataUnionCollectors,
     // loadDataUnionSubscribers,
     // loadDataUnionSubscriptionListByCollector,
