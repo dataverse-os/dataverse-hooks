@@ -83,6 +83,7 @@ export const reducer = (
         return state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
         const files = { ..._filesMap[modelId] };
@@ -91,13 +92,14 @@ export const reducer = (
             ...files[fileId],
             ...updatedFile,
           };
+          stateChanged = true;
         }
         _filesMap[modelId] = files;
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -108,12 +110,14 @@ export const reducer = (
         return state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
         const files = { ..._filesMap[modelId] };
         fileIds.forEach(fileId => {
           if (files[fileId]) {
             delete files[fileId];
+            stateChanged = true;
           }
         });
         _filesMap[modelId] = files;
@@ -121,7 +125,7 @@ export const reducer = (
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -183,6 +187,7 @@ export const reducer = (
         throw state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
         const files = { ..._filesMap[modelId] };
@@ -191,13 +196,14 @@ export const reducer = (
             ...files[fileId],
             datatokenInfo,
           };
+          stateChanged = true;
         }
         _filesMap[modelId] = files;
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -208,6 +214,7 @@ export const reducer = (
         throw state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       fileIds.forEach((fileId: string, index: number) => {
         Object.keys(_filesMap).forEach(modelId => {
@@ -217,6 +224,7 @@ export const reducer = (
               ...files[fileId],
               datatokenInfo: datatokenInfos[index],
             };
+            stateChanged = true;
           }
           _filesMap[modelId] = files;
         });
@@ -224,7 +232,7 @@ export const reducer = (
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
