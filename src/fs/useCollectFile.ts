@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import { RequestType, SYSTEM_CALL } from "@dataverse/dataverse-connector";
 
 import { useStore } from "../store";
 import { CollectFileResult, MutationStatus } from "../types";
@@ -8,7 +8,7 @@ import { useMutation } from "../utils";
 
 export const useCollectFile = (params?: {
   onError?: (error: any) => void;
-  onPending?: (fileId: string) => void;
+  onPending?: (args: RequestType["collectFile"]) => void;
   onSuccess?: (result: CollectFileResult) => void;
 }) => {
   const { dataverseConnector } = useStore();
@@ -28,16 +28,16 @@ export const useCollectFile = (params?: {
   } = useMutation<CollectFileResult>();
 
   const collectFile = useCallback(
-    async (fileId: string) => {
+    async (args: RequestType["collectFile"]) => {
       try {
         setStatus(MutationStatus.Pending);
         if (params?.onPending) {
-          params.onPending(fileId);
+          params.onPending(args);
         }
 
         const collectResult = await dataverseConnector.runOS({
           method: SYSTEM_CALL.collectFile,
-          params: fileId,
+          params: args,
         });
 
         setResult(collectResult);

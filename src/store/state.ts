@@ -83,20 +83,23 @@ export const reducer = (
         return state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
-        const files = _filesMap[modelId];
+        const files = { ..._filesMap[modelId] };
         if (files[fileId]) {
-          _filesMap[modelId][fileId] = {
+          files[fileId] = {
             ...files[fileId],
             ...updatedFile,
           };
+          stateChanged = true;
         }
+        _filesMap[modelId] = files;
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -107,19 +110,22 @@ export const reducer = (
         return state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
-        const files = _filesMap[modelId];
+        const files = { ..._filesMap[modelId] };
         fileIds.forEach(fileId => {
           if (files[fileId]) {
-            delete _filesMap[modelId][fileId];
+            delete files[fileId];
+            stateChanged = true;
           }
         });
+        _filesMap[modelId] = files;
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -181,20 +187,23 @@ export const reducer = (
         throw state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       Object.keys(_filesMap).forEach(modelId => {
-        const files = _filesMap[modelId];
+        const files = { ..._filesMap[modelId] };
         if (files[fileId]) {
-          _filesMap[modelId][fileId] = {
+          files[fileId] = {
             ...files[fileId],
             datatokenInfo,
           };
+          stateChanged = true;
         }
+        _filesMap[modelId] = files;
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 
@@ -205,22 +214,25 @@ export const reducer = (
         throw state;
       }
 
+      let stateChanged = false;
       const _filesMap = { ...state.filesMap };
       fileIds.forEach((fileId: string, index: number) => {
         Object.keys(_filesMap).forEach(modelId => {
-          const files = _filesMap[modelId];
+          const files = { ..._filesMap[modelId] };
           if (files[fileId]) {
-            _filesMap[modelId][fileId] = {
+            files[fileId] = {
               ...files[fileId],
               datatokenInfo: datatokenInfos[index],
             };
+            stateChanged = true;
           }
+          _filesMap[modelId] = files;
         });
       });
 
       return {
         ...state,
-        filesMap: _filesMap,
+        filesMap: stateChanged ? _filesMap : state.filesMap,
       };
     }
 

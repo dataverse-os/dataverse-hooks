@@ -65,11 +65,11 @@ export const useUnlockFile = (params?: {
         });
         actionUpdateFoldersByFile({
           ...unlockResult.fileContent.file,
-          content: unlockResult.fileContent,
+          content: unlockResult.fileContent.content,
         });
         actionUpdateDataUnionsByFile({
           ...unlockResult.fileContent.file,
-          content: unlockResult.fileContent,
+          content: unlockResult.fileContent.content,
         });
 
         setStatus(MutationStatus.Succeed);
